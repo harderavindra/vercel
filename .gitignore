@@ -12,3 +12,5 @@ node_modules/
 # Build Output
 dist/
 build/
+
+storage-key.json

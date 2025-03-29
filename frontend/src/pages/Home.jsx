@@ -1,10 +1,10 @@
 import React from 'react'
-import UploadComponent from '../components/UploadComponent'
+import FileUploader from '../components/FileUploader'
 
 const Home = () => {
   return (
     <div>
-      <UploadComponent/>
+      <FileUploader/>
     </div>
   )
 }
