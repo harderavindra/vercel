@@ -10,6 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({
     origin: 'https://vercel-frontend-henna.vercel.app', // Replace with your frontend domain
+    // origin: 'http://localhost:5174', // Replace with your frontend domain
     
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
