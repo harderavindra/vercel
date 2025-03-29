@@ -8,7 +8,12 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors()); 
+app.use(cors({
+    origin: 'https://vercel-frontend-henna.vercel.app', // Replace with your frontend domain
+    
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }));
 
 mongoose.connect(process.env.MONGODB_URL)
 .then(() => console.log("Connected to MongoDB"))
