@@ -5,6 +5,7 @@ import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
 import signedUrlRoutes from "./routes/signedUrlRoutes.js";
 import cookieParser from 'cookie-parser';
+import { bucket, uuidv4 } from './config/storage.js';
 
 dotenv.config();
 
@@ -34,6 +35,17 @@ app.use('/api/files', signedUrlRoutes);
 
 app.get('/', (req, res) => {
     res.send('working');
+});
+
+app.get('/health', async (req, res) => {
+  try {
+    // List files in the bucket as a simple connectivity check
+    const [files] = await bucket.getFiles();
+    res.status(200).json({ message: 'Connection successful', files: files.map(f => f.name) });
+  } catch (error) {
+    console.error('Connection failed:', error.message);
+    res.status(500).json({ message: 'Connection failed', error: error.message });
+  }
 });
 
 const PORT = process.env.PORT || 4000;
