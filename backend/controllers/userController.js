@@ -114,24 +114,20 @@ export const authenticate = (req, res, next) => {
 
   export const getUserProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.user.userId);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // If profilePic exists, generate a signed URL for it
-        if (user.profilePic) {
-            const filePath = user.profilePic.replace('https://storage.googleapis.com/your-bucket-name/', '');
-            const file = bucket.file(filePath);
-            const [signedUrl] = await file.getSignedUrl({
-                action: 'read',
-                expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
-            });
-            user.profilePic = signedUrl;
-        }
-
-        res.status(200).json(user);
+      if (!req.user) {
+        return res.status(401).json({ message: 'Unauthorized: No user found in request' });
+      }
+      
+      const user = await User.findById(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Your code for profilePic logic...
+  
+      res.status(200).json(user);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+      console.error('Error fetching user profile:', err);
+      res.status(500).json({ error: err.message });
     }
-};
+  };
