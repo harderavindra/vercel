@@ -131,3 +131,24 @@ export const authenticate = (req, res, next) => {
       res.status(500).json({ error: err.message });
     }
   };
+
+
+  export const logout = async (req, res) => {
+    try {
+      // Clear the cookie storing the authToken
+      res.clearCookie('authToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',  // Only send over HTTPS in production
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', 
+        path: '/',  // Specify the path for which the cookie is valid
+      });
+  
+      // Optionally, invalidate the user session or token if stored server-side (if applicable)
+      // For example, you might want to invalidate a session if you're storing sessions on the server
+  
+      return res.status(200).json({ message: 'Logged out successfully' });
+    } catch (err) {
+      console.error('Logout failed:', err);
+      return res.status(500).json({ message: 'Failed to log out' });
+    }
+  };
