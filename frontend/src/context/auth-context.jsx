@@ -45,7 +45,7 @@ const AuthProvider = ({ children }) => {
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_BASE_URL}/api/users/login`,
         { email, password },
-        { withCredentials: true }
+        { withCredentials: true } 
       );
 
       const userResponse = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/users/profile`, {
