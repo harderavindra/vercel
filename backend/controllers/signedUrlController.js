@@ -1,6 +1,6 @@
 import { bucket, uuidv4 } from '../config/storage.js';
 
-export const generateSignedUrl = async (req, res) => {
+export const generateUploadSignedUrl = async (req, res) => {
     try {
         const { fileName, fileType } = req.body;
         if (!fileName || !fileType) {
@@ -22,6 +22,29 @@ export const generateSignedUrl = async (req, res) => {
         });
     } catch (error) {
         console.error("Error generating signed URL:", error.message);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+
+export const generateViewSignedUrl = async (req, res) => {
+    try {
+        const { fileName } = req.query;
+
+        if (!fileName) {
+            return res.status(400).json({ message: "Missing file name" });
+        }
+
+        const file = bucket.file(fileName);
+
+        const [signedUrl] = await file.getSignedUrl({
+            action: 'read',       // Download action
+            expires: Date.now() + 15 * 60 * 1000,  // 15 minutes expiration
+        });
+
+        res.status(200).json({ signedUrl });
+    } catch (error) {
+        console.error("Error generating download signed URL:", error.message);
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
