@@ -9,8 +9,12 @@ import cookieParser from 'cookie-parser';
 dotenv.config();
 
 const app = express();
+
 app.use(express.json());
+
 app.use(cookieParser());
+
+
 
 app.use(cors({
   origin: ['http://localhost:5173', 'https://vercel-frontend-henna.vercel.app'],
@@ -18,6 +22,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   credentials: true,  // Allows sending cookies with requests
 }));
+
+
+
 mongoose.connect(process.env.MONGODB_URL)
 .then(() => console.log("Connected to MongoDB"))
 .catch((err) => console.error("MongoDB connection error:", err));
