@@ -13,7 +13,7 @@ export const generateUploadSignedUrl = async (req, res) => {
         const [signedUrl] = await file.getSignedUrl({
             action: 'write',
             expires: Date.now() + 15 * 60 * 1000, // 15-minute expiry
-            contentType: fileType,
+            contentType: fileType, 
         });
 
         res.status(200).json({
