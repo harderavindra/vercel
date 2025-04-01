@@ -1,62 +1,48 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import axios from "axios";
+import { useAuth } from '../context/auth-context'; // Assuming you have this for context
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const navigate = useNavigate();
+    const { login } = useAuth();  // Assuming you have a login function in your context
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            // Perform the login action
+            await login(email, password);
 
-    try {
-      const response = await axios.post( `${import.meta.env.VITE_BACKEND_BASE_URL}/api/users/login`, { email, password }, { withCredentials: true });
-      // Redirect to a protected page after login
-      if (response.status === 200) {
-        // Redirect, for example:
-        navigate ("/profile"); // or use `useHistory` with React Router
-      }
-    } catch (error) {
-      if (error.response) {
-        // Server responded with an error
-        setErrorMessage(error.response.data.message);
-      } else {
-        // Network or other error
-        setErrorMessage("Something went wrong, please try again.");
-      }
-    }
-  };
+            // After successful login, navigate to the home page or profile page
+            navigate('/');  // or navigate('/profile') depending on where you want to go
+        } catch (err) {
+            console.error('Login failed:', err);
+        }
+    };
 
-  return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
+    return (
         <div>
-          <label>Email:</label>
-          <input 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            required 
-          />
+            <h1>Login</h1>
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email"
+                    required
+                />
+                <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Password"
+                    required
+                />
+                <button type="submit">Login</button>
+            </form>
         </div>
-        <div>
-          <label>Password:</label>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            required 
-          />
-        </div>
-        {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-        <button type="submit">Login</button>
-      </form>
-    </div>
-  );
+    );
 };
 
 export default LoginPage;

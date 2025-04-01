@@ -5,25 +5,26 @@ import Users from "./pages/Users";
 import About from "./pages/About";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AuthProvider from './context/auth-context';
+import MainLayout from "./components/layout/MainLayout";
 
 const App = () => {
     return (
         <Router>
-            <div className="p-6">
-                <nav className="flex space-x-4 mb-6">
-                    <Link to="/" className="text-blue-500">Home</Link>
-                    <Link to="/users" className="text-blue-500">Users</Link>
-                    <Link to="/about" className="text-blue-500">About</Link>
-                </nav>
+            <AuthProvider>
                 <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/users" element={<Users />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/about" element={<About />} />
                     <Route path="/login" element={<LoginPage />} />
-                    <Route path="/profile" element={<ProfilePage  />} />
+                    <Route element={<MainLayout />}>
+                        <Route element={<ProtectedRoute />}>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/about" element={<About />} />
+                            <Route path="/profile" element={<ProfilePage />} />
+                            <Route path="/users" element={<Users />} />
+                        </Route>
+                    </Route>
                 </Routes>
-            </div>
+            </AuthProvider>
         </Router>
     );
 };

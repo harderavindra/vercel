@@ -123,8 +123,30 @@ export const authenticate = (req, res, next) => {
         return res.status(404).json({ message: 'User not found' });
       }
   
-      // Your code for profilePic logic...
-  
+// Check if the user has a profile picture URL stored
+if (user.profilePic) {
+    // Decode the URL to handle any encoded characters
+    const decodedUrl = decodeURIComponent(user.profilePic);
+
+    // Define the base URL of your Google Cloud Storage bucket
+    const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+
+    // Extract the file path by removing the base URL and the query string
+    const filePath = decodedUrl.replace(baseUrl, "").split('?')[0]; // Get the file path without the query string
+
+    // Get the file reference from GCS
+    const file = bucket.file(filePath);
+
+    // Generate a signed URL for the file (valid for 10 minutes)
+    const [signedUrl] = await file.getSignedUrl({
+      action: 'read',
+      expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
+    });
+
+    // Attach the signed URL to the user's profilePic
+    user.profilePic = signedUrl;
+  }
+
       res.status(200).json(user);
     } catch (err) {
       console.error('Error fetching user profile:', err);
