@@ -33,7 +33,9 @@ export const login = async (req, res) => {
     res.cookie('authToken', token, { 
       httpOnly: true,  // Prevents JavaScript access
       secure: process.env.NODE_ENV === 'production',  // Only send over HTTPS in production
-      maxAge: 3600000  // 1 hour in milliseconds
+      sameSite: 'Lax',     // Adjust for cross-site requests
+      maxAge: 60 * 60 * 1000, // 1 hour
+      path: '/',
     });
   
     res.status(200).json({ message: 'Logged in successfully' });
@@ -92,8 +94,9 @@ export const registerUser = async (req, res) => {
 
 
 // Middleware to verify JWT token
-const authenticate = (req, res, next) => {
-    const token = req.cookies.authToken;
+export const authenticate = (req, res, next) => {
+    const token = req.cookies?.authToken; 
+    console.log('Token from cookies:', token);
   
     if (!token) {
       return res.status(401).json({ message: 'No token provided' });
@@ -108,3 +111,27 @@ const authenticate = (req, res, next) => {
     }
   };
   
+
+  export const getUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // If profilePic exists, generate a signed URL for it
+        if (user.profilePic) {
+            const filePath = user.profilePic.replace('https://storage.googleapis.com/your-bucket-name/', '');
+            const file = bucket.file(filePath);
+            const [signedUrl] = await file.getSignedUrl({
+                action: 'read',
+                expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
+            });
+            user.profilePic = signedUrl;
+        }
+
+        res.status(200).json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};

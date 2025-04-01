@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Users from "./pages/Users";
 import About from "./pages/About";
 import LoginPage from "./pages/LoginPage";
+import ProfilePage from "./pages/ProfilePage";
 
 const App = () => {
     return (
@@ -20,6 +21,7 @@ const App = () => {
                     <Route path="/about" element={<About />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/login" element={<LoginPage />} />
+                    <Route path="/profile" element={<ProfilePage  />} />
                 </Routes>
             </div>
         </Router>

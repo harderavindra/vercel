@@ -17,7 +17,7 @@ const LoginPage = () => {
       // Redirect to a protected page after login
       if (response.status === 200) {
         // Redirect, for example:
-        navigate ("/"); // or use `useHistory` with React Router
+        navigate ("/profile"); // or use `useHistory` with React Router
       }
     } catch (error) {
       if (error.response) {
