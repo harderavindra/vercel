@@ -3,43 +3,43 @@ import User from "../models/User.js";
 import jwt from 'jsonwebtoken';
 
 import bcrypt from 'bcryptjs';
-const JWT_SECRET = process.env.JWT_SECRET; 
+const JWT_SECRET = process.env.JWT_SECRET;
 export const login = async (req, res) => {
     const { email, password } = req.body;
-  
+
     // Find the user
     const user = await User.findOne({ email });
-  
+
     if (!user) {
-      return res.status(400).json({ message: 'User not found' });
+        return res.status(400).json({ message: 'User not found' });
     }
-  
+
     // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
-  
+
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+        return res.status(400).json({ message: 'Invalid credentials' });
     }
-  
+
     // Create JWT token
     const payload = {
-      userId: user._id,
-      email: user.email,
+        userId: user._id,
+        email: user.email,
     };
-  
+
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }); // Token expires in 1 hour
-  
+
     // Set JWT token in a cookie
-    res.cookie('authToken', token, { 
-      httpOnly: true,  // Prevents JavaScript access
-      secure: process.env.NODE_ENV === 'production',  // Only send over HTTPS in production
-      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', 
-            maxAge: 60 * 60 * 1000, // 1 hour
-      path: '/',
+    res.cookie('authToken', token, {
+        httpOnly: true,  // Prevents JavaScript access
+        secure: process.env.NODE_ENV === 'production',  // Only send over HTTPS in production
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+        maxAge: 60 * 60 * 1000, // 1 hour
+        path: '/',
     });
-  
+
     res.status(200).json({ message: 'Logged in successfully' });
-  };
+};
 
 export const getAllusers = async (req, res) => {
     try {
@@ -95,82 +95,61 @@ export const registerUser = async (req, res) => {
 
 // Middleware to verify JWT token
 export const authenticate = (req, res, next) => {
-    const token = req.cookies?.authToken; 
+    const token = req.cookies?.authToken;
     console.log('Token from cookies:', token);
-  
+
     if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
+        return res.status(401).json({ message: 'No token provided' });
     }
-  
+
     try {
-      const decoded = jwt.verify(token, JWT_SECRET);
-      req.user = decoded; // Add the decoded user info to the request
-      next();
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.user = decoded; // Add the decoded user info to the request
+        next();
     } catch (err) {
-      return res.status(401).json({ message: 'Invalid or expired token' });
+        return res.status(401).json({ message: 'Invalid or expired token' });
     }
-  };
-  
+};
 
-  export const getUserProfile = async (req, res) => {
+
+export const getUserProfile = async (req, res) => {
     try {
-      if (!req.user) {
-        return res.status(401).json({ message: 'Unauthorized: No user found in request' });
-      }
-      
-      const user = await User.findById(req.user.userId);
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-// Check if the user has a profile picture URL stored
-if (user.profilePic) {
-    // Decode the URL to handle any encoded characters
-    const decodedUrl = decodeURIComponent(user.profilePic);
+        if (!req.user) {
+            return res.status(401).json({ message: 'Unauthorized: No user found in request' });
+        }
 
-    // Define the base URL of your Google Cloud Storage bucket
-    const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
 
-    // Extract the file path by removing the base URL and the query string
-    const filePath = decodedUrl.replace(baseUrl, "").split('?')[0]; // Get the file path without the query string
+        // Check if the user has a profile picture URL stored
+       
 
-    // Get the file reference from GCS
-    const file = bucket.file(filePath);
-
-    // Generate a signed URL for the file (valid for 10 minutes)
-    const [signedUrl] = await file.getSignedUrl({
-      action: 'read',
-      expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
-    });
-
-    // Attach the signed URL to the user's profilePic
-    user.profilePic = signedUrl;
-  }
-
-      res.status(200).json(user);
+        res.status(200).json(user);
     } catch (err) {
-      console.error('Error fetching user profile:', err);
-      res.status(500).json({ error: err.message });
+        console.error('Error fetching user profile:', err);
+        res.status(500).json({ error: err.message });
     }
-  };
+};
 
 
-  export const logout = async (req, res) => {
+export const logout = async (req, res) => {
     try {
-      // Clear the cookie storing the authToken
-      res.clearCookie('authToken', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',  // Only send over HTTPS in production
-        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', 
-        path: '/',  // Specify the path for which the cookie is valid
-      });
-  
-      // Optionally, invalidate the user session or token if stored server-side (if applicable)
-      // For example, you might want to invalidate a session if you're storing sessions on the server
-  
-      return res.status(200).json({ message: 'Logged out successfully' });
+        // Clear the cookie storing the authToken
+        res.clearCookie('authToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',  // Only send over HTTPS in production
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+            path: '/',  // Specify the path for which the cookie is valid
+        });
+
+        // Optionally, invalidate the user session or token if stored server-side (if applicable)
+        // For example, you might want to invalidate a session if you're storing sessions on the server
+
+        return res.status(200).json({ message: 'Logged out successfully' });
     } catch (err) {
-      console.error('Logout failed:', err);
-      return res.status(500).json({ message: 'Failed to log out' });
+        console.error('Logout failed:', err);
+        return res.status(500).json({ message: 'Failed to log out' });
     }
-  };
+};
