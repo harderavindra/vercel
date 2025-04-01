@@ -4,10 +4,6 @@ import jwt from 'jsonwebtoken';
 
 import bcrypt from 'bcryptjs';
 const JWT_SECRET = process.env.JWT_SECRET; 
-
-
-
-
 export const login = async (req, res) => {
     const { email, password } = req.body;
   
@@ -37,8 +33,8 @@ export const login = async (req, res) => {
     res.cookie('authToken', token, { 
       httpOnly: true,  // Prevents JavaScript access
       secure: process.env.NODE_ENV === 'production',  // Only send over HTTPS in production
-      sameSite: 'None',     // Adjust for cross-site requests
-      maxAge: 60 * 60 * 1000, // 1 hour
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', 
+            maxAge: 60 * 60 * 1000, // 1 hour
       path: '/',
     });
   
@@ -108,7 +104,6 @@ export const authenticate = (req, res, next) => {
   
     try {
       const decoded = jwt.verify(token, JWT_SECRET);
-      console.log('Decoded JWT:', decoded); 
       req.user = decoded; // Add the decoded user info to the request
       next();
     } catch (err) {
