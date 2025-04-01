@@ -3,6 +3,13 @@ import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 
 dotenv.config();
+const privateKey = process.env.GCLOUD_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+if (!privateKey) {
+  console.error('Private key is missing or not formatted correctly.');
+} else {
+  console.log('Private key loaded successfully.'); 
+}
 
 const storage = new Storage({
   projectId: process.env.GCLOUD_PROJECT,
