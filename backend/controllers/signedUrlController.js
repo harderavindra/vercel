@@ -22,7 +22,8 @@ export const generateUploadSignedUrl = async (req, res) => {
         });
     } catch (error) {
         console.error("Error generating signed URL:", error.message);
-        res.status(500).json({ message: "Internal Server Error" });
+        console.error(error); // More detailed error logging
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
 
