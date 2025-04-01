@@ -6,25 +6,9 @@ import bcrypt from 'bcryptjs';
 const JWT_SECRET = process.env.JWT_SECRET; 
 
 
-const setCorsHeaders = (res) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://vercel-frontend-henna.vercel.app'); // Frontend URL for Vercel
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-  };
-  
-  // Pre-flight OPTIONS request handler
-  export const optionsHandler = (req, res) => {
-    setCorsHeaders(res);
-    res.status(200).end();
-  };
-  
+
 
 export const login = async (req, res) => {
-     // Handle OPTIONS request for pre-flight
-  if (req.method === 'OPTIONS') {
-    return optionsHandler(req, res);
-  }
     const { email, password } = req.body;
   
     // Find the user
@@ -54,7 +38,6 @@ export const login = async (req, res) => {
       httpOnly: true,  // Prevents JavaScript access
       secure: process.env.NODE_ENV === 'production',  // Only send over HTTPS in production
       sameSite: 'None',     // Adjust for cross-site requests
-      
       maxAge: 60 * 60 * 1000, // 1 hour
       path: '/',
     });
@@ -134,9 +117,6 @@ export const authenticate = (req, res, next) => {
   
 
   export const getUserProfile = async (req, res) => {
-    if (req.method === 'OPTIONS') {
-        return optionsHandler(req, res);
-      }
     try {
         const user = await User.findById(req.user.userId);
         if (!user) {
