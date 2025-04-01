@@ -1,7 +1,43 @@
 import { bucket } from "../config/storage.js";
 import User from "../models/User.js";
-import { generateViewSignedUrl } from "../utils/generateViewSignedUrl.js";
-import { generateUploadSignedUrl } from "./signedUrlController.js";
+import jwt from 'jsonwebtoken';
+
+import bcrypt from 'bcryptjs';
+const JWT_SECRET = process.env.JWT_SECRET; 
+export const login = async (req, res) => {
+    const { email, password } = req.body;
+  
+    // Find the user
+    const user = await User.findOne({ email });
+  
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+  
+    // Compare passwords
+    const isMatch = await bcrypt.compare(password, user.password);
+  
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+  
+    // Create JWT token
+    const payload = {
+      userId: user._id,
+      email: user.email,
+    };
+  
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }); // Token expires in 1 hour
+  
+    // Set JWT token in a cookie
+    res.cookie('authToken', token, { 
+      httpOnly: true,  // Prevents JavaScript access
+      secure: process.env.NODE_ENV === 'production',  // Only send over HTTPS in production
+      maxAge: 3600000  // 1 hour in milliseconds
+    });
+  
+    res.status(200).json({ message: 'Logged in successfully' });
+  };
 
 export const getAllusers = async (req, res) => {
     try {
@@ -53,3 +89,22 @@ export const registerUser = async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 }
+
+
+// Middleware to verify JWT token
+const authenticate = (req, res, next) => {
+    const token = req.cookies.authToken;
+  
+    if (!token) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+  
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      req.user = decoded; // Add the decoded user info to the request
+      next();
+    } catch (err) {
+      return res.status(401).json({ message: 'Invalid or expired token' });
+    }
+  };
+  
