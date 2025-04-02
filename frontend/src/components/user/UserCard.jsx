@@ -34,7 +34,7 @@ const UserCard = ({ user, loading , isEmpty}) => {
       </span>
       <Avatar src={user?.profilePic } size="lg" />
       <p className="text-lg font-bold">
-        {user.name} {user?.lastName}
+        {user.firstName} {user?.lastName}
       </p>
       <p className="text-sm font-semibold text-gray-400">{user?.designation}</p>
       <p className="text-base font-normal text-gray-400">

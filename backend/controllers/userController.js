@@ -80,15 +80,17 @@ export const getAllusers = async (req, res) => {
 }
 export const registerUser = async (req, res) => {
     try {
-        const { name, email, password, profilePic } = req.body; // Include password here
 
+        const { firstName, email, password, profilePic } = req.body; // Include password here
+        
         // Create user with all required fields
-        const user = new User({ name, email, password, profilePic }); // Use proper password field
-
+        const user = new User({ firstName, email, password, profilePic }); // Use proper password field
+        
         await user.save();
         res.status(201).json(user);
     } catch (err) {
         res.status(400).json({ error: err.message });
+        console.log(err.message,"user")
     }
 }
 

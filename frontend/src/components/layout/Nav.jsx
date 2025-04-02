@@ -13,6 +13,7 @@ const Nav = () => {
         <Link to="/users" className="text-white hover:text-gray-300">Users</Link>
         <Link to="/about" className="text-white hover:text-gray-300">About</Link>
         <Link to="/profile" className="text-white hover:text-gray-300">Profile</Link>
+        <Link to="/adduser" className="text-white hover:text-gray-300">Add User</Link>
         {user ? (
           <>
             <button 

@@ -23,7 +23,7 @@ const UserProfile = ({ user }) => {
             {profilePicUrl ? (
                 <img
                     src={profilePicUrl}
-                    alt={`${user.name}'s profile`}
+                    alt={`${user.firstName}'s profile`}
                     className="w-10 h-10 rounded-full"
                 />
             ) : (
