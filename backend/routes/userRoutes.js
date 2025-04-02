@@ -4,7 +4,7 @@ import { authenticate, deleteUser, getAllusers, getUserById, getUserProfile, log
 const router = express.Router();
 
 // Create User
-router.post("/", registerUser);
+router.post("/", authenticate, registerUser);
 
 // Get All Users
 router.post("/login", login);                           // 1. Specific: Login

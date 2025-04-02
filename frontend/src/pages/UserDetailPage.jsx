@@ -18,6 +18,7 @@ const UserDetailPage = () => {
         const response = await axios.get(
           `${import.meta.env.VITE_BACKEND_BASE_URL}/api/users/${id}`
         );
+        console.log(response.data)
         setUser(response.data);
       } catch (err) {
         setError("User not found");

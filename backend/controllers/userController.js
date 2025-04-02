@@ -79,26 +79,25 @@ export const getAllusers = async (req, res) => {
     }
 }
 export const registerUser = async (req, res) => {
-    try {
+   
+  try {
+    console.log("Incoming request body:", req.body); // 🟢 Log request body before validation
 
-        const { firstName, email, password, profilePic } = req.body; // Include password here
-        
-        // Create user with all required fields
-        const user = new User({ firstName, email, password, profilePic }); // Use proper password field
-        
-        await user.save();
-        res.status(201).json(user);
-    } catch (err) {
-        res.status(400).json({ error: err.message });
-        console.log(err.message,"user")
-    }
+    const user = new User({...req.body,lastUpdatedAt: new Date(),});
+    console.log("User instance before saving:", user); // 🟢 Check what is stored before saving
+
+    await user.save();
+    res.status(201).json({ message: "User registered successfully" });
+  } catch (error) {
+    console.error("Error saving user:", error);
+    res.status(400).json({ message: error.message });
+  }
 }
 
 
 // Middleware to verify JWT token
 export const authenticate = (req, res, next) => {
     const token = req.cookies?.authToken;
-    console.log('Token from cookies:', token);
 
     if (!token) {
         return res.status(401).json({ message: 'No token provided' });
@@ -185,6 +184,28 @@ export const getUserById = async (req, res) => {
     try {
       const user = await User.findById(req.params.id);
       if (!user) return res.status(404).json({ message: "User not found" });
+      if (user.profilePic) {
+        try {
+            // Extract the file path from the GCS URL
+            const decodedUrl = decodeURIComponent(user.profilePic);
+            const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+            const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];  // Extract the file path part before the query string
+
+            // Get the file reference from GCS
+            const file = bucket.file(filePath);
+
+            // Generate a signed URL for the file
+            const [signedUrl] = await file.getSignedUrl({
+                action: 'read',
+                expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
+            });
+
+            // Update the user's profilePic field with the signed URL
+            user.profilePic = signedUrl;
+        } catch (err) {
+            console.error(`Error generating signed URL for user ${user._id}:`, err);
+        }
+    }
       res.json(user);
     } catch (error) {
       res.status(500).json({ message: "Server error" });
