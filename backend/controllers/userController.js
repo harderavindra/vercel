@@ -42,41 +42,67 @@ export const login = async (req, res) => {
 };
 
 export const getAllusers = async (req, res) => {
-    try {
-        const users = await User.find();
+    
+  try {
+    const { page = 1, limit = 10, role, designation, search } = req.query;
+    console.log('page', page)
 
-        //  
-        const updatedUsers = await Promise.all(users.map(async (user) => {
-            if (user.profilePic) {
-                try {
-                    // Extract the file path from the GCS URL
-                    const decodedUrl = decodeURIComponent(user.profilePic);
-                    const baseUrl = "https://storage.googleapis.com/brand-treasury/";
-                    const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];  // Extract the file path part before the query string
+    let filter = {};
 
-                    // Get the file reference from GCS
-                    const file = bucket.file(filePath);
+    if (role) filter.role = role;
+    if (designation) filter.designation = designation;
 
-                    // Generate a signed URL for the file
-                    const [signedUrl] = await file.getSignedUrl({
-                        action: 'read',
-                        expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
-                    });
-
-                    // Update the user's profilePic field with the signed URL
-                    user.profilePic = signedUrl;
-                } catch (err) {
-                    console.error(`Error generating signed URL for user ${user._id}:`, err);
-                }
-            }
-            return user;
-        }));
-
-        // Send the response with the updated user data
-        res.status(200).json(updatedUsers);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+    // Search by first name or last name
+    if (search) {
+      filter.$or = [
+        { firstName: { $regex: search, $options: "i" } },
+        { lastName: { $regex: search, $options: "i" } }
+      ];
     }
+
+    const users = await User.find(filter)
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
+
+      const updatedUsers = await Promise.all(users.map(async (user) => {
+        if (user.profilePic) {
+            try {
+                // Extract the file path from the GCS URL
+                const decodedUrl = decodeURIComponent(user.profilePic);
+                const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+                const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];  // Extract the file path part before the query string
+
+                // Get the file reference from GCS
+                const file = bucket.file(filePath);
+
+                // Generate a signed URL for the file
+                const [signedUrl] = await file.getSignedUrl({
+                    action: 'read',
+                    expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
+                });
+
+                // Update the user's profilePic field with the signed URL
+                user.profilePic = signedUrl;
+            } catch (err) {
+                console.error(`Error generating signed URL for user ${user._id}:`, err);
+            }
+        }
+        return user;
+    }));
+
+    const totalUsers = await User.countDocuments(filter);
+
+    res.json({
+      data: users,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalUsers / limit),
+        totalUsers,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
 }
 export const registerUser = async (req, res) => {
    

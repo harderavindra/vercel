@@ -10,7 +10,7 @@ router.post("/", authenticate, registerUser);
 router.post("/login", login);                           // 1. Specific: Login
 router.post("/logout", logout);                         // 2. Specific: Logout
 router.get("/profile", authenticate, getUserProfile);    // 3. Specific: Profile
-router.get("/", getAllusers);                           // 4. Generic: Get All Users
+router.get("/", authenticate, getAllusers);                           // 4. Generic: Get All Users
 router.get("/:id", getUserById);                         // 5. Generic: Get User by ID
 router.delete("/:id", deleteUser);    
 

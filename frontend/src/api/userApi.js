@@ -2,7 +2,7 @@ import axios from "axios";
 const API_baseURL = `${import.meta.env.VITE_BACKEND_BASE_URL}/api/users`;
 
 export const fetchUsers = async (page = 1, limit = 10, role = "", designation = "", search = "") => {
-  const response = await axios.get(`${API_baseURL}/users`, {
+  const response = await axios.get(`${API_baseURL}`, {
     params: { page, limit, role, designation, search }, // Removed `userType`
     withCredentials: true,
   });
