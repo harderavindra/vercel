@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { getViewOrDownload } from "../utils/getViewOrDownload";
+import Avatar from "./common/Avatar";
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
@@ -30,15 +31,8 @@ const UserList = () => {
                 <ul className="grid grid-cols-4">
                     {users.map((user) => (
                         <li key={user._id} className="border-b py-2 flex items-center gap-3">
-                            {user.profilePic ? (
-                                <img
-                                    src={user.profilePic}
-                                    alt={`${user.name}'s profile`}
-                                    className="w-10 h-10 rounded-full" width={'50px'}
-                                />
-                            ) : (
-                                <div className="w-10 h-10 rounded-full bg-gray-300"></div>
-                            )}
+                            <Avatar src={user?.profilePic} size="md"   />
+                           
                             <span>{user.name} - {user.email}</span>
                         </li>
                     ))}

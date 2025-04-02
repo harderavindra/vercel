@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { uploadFile } from "../utils/fileUpload";
+import ProgressBar from "./common/ProgressBar";
 
 const UserForm = ({ onUserCreated }) => {
     const [name, setName] = useState("");
@@ -8,6 +9,7 @@ const UserForm = ({ onUserCreated }) => {
     const [password, setPassword] = useState("");
     const [profilePic, setProfilePic] = useState(null);
     const [fileName, setFileName] = useState("");
+    const [uploadProgress, setUploadProgress] = useState(0); // State for progress
 
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
@@ -38,6 +40,8 @@ const UserForm = ({ onUserCreated }) => {
                     headers: { "Content-Type": profilePic.type },
                     onUploadProgress: (progressEvent) => {
                         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setUploadProgress(percentCompleted); // Update the progress state
+
                         console.log("Upload Progress:", percentCompleted + "%");
                     },
                 });
@@ -110,7 +114,9 @@ const UserForm = ({ onUserCreated }) => {
                     className="block mb-2 p-1"
                 />
                 {fileName && <p>Selected File: {fileName}</p>}
-            </div>
+                
+                {uploadProgress > 0 && <ProgressBar progress={uploadProgress} />} {/* Display progress bar */}
+                </div>
             <button
                 type="button"
                 onClick={handleSubmit}

@@ -45,7 +45,7 @@ export const getAllusers = async (req, res) => {
     try {
         const users = await User.find();
 
-        // Generate signed URLs for each user's profile picture
+        //  
         const updatedUsers = await Promise.all(users.map(async (user) => {
             if (user.profilePic) {
                 try {
@@ -121,6 +121,29 @@ export const getUserProfile = async (req, res) => {
         const user = await User.findById(req.user.userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.profilePic) {
+            try {
+                // Extract the file path from the GCS URL
+                const decodedUrl = decodeURIComponent(user.profilePic);
+                const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+                const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];  // Extract the file path part before the query string
+
+                // Get the file reference from GCS
+                const file = bucket.file(filePath);
+
+                // Generate a signed URL for the file
+                const [signedUrl] = await file.getSignedUrl({
+                    action: 'read',
+                    expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
+                });
+
+                // Update the user's profilePic field with the signed URL
+                user.profilePic = signedUrl;
+            } catch (err) {
+                console.error(`Error generating signed URL for user ${user._id}:`, err);
+            }
         }
 
         // Check if the user has a profile picture URL stored
