@@ -1,5 +1,5 @@
 import express from "express";
-import { authenticate, deleteUser, getAllusers, getUserById, getUserProfile, login, logout, registerUser, updateUser } from "../controllers/userController.js";
+import { authenticate, deleteUser, getAllusers, getUserById, getUserProfile, login, logout, registerUser, resetUserPassword, updateUser } from "../controllers/userController.js";
 
 const router = express.Router();
 
@@ -13,6 +13,8 @@ router.get("/profile", authenticate, getUserProfile);    // 3. Specific: Profile
 router.get("/", authenticate, getAllusers);                           // 4. Generic: Get All Users
 
 router.get("/:id", getUserById);                         // 5. Generic: Get User by ID
+router.put("/:id/reset-password", authenticate, resetUserPassword);
+
 router.put("/:id", authenticate, updateUser);
 router.delete("/:id", deleteUser);    
 

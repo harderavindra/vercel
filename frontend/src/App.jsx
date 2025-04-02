@@ -11,6 +11,7 @@ import MainLayout from "./components/layout/MainLayout";
 import UsersPage from "./pages/UsersPage";
 import UserDetailPage from "./pages/UserDetailPage";
 import AddUser from "./pages/AddUser";
+import MasterDataPage from "./pages/MasterDataPage";
 
 const App = () => {
     return (
@@ -24,6 +25,8 @@ const App = () => {
                             <Route path="/about" element={<About />} />
                             <Route path="/profile" element={<ProfilePage />} />
                             <Route path="/add" element={<Users />} />
+                            <Route path="/masterdata" element={<MasterDataPage />} />
+
                             <Route path="/users" element={<UsersPage />} />
                             <Route path="/user/:id" element={<UserDetailPage />} />
                             <Route path="/adduser" element={<AddUser />} />

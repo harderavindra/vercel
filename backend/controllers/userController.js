@@ -313,3 +313,38 @@ export const deleteUser = async (req, res) => {
       res.status(500).json({ message: "Server Error", error: error.message });
     }
   };
+
+  export const resetUserPassword = async (req, res) => {
+    try {
+      const adminId = req.user.id; // Admin ID from token
+      const { id } = req.params; // Target User ID
+      const { newPassword } = req.body;
+      // Ensure admin is authorized
+      const adminUser = await User.findById(adminId);
+      // if (!adminUser || adminUser.role.toLowerCase() !== "admin") {
+        //   return res.status(403).json({ message: "Access denied. Only admins can reset passwords." });
+        // }
+        
+        // Find the target user
+        const user = await User.findById(id).select("+password"); // Ensure password is accessible
+        if (!user) return res.status(404).json({ message: "User not found" });
+        console.log(user)
+  
+      // // Validate password strength
+      // if (!validatePassword(newPassword)) {
+      //   return res.status(400).json({
+      //     message: "Password must contain at least 8 characters, one uppercase, one lowercase, one number, and one special character."
+      //   });
+      // }
+  
+      // Hash new password
+      user.password = newPassword;
+      user.lastUpdatedBy = adminId; // Track who updated it
+      await user.save();
+  
+      res.status(200).json({ message: "User password reset successfully" });
+    } catch (error) {
+      console.error("Reset Password Error:", error);
+      res.status(500).json({ message: "Server Error", error: error.message });
+    }
+  };

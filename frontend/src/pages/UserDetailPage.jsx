@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import StatusMessage from '../components/common/StatusMessage';
 import { snakeToCapitalCase } from '../utils/convertCase';
 import { DESIGNATIONS, ROLES } from "../utils/enums";
-// import AdminResetPassword from '../components/user/AdminResetPassword'; 
+import AdminResetPassword from '../components/user/AdminResetPassword'; 
 
 const ViewText = ({ children }) => (<p className='text-xl capitalize'>{children}</p>)
 
@@ -341,7 +341,7 @@ const UserDetails = () => {
                             </div>) : (
                             <div>
 
-{/* <AdminResetPassword userId={viewUser._id} /> */}
+<AdminResetPassword userId={viewUser._id} />
 
                             </div>
                         )
