@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import jwt from 'jsonwebtoken';
 
 import bcrypt from 'bcryptjs';
+import { DESIGNATIONS, ROLES } from "../constants/enums.js";
 const JWT_SECRET = process.env.JWT_SECRET;
 export const login = async (req, res) => {
     const { email, password } = req.body;

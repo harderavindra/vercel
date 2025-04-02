@@ -9,6 +9,9 @@ import DropdownFilter from '../components/user/DropdownFilter';
 import { ROLES, DESIGNATIONS } from '../utils/enums'
 import Button from '../components/common/Button';
 import { useNavigate } from 'react-router-dom';
+import PageTitle from '../components/common/PageTitle';
+import StatusMessageWrapper from '../components/common/StatusMessageWrapper';
+
 const UsersPage = () => {
   const [page, setPage] = useState(1);
   const [role, setRole] = useState("");
@@ -17,7 +20,7 @@ const UsersPage = () => {
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   const [searchLoading, setSearchLoading] = useState(false);
   const navigate = useNavigate()
-  const { users, loading, error, pagination } = useFetchUsers(page, 4, role, designation, debouncedSearch);
+  const { users, loading, error, success, pagination } = useFetchUsers(page, 4, role, designation, debouncedSearch);
   useEffect(() => {
     if (search.length < 3 && search.length > 0) return;
 
@@ -37,19 +40,24 @@ const UsersPage = () => {
 
   return (
     <div className='p-10'>
+      <div className="flex justify-between items-center pb-4">
+        <PageTitle>Users</PageTitle>
+        <StatusMessageWrapper loading={searchLoading} success={success ? " Data fetched successfully!" : ""} error={error} />
+        <Button width="auto" onClick={() => navigate('/adduser')}>Add Artwork</Button>
+      </div>
       <div>
         <div className="flex mb-4 justify-between">
           <div className="flex gap-4 relative">
             <div className='relative'>
-            <SearchInput value={search} onChange={(e) => { setSearch(e.target.value); }} className="w-sm h-10"
-              onClear={() => {
-                setSearch("");
-                setSearchLoading(false);
-              }
-              } placeholder="Search by name (min 3 chars)" />
-            {search.length > 0 && search.length < 3 && (
-              <span className="text-red-500 text-xs  absolute right-15 inset-y-2">Enter at least 3 characters</span>
-            )}
+              <SearchInput value={search} onChange={(e) => { setSearch(e.target.value); }} className="w-sm h-10"
+                onClear={() => {
+                  setSearch("");
+                  setSearchLoading(false);
+                }
+                } placeholder="Search by name (min 3 chars)" />
+              {search.length > 0 && search.length < 3 && (
+                <span className="text-red-500 text-xs  absolute right-15 inset-y-2">Enter at least 3 characters</span>
+              )}
             </div>
 
             <DropdownFilter
@@ -83,13 +91,12 @@ const UsersPage = () => {
 
           </div>
           <div>
-            <Button onClick={() => navigate('/adduser')}>Add User</Button>
-            </div>
+          </div>
         </div>
 
       </div>
 
-      <div className="grid grid-cols-4 gap-10">
+      <div className="grid grid-cols-4 gap-10 mt-10">
         {(loading || searchLoading
           ? Array(4).fill({ isPlaceholder: true })
           : users.length > 0

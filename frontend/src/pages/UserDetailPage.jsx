@@ -145,7 +145,7 @@ const UserDetails = () => {
                                         </StatusMessage>
                                     </div>
                                 )}
-                                <div className='flex gap-8 max-w-2xl items-end'>
+                                <div className='flex gap-8 max-w-2xl items-start mb-6'>
                                     <div className='w-full'>
                                         <label className='text-gray-400 mb-1'>First Name</label>
                                         {
@@ -193,7 +193,7 @@ const UserDetails = () => {
                                         />
                                     </div>
                                 </div>
-                                <div className='flex gap-8 max-w-2xl items-end'>
+                                <div className='flex gap-8 max-w-2xl items-start mb-6'>
                                     <div className='w-full'>
                                         <label className='text-gray-400'>City</label>
                                         {
@@ -232,7 +232,7 @@ const UserDetails = () => {
                                         />
                                     </div>
                                 </div>
-                                <div className='flex gap-8 max-w-2xl items-end'>
+                                <div className='flex gap-8 max-w-2xl items-start mb-6'>
                                     <div className='w-full'>
                                         <label className='text-gray-400'>User Type</label>
                                         {editSections.professionalInfo ? (
@@ -249,8 +249,8 @@ const UserDetails = () => {
                                                     }));
                                                 }}
                                             >
-                                                <option value="Internal">Internal</option>
-                                                <option value="Vendor">Vendor</option>
+                                                <option value="internal">Internal</option>
+                                                <option value="vendor">Vendor</option>
                                             </select>
                                         ) : (<ViewText>{viewUser?.userType}</ViewText>)}
 
@@ -290,7 +290,7 @@ const UserDetails = () => {
                                         />
                                     </div>
                                 </div>
-                                <div className='flex gap-8 max-w-2xl items-end'>
+                                <div className='flex gap-8 max-w-2xl items-start mb-6'>
                                     <div className='w-full'>
                                         <label className='text-gray-400'>Status</label>
                                         {editSections.status ? (

@@ -1,11 +1,12 @@
 import React from "react";
 import StatusMessage from "./StatusMessage"; // Ensure correct import
+import { FiRefreshCcw } from "react-icons/fi";
 
 const StatusMessageWrapper = ({ loading, success, error, editSections }) => {
   if (loading) {
     return (
       <StatusMessage variant="progress">
-        Loading..
+      <div className="flex items-center"> <FiRefreshCcw className="animate-spin mr-2" /> Loading..</div>
       </StatusMessage>
     );
   }

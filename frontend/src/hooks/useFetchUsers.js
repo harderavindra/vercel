@@ -4,6 +4,7 @@ import { fetchUsers } from "../api/userApi";
 const useFetchUsers = (page = 1, limit = 10, role = "", designation = "", search = "") => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({});
   
@@ -15,6 +16,7 @@ const useFetchUsers = (page = 1, limit = 10, role = "", designation = "", search
         const response = await fetchUsers(page, limit, role, designation, search);
         setUsers(response.data);
         setPagination(response.pagination);
+        setSuccess(true)
       } catch (err) {
         setError(err.response?.data?.message || "Error fetching users");
       }finally{
@@ -25,7 +27,7 @@ const useFetchUsers = (page = 1, limit = 10, role = "", designation = "", search
     getUsers();
   }, [page, limit, role, designation, search]); // Removed `userType`
 
-  return { users, loading, error, pagination };
+  return { users, loading, error,success, pagination };
 };
 
 export default useFetchUsers;
