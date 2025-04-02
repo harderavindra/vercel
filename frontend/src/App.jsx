@@ -8,6 +8,8 @@ import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthProvider from './context/auth-context';
 import MainLayout from "./components/layout/MainLayout";
+import UsersPage from "./pages/UsersPage";
+import UserDetailPage from "./pages/UserDetailPage";
 
 const App = () => {
     return (
@@ -20,7 +22,9 @@ const App = () => {
                             <Route path="/" element={<Home />} />
                             <Route path="/about" element={<About />} />
                             <Route path="/profile" element={<ProfilePage />} />
-                            <Route path="/users" element={<Users />} />
+                            <Route path="/adduser" element={<Users />} />
+                            <Route path="/users" element={<UsersPage />} />
+                            <Route path="/user/:id" element={<UserDetailPage />} />
                         </Route>
                     </Route>
                 </Routes>
