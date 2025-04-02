@@ -248,3 +248,68 @@ export const deleteUser = async (req, res) => {
       res.status(500).json({ message: "Server error" });
     }
   };
+
+
+  export const updateUser = async (req, res) => {
+  
+    try {
+      const userId = req.params.id;
+      const { firstName, lastName, contactNumber, userType, designation, role, status, location } = req.body;
+  
+      const updateData = {};
+      if (firstName) updateData.firstName = firstName;
+      if (lastName) updateData.lastName = lastName;
+      if (contactNumber) updateData.contactNumber = contactNumber;
+      if (userType) {
+        if (!["internal", "vendor"].includes(userType.toLowerCase())) {
+          return res.status(400).json({ message: "Invalid userType" });
+        }
+        updateData.userType = userType;
+      }
+      if (designation) {
+        const allDesignations = [...DESIGNATIONS.INTERNAL, ...DESIGNATIONS.VENDOR];
+        if (!allDesignations.includes(designation)) {
+          return res.status(400).json({ message: "Invalid designation" });
+        }
+        updateData.designation = designation;
+      }
+      if (role) {
+        if (!Object.values(ROLES).includes(role)) {
+          return res.status(400).json({ message: "Invalid role" });
+        }
+        updateData.role = role;
+      }
+      if (status) {
+        if (!["active", "inactive"].includes(status)) {
+          return res.status(400).json({ message: "Invalid status" });
+        }
+        updateData.status = status;
+      }
+      if (location) {
+        if (typeof location !== "object") {
+          return res.status(400).json({ message: "Invalid location format" });
+        }
+        console.log(location)
+        updateData.location = {};
+        if (location.city) updateData.location.city = location.city;
+        if (location.state) updateData.location.state = location.state;
+        if (location.country) updateData.location.country = location.country;
+      }
+  
+      updateData.lastUpdatedAt = new Date();
+  
+      const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+        new: true,
+        runValidators: true,
+      }).select("-password"); // Exclude password from response
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      res.status(200).json({ message: "User updated successfully", updatedUser });
+    } catch (error) {
+      console.error("Error updating user:", error); // Log actual error in console
+      res.status(500).json({ message: "Server Error", error: error.message });
+    }
+  };
