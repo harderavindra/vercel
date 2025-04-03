@@ -14,6 +14,7 @@ import AddUser from "./pages/AddUser";
 import MasterDataPage from "./pages/MasterDataPage";
 import JobCreate from "./pages/JobCreate";
 import JobList from "./pages/JobList";
+import JobViewPage from "./pages/JobViewPage";
 
 const App = () => {
     return (
@@ -30,6 +31,7 @@ const App = () => {
                             <Route path="/masterdata" element={<MasterDataPage />} />
                             <Route path="/create-artwork" element={<JobCreate />} />
                             <Route path="/artworks" element={<JobList />} />
+                            <Route path="/artwork/:fileId" element={<JobViewPage />} />
 
                             <Route path="/users" element={<UsersPage />} />
                             <Route path="/user/:id" element={<UserDetailPage />} />

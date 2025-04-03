@@ -1,9 +1,21 @@
 import express from "express";
 import { authenticate} from "../controllers/userController.js";
-import { createJob, getAllJobs } from "../controllers/jobController.js";
+import { approveJob, createJob, getAllJobs, getExternalUsers, getJobById, jobassignedTo, updateJobStatus } from "../controllers/jobController.js";
 
 const router = express.Router();
+
+router.get("/external-users",authenticate, getExternalUsers);
+
+router.get("/:id", authenticate, getJobById);
+
+router.post("/:jobId/approve", authenticate, approveJob);
+
+router.post("/:jobId/update-status", authenticate, updateJobStatus);
+
 router.post("/create", authenticate, createJob);
 router.get("/", authenticate, getAllJobs);
+router.post("/:jobId/assign", authenticate, jobassignedTo)
+
+
 
 export default router;
