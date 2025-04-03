@@ -5,6 +5,7 @@ import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
 import signedUrlRoutes from "./routes/signedUrlRoutes.js";
 import masterDataRoutes from "./routes/masterDataRoutes.js";
+import jobRoutes from "./routes/jobRoutes.js";
 import cookieParser from 'cookie-parser';
 import { bucket, uuidv4 } from './config/storage.js';
 
@@ -34,6 +35,8 @@ mongoose.connect(process.env.MONGODB_URL)
 app.use("/api/users", userRoutes);
 app.use('/api/files', signedUrlRoutes);
 app.use("/api/master", masterDataRoutes);
+app.use("/api/jobs", jobRoutes);
+
 
 app.get('/', (req, res) => {
     res.send('working');
