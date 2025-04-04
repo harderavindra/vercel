@@ -3,6 +3,7 @@ import axios from "axios";
 import { useAuth } from '../../context/auth-context';
 import { FiUploadCloud } from "react-icons/fi";
 import Button from "./Button";
+import ProgressBar from "./ProgressBar";
 
 const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
     const { user } = useAuth();
@@ -133,10 +134,11 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
                     </button>
 
                     {uploadProgress > 0 && (
-                        <div className="flex items-center gap-2">
-                            <progress value={uploadProgress} max="100"></progress>
-                            <span>{uploadProgress}%</span>
-                        </div>
+                        <ProgressBar progress={uploadProgress} />
+                        // <div className="flex items-center gap-2">
+                        //     <progress value={uploadProgress} max="100"></progress>
+                        //     <span>{uploadProgress}%</span>
+                        // </div>
                     )}
 
                     <div className="flex gap-4">

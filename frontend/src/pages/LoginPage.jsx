@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/auth-context'; // Assuming you have this for context
 import LogoImage from '../assets/m-logo.svg'
@@ -6,6 +6,7 @@ import InputText from '../components/common/InputText';
 import { validateEmail, validatePassword } from "../utils/validation";
 import Button from '../components/common/Button';
 import StatusMessageWrapper from '../components/common/StatusMessageWrapper';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -13,11 +14,20 @@ const LoginPage = () => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false);
 
 
   const navigate = useNavigate();
   const { login } = useAuth();  // Assuming you have a login function in your context
+
+  useEffect(() => {
+    let timer;
+    if (showPassword) {
+      timer = setTimeout(() => setShowPassword(false), 3000); // 10 seconds
+    }
+    return () => clearTimeout(timer);
+  }, [showPassword]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,7 +48,7 @@ const LoginPage = () => {
       await login(email, password);
 
       setSuccess("Login successful! Redirecting...");
-      setTimeout(() => navigate("/profile"), 1500);
+      setTimeout(() => navigate("/"), 1500);
     } catch (error) {
       setError("Invalid email or password. Please try again.");
     } finally {
@@ -56,7 +66,7 @@ const LoginPage = () => {
         <span className="flex gap-3 text-2xl items-end font-semibold font-base/2 py-2 justify-center"><img src={LogoImage} className="h-8" alt="Description" />Catena</span>
 
         <form onSubmit={handleSubmit}>
-        <InputText
+          <InputText
             label="Email"
             name="email"
             type="email"
@@ -67,24 +77,34 @@ const LoginPage = () => {
             aria-describedby="email-error"
             required
           />
-          <InputText
-            label="Password"
-            name="password"
-            type="password"
-            value={password}
-            handleOnChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your email"
-            aria-label="Email"
-            aria-describedby="email-error"
-            required
-          />
-       
-       <Button className='w-full my-4' type="submit" disabled={loading}>
+          <div className='relative'>
+            <InputText
+              label="Password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              handleOnChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your email"
+              aria-label="Email"
+              aria-describedby="email-error"
+              required
+            />
+            <button
+              type="button"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className="absolute right-3 bottom-2 w-6 h-6 flex justify-center items-center cursor-pointer"
+              onClick={() => setShowPassword((prev) => !prev)}
+            >
+              {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+            </button>
+          </div>
+
+          <Button className='w-full my-4' type="submit" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
-       </Button> 
-          
+          </Button>
+
         </form>
-        <StatusMessageWrapper loading={loading} success={success} error={error}/>
+        <StatusMessageWrapper loading={loading} success={success} error={error} />
       </div>
     </div>
   );

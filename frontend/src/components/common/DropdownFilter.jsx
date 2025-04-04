@@ -1,12 +1,8 @@
-import React from "react";
+import React, { memo } from "react";
 import { FiChevronDown, FiX } from "react-icons/fi";
 import { snakeToCapitalCase } from "../../utils/convertCase";
 
-const DropdownFilter = ({ options, value, onChange, onClear }) => {
-    console.log("Selected Value:", value);
-    console.log("Options:", options);
-    console.log("Matching Option:", options.items.find((opt) => opt.value === value));
-    
+const DropdownFilter = memo(({ options, value, onChange, onClear }) => {
     return (
         <div className="relative">
             <select
@@ -34,6 +30,6 @@ const DropdownFilter = ({ options, value, onChange, onClear }) => {
   </div>
         </div>
     );
-};
+});
 
 export default DropdownFilter;

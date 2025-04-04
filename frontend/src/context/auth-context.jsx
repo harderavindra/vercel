@@ -51,7 +51,6 @@ const AuthProvider = ({ children }) => {
       const userResponse = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/users/profile`, {
         withCredentials: true,
       });
-      console.log("userResponse", userResponse)
       setUser(userResponse.data);
       localStorage.setItem("user", JSON.stringify(userResponse.data));
     } catch (err) {

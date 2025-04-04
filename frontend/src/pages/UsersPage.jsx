@@ -8,7 +8,7 @@ import SearchInput from '../components/user/SearchInput';
 import DropdownFilter from '../components/user/DropdownFilter';
 import { ROLES, DESIGNATIONS } from '../utils/enums'
 import Button from '../components/common/Button';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PageTitle from '../components/common/PageTitle';
 import StatusMessageWrapper from '../components/common/StatusMessageWrapper';
 
@@ -21,7 +21,21 @@ const UsersPage = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const navigate = useNavigate()
   const { users, loading, error, success, pagination } = useFetchUsers(page, 4, role, designation, debouncedSearch);
+
+  const location = useLocation();
+  const successMessage = location.state?.success;
+
   useEffect(() => {
+    if (successMessage) {
+      // Optionally clear the state after showing the message
+      // This avoids showing the message again on refresh
+      window.history.replaceState({}, document.title)
+    }
+  }, [successMessage]);
+
+  
+  useEffect(() => {
+    
     if (search.length < 3 && search.length > 0) return;
 
     setSearchLoading(true);
@@ -38,12 +52,15 @@ const UsersPage = () => {
     setSearch("");
   };
 
+  
+
   return (
     <div className='p-10'>
       <div className="flex justify-between items-center pb-4">
         <PageTitle>Users</PageTitle>
-        <StatusMessageWrapper loading={searchLoading} success={success ? " Data fetched successfully!" : ""} error={error} />
-        <Button width="auto" onClick={() => navigate('/adduser')}>Add Artwork</Button>
+        
+        <StatusMessageWrapper loading={searchLoading} success={successMessage || (success ? "Data fetched successfully!" : "")} error={error} />
+        <Button width="auto" onClick={() => navigate('/adduser')}>Add User</Button>
       </div>
       <div>
         <div className="flex mb-4 justify-between">

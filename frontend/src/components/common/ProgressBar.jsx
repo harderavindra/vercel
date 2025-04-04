@@ -3,7 +3,7 @@ import React from 'react';
 
 const ProgressBar = ({ progress }) => {
     return (
-        <div className="mb-4">
+        <div className="mb-4 w-full">
             <label className="block mb-1">Upload Progress:</label>
             <div className="relative pt-1">
                 <div className="flex mb-2 items-center justify-between">

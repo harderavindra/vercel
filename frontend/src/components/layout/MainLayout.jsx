@@ -56,12 +56,12 @@ const MainLayout = () => {
                         <li className='flex gap-2 px-4 py-2 items-center'>
                             <NavLink to='/profile' className='flex gap-2'>
                                 <div className='w-8'><Avatar src={user.profilePic} size='sm' /></div>
-                                
-                                    <div className={`flex flex-col leading-none font-semibold transition-opacity duration-300 ${expanded ? 'opacity-100 delay-300 visible' : 'opacity-0 delay-0 invisible'}`}>
-                                        {user.firstName}
-                                        <p className='capitalize text-gray-400'>{user.role.toLowerCase()}</p>
-                                    </div>
-                             
+
+                                <div className={`flex flex-col leading-none font-semibold transition-opacity duration-300 ${expanded ? 'opacity-100 delay-300 visible' : 'opacity-0 delay-0 invisible'}`}>
+                                    {user.firstName}
+                                    <p className='capitalize text-gray-400'>{user.role.toLowerCase()}</p>
+                                </div>
+
                             </NavLink>
                         </li>
                     )}
@@ -69,7 +69,7 @@ const MainLayout = () => {
                         className='flex gap-2 px-4 py-2 items-center font-semibold cursor-pointer'
                         onClick={logout}
                     >
-                        <FiLogOut size={24} />
+                        <div className='w-8'><FiLogOut size={24} /></div>
                         <span className={`ransition-opacity duration-300 ${expanded ? 'opacity-100 delay-300 visible' : 'opacity-0 delay-0 invisible'}`}>Logout</span>
                     </li>
                 </ul>

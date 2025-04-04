@@ -6,7 +6,7 @@ const StatusMessageWrapper = ({ loading, success, error, editSections }) => {
   if (loading) {
     return (
       <StatusMessage variant="progress">
-      <div className="flex items-center"> <FiRefreshCcw className="animate-spin mr-2" /> Loading..</div>
+        <div className="flex items-center"> <FiRefreshCcw className="animate-spin mr-2" /> Loading..</div>
       </StatusMessage>
     );
   }

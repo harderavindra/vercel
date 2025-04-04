@@ -15,6 +15,7 @@ import MasterDataPage from "./pages/MasterDataPage";
 import JobCreate from "./pages/JobCreate";
 import JobList from "./pages/JobList";
 import JobViewPage from "./pages/JobViewPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const App = () => {
     return (
@@ -24,19 +25,21 @@ const App = () => {
                     <Route path="/login" element={<LoginPage />} />
                     <Route element={<MainLayout />}>
                         <Route element={<ProtectedRoute />}>
-                            <Route path="/" element={<Home />} />
+                            <Route index element={<JobList />} />
+                            <Route path="/artworks" element={<JobList />} />
                             <Route path="/about" element={<About />} />
                             <Route path="/profile" element={<ProfilePage />} />
                             <Route path="/add" element={<Users />} />
                             <Route path="/masterdata" element={<MasterDataPage />} />
                             <Route path="/create-artwork" element={<JobCreate />} />
-                            <Route path="/artworks" element={<JobList />} />
                             <Route path="/artwork/:fileId" element={<JobViewPage />} />
-
                             <Route path="/users" element={<UsersPage />} />
                             <Route path="/user/:id" element={<UserDetailPage />} />
                             <Route path="/adduser" element={<AddUser />} />
+                            
                         </Route>
+                        <Route path="*" element={<NotFoundPage />} />
+
                     </Route>
                 </Routes>
             </AuthProvider>
