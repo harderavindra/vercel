@@ -15,11 +15,17 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
     const [uploadProgress, setUploadProgress] = useState(0);
 
     const statuses = (() => {
-        if (currentStatus === "Pending") return ["Approved"];
+        if (currentStatus === "Pending" && ['admin', 'marketing_manager'].includes(user?.role)) {
+            return ["Approved"];
+        }
         if (!assignedTo) return [];
-        return ["Inprogress", "Hold", "Completed"]
-            .filter((s) => !(s === "Approved" && currentStatus === "Approved"))
-            .filter((s) => !(s === "Completed" && user?.role !== "admin"));
+        if (["agency"].includes(user?.role)) {
+            return ["Inprogress", "Hold", "Completed"]
+                .filter((s) => !(s === "Approved" && currentStatus === "Approved"))
+                .filter((s) => !(s === "Completed" && user?.role !== "admin"));
+        }
+    
+        return [];
     })();
 
     const handleFileChange = (e) => {
@@ -126,7 +132,7 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
                         style={{ display: "none" }}
                         onChange={handleFileChange}
                     />
-                    <button
+                    <button type="button"
                         onClick={() => document.getElementById("fileInput").click()}
                         className="bg-amber-50 py-2 border border-amber-100 text-red-500 w-full rounded-md flex justify-center items-center gap-2"
                     >
@@ -142,8 +148,8 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
                     )}
 
                     <div className="flex gap-4">
-                        <Button variant="outline" disabled={loading }>Cancel</Button>
-                        <Button onClick={updateStatus} disabled={loading || !status}>
+                        <Button type="button" variant="outline" disabled={loading }>Cancel</Button>
+                        <Button type="button" onClick={updateStatus} disabled={loading || !status}>
                             {loading ? "Updating..." : "Submit"}
                         </Button>
                     </div>

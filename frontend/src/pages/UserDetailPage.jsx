@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { fetchUserById, updateUserById } from '../api/userApi';
 import UserProfileCard from '../components/user/UserProfileCard';
 import { FiCheck, FiEdit3 } from 'react-icons/fi';
@@ -8,7 +8,9 @@ import { motion } from "framer-motion";
 import StatusMessage from '../components/common/StatusMessage';
 import { snakeToCapitalCase } from '../utils/convertCase';
 import { DESIGNATIONS, ROLES } from "../utils/enums";
-import AdminResetPassword from '../components/user/AdminResetPassword'; 
+import AdminResetPassword from '../components/user/AdminResetPassword';
+import { useAuth } from '../context/auth-context';
+
 
 const ViewText = ({ children }) => (<p className='text-xl capitalize'>{children}</p>)
 
@@ -37,6 +39,18 @@ const UserDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+
+    const { user } = useAuth(); // current logged-in user
+
+    // Check access
+    const allowedRoles = ['admin', 'marketing_manager'];
+    const hasAccess = user?.role && (allowedRoles.includes(user.role) || user._id === id);
+    if (!hasAccess) {
+        return <Navigate to="/unauthorized" />; // or show a message / redirect
+    }
+
+
+
 
     const [editSections, setEditSections] = useState({
         personalInfo: false,
@@ -307,9 +321,9 @@ const UserDetails = () => {
                                             <ViewText>{viewUser?.status}</ViewText>
                                         )}
                                     </div>
-                                    <div className='w-full'> 
+                                    <div className='w-full'>
                                         <label className='text-gray-400'>Role</label>
-                                        {updatedFields.role ?? viewUser?.role}
+
                                         {editSections.status ? (
                                             <select className='w-full border border-gray-400 rounded-md py-1 px-2'
                                                 name="role"
@@ -317,14 +331,14 @@ const UserDetails = () => {
                                                 onChange={handleOnChange}
                                             >
                                                 {
-                                                   Object.values(ROLES).map(role=>(
+                                                    Object.values(ROLES).map(role => (
                                                         <option value={role} key={role} >{snakeToCapitalCase(role)}</option>
 
                                                     ))
                                                 }
                                             </select>
                                         ) : (
-                                            <ViewText>{viewUser?.role? snakeToCapitalCase(viewUser?.role):''}</ViewText>
+                                            <ViewText>{viewUser?.role ? snakeToCapitalCase(viewUser?.role) : ''}</ViewText>
                                         )}
                                     </div>
                                     <div>
@@ -341,7 +355,7 @@ const UserDetails = () => {
                             </div>) : (
                             <div>
 
-<AdminResetPassword userId={viewUser._id} />
+                                <AdminResetPassword userId={viewUser._id} />
 
                             </div>
                         )

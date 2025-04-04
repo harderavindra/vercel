@@ -7,26 +7,38 @@ import {
 } from "react-icons/fi";
 import logoImage from '../../assets/m-logo.svg';
 import Avatar from '../common/Avatar';
+import { snakeToCapitalCase } from '../../utils/convertCase';
 
 const menuItems = [
     { to: '/brand-treasury', icon: <FiFolder size={24} />, label: 'Brand Treasury' },
     { to: '/artworks', icon: <FiPaperclip size={24} />, label: 'Artworks' },
-    { to: '/dashboard', icon: <FiGrid size={24} />, label: 'Dashboard' },
-    { to: '/users', icon: <FiUser size={24} />, label: 'Users' },
-    { to: '/masterdata', icon: <FiSliders size={24} />, label: 'Master Data' }
+    { to: '/', icon: <FiGrid size={24} />, label: 'Dashboard' },
+    { to: '/users', icon: <FiUser size={24} />, label: 'Users', roles: ['admin', 'marketing_manager'] },
+    { to: '/masterdata', icon: <FiSliders size={24} />, label: 'Master Data', roles: ['admin', 'marketing_manager'] }
 ];
 
 const MainLayout = () => {
     const { user, logout } = useAuth();
+    const role = user?.role;
+
     const [expanded, setExpanded] = useState(false);
 
     return (
         <div className='flex bg-gray-50 max-w-screen  transition-transform'>
             {/* Sidebar */}
             <aside className={`bg-white transition-all duration-300 ease-in-out shadow-md h-screen sticky top-0 ${expanded ? 'w-56' : 'w-16'}`}>
-                <div className='py-4 px-2 flex justify-center gap-2'>
+                <div className='py-4 px-2 flex justify-center gap-2 relative'>
                     <img src={logoImage} width='40' alt='Logo' />
                     {expanded && <span className='text-2xl font-bold'>Catena</span>}
+                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 z-10">
+                        {/* Arrow */}
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-orange-200"></div>
+
+                        {/* Popover Box */}
+                        <div className="bg-orange-200 text-sm text-orange-700 rounded shadow-lg px-3 py-1 border-b border-white text-nowrap">
+                           {snakeToCapitalCase(user?.role) }
+                        </div>
+                    </div>
                 </div>
 
                 <div
@@ -37,24 +49,27 @@ const MainLayout = () => {
                 </div>
 
                 <ul className='flex flex-col gap-2'>
-                    {menuItems.map(({ to, icon, label }) => (
-                        <li key={to}>
-                            <NavLink to={to} className={({ isActive }) => `flex text-nowrap py-2 px-4 gap-2 ${isActive ? 'text-red-500' : 'text-gray-900'}`}>
-                                <div className='w-8'>{icon}</div>
-                                <span
-                                    className={`transition-opacity duration-300 font-semibold ${expanded ? 'opacity-100 delay-300 visible' : 'opacity-0 delay-0 invisible'}`}
-                                >
-                                    {label}
-                                </span>
-                            </NavLink>
-                        </li>
-                    ))}
+                    {menuItems
+                        .filter(item => !item.roles || item.roles.includes(role))
+                        .map(({ to, icon, label }) => (
+                            <li key={to}>
+                                <NavLink to={to} className={({ isActive }) => `flex text-nowrap py-2 px-4 gap-2 ${isActive ? 'text-red-500' : 'text-gray-900'}`}>
+                                    <div className='w-8'>{icon}</div>
+                                    <span
+                                        className={`transition-opacity duration-300 font-semibold ${expanded ? 'opacity-100 delay-300 visible' : 'opacity-0 delay-0 invisible'}`}
+                                    >
+                                        {label}
+                                    </span>
+                                </NavLink>
+                            </li>
+                        ))}
                 </ul>
 
                 <ul>
                     {user && (
+
                         <li className='flex gap-2 px-4 py-2 items-center'>
-                            <NavLink to='/profile' className='flex gap-2'>
+                            <NavLink to={`/user/${user._id}`} className='flex gap-2'>
                                 <div className='w-8'><Avatar src={user.profilePic} size='sm' /></div>
 
                                 <div className={`flex flex-col leading-none font-semibold transition-opacity duration-300 ${expanded ? 'opacity-100 delay-300 visible' : 'opacity-0 delay-0 invisible'}`}>

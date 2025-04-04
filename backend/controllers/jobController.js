@@ -307,7 +307,7 @@ export const updateJobStatus = async (req, res) => {
 
 export const getExternalUsers = async (req, res) => {
   try {
-    const externalUsers = await User.find({ userType: "vendor" }).select("_id firstName profilePic email"); // Fetch only necessary fields
+    const externalUsers = await User.find({ role: "agency" }).select("_id firstName profilePic email"); // Fetch only necessary fields
     res.status(200).json(externalUsers);
   } catch (error) {
     console.error("Error fetching external users:", error);

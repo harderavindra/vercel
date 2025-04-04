@@ -3,6 +3,7 @@ import { FiMoreVertical } from "react-icons/fi";
 import Avatar from "../common/Avatar"; // Adjust import path if needed
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { snakeToCapitalCase } from "../../utils/convertCase";
 const UserCard = ({ user, loading, isEmpty }) => {
   const navigate = useNavigate();
 
@@ -36,7 +37,7 @@ const UserCard = ({ user, loading, isEmpty }) => {
                 <p className="text-lg font-bold capitalize">
                   {user.firstName} {user?.lastName}
                 </p>
-                <p className="text-sm font-semibold text-gray-400 capitalize">{user?.designation || 'N/A'}</p>
+                <p className="text-sm font-semibold text-gray-400 capitalize"> { snakeToCapitalCase(user?.role) || 'N/A'}</p>
                 <p className="text-base font-normal text-gray-400">
                   {user.location?.city}, {user.location?.state || 'N/A'}
                 </p>

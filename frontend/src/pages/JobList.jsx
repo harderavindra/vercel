@@ -12,10 +12,14 @@ import MultiSelect from "../components/common/MultiSelect";
 
 import { PRIORITY, LANGUAGES } from "../utils/constants";
 import axios from "axios";
+import { hasAccess } from "../utils/permissions";
+import { useAuth } from "../context/auth-context";
 
 const JobList = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { user } = useAuth();
+
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -111,9 +115,11 @@ const JobList = () => {
             <div className="flex justify-between items-center pb-4">
                 <PageTitle>Artwork Requests</PageTitle>
                 <StatusMessageWrapper loading={loading} success={success} error={error} />
+                {hasAccess(user?.role, ['zonal_marketing_manager']) && (
                 <Button width="auto" onClick={() => navigate('/create-artwork')}>
-                    Add Artwork
+                    Add Artwork Re
                 </Button>
+                )}
             </div>
 
             {/* Filters */}

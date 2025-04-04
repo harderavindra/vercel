@@ -45,9 +45,9 @@ const JobCard = ({ job }) => {
     const navigate = useNavigate();
 
     return (
-        <div 
-            key={job._id} 
-            onClick={() => navigate(`/artwork/${job._id}`)} 
+        <div
+            key={job._id}
+            onClick={() => navigate(`/artwork/${job._id}`)}
             className="flex flex-col gap-2 bg-white border border-blue-300/60 rounded-lg w-full py-4 px-10 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
         >
             <h2 className="text-xl font-bold">{job.title}</h2>
@@ -57,13 +57,17 @@ const JobCard = ({ job }) => {
                 {formatDateTime(job.createdAt)}
                 <StatusBubbleText text={job.priority || 'Low'} status={getPriorityStatus(job.priority)} className="ml-auto" />
             </div>
-            <div className="flex items-center gap-2 text-gray-600">
-                <FiImage />
-                {job.type}
-                <FiMapPin />
-                {job.zone} - {job.state}
+            <div className="flex justify-between gap-2 text-gray-600">
+                <div className='flex items-center gap-2 max-w-[50%]'>
+                    <FiImage />
+                    <span className='truncate whitespace-nowrap overflow-hidden '>{job.type}</span>
+                </div>
+                <div className='flex items-center gap-2 max-w-[50%]'>
+                    <FiMapPin />
+                    <span className='truncate whitespace-nowrap overflow-hidden '>{job.zone}-{job.state}</span>
+                </div>
             </div>
-            <div className="text-gray-700">{job.offerDetails || "No description available"}</div>
+            <div className="text-gray-700 leading-none mb-4 mt-4">{job.offerDetails || "No description available"}</div>
             <div className="border-t border-gray-300 -mx-10 px-10 pt-3 flex justify-between">
                 {job?.assignedTo?.profilePic ? (
                     <Avatar size="xs" src={job.assignedTo.profilePic} alt="Assigned User" />

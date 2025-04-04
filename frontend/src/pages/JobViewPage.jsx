@@ -13,6 +13,7 @@ import AssignToDropdown from "../components/common/AssignToDropdown";
 import StatusMessageWrapper from "../components/common/StatusMessageWrapper";
 import PageTitle from "../components/common/PageTitle";
 import FileIcon from "../components/common/FileIcon";
+import { useAuth } from "../context/auth-context";
 
 const getPriorityColor = (priority) => {
     const priorityMap = {
@@ -46,6 +47,8 @@ const statusIcons = {
 };
 
 const JobViewPage = () => {
+        const { user } = useAuth();
+    
     const { fileId } = useParams();
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -171,7 +174,7 @@ const JobViewPage = () => {
                     success={success}
                     error={error}
                 />
-                <Button width="auto" onClick={() => navigate('/artworks')} >Back</Button>
+                <Button  width="auto" type="button" onClick={() => navigate('/artworks')} >Back</Button>
             </div>
 
 
@@ -245,15 +248,17 @@ const JobViewPage = () => {
                         {job?.offerDetails}
                     </div>
                     <div className="flex gap-5">
-                        <Button onClick={() => handleDelete(job?._id)}>Delete Job</Button>
-                        <Button variant="outline" onClick={() => navigate('/artworks')}>Back to Artworks</Button>
+                        <Button type="button" onClick={() => handleDelete(job?._id)}>Delete Job</Button>
+                        <Button type="button" variant="outline" onClick={() => navigate('/artworks')}>Back to Artworks</Button>
                     </div>
                 </div>
                 <div className=' bg-white border border-blue-300/60 rounded-lg  w-full shadow-md overflow-hidden '>
                     <div className='flex justify-between p-0 h-full '>
                         <div className=" w-full p-6">
-                            {job?.assignedTo ? (
-                                <>
+                            {user?.role}
+                            {job?.assignedTo ? "yes":"no"}
+                            {job?.assignedTo  ?  (
+                                <div className="assigne-to-seaction">
                                     <h3 className="text-lg font-semibold text-gray-700">Assigned to</h3>
                                     <div className="flex gap-3 items-center">
                                         <Avatar src={job?.assignedTo?.profilePic} size="sm" />
@@ -272,16 +277,16 @@ const JobViewPage = () => {
                                             </p>
                                         </div>
                                     </div>
-                                </>
+                                </div>
                             ) : (
 
                                 <>
-                                    {isApproved ? (
+                                    {isApproved && ['admin', 'marketing_manager'].includes(user?.role) ? (
                                         <div>
                                             <h2 className=" pb-2 border-b border-gray-300 text-xl font-bold">Assign to</h2>
                                             <div className="flex flex-col gap-3">
                                                 <AssignToDropdown onSelect={(userId) => setAssigUser(userId)} />
-                                                <Button onClick={() => assignUserToJob(job?._id)} disabled={loading || !assigUser}>
+                                                <Button type="button" onClick={() => assignUserToJob(job?._id)} disabled={loading || !assigUser}>
                                                     {loading ? "Assigning..." : "Assign"}
                                                 </Button>
                                             </div>
@@ -290,7 +295,7 @@ const JobViewPage = () => {
 
                                         <StatusMessageWrapper
 
-                                            success={'Approval required to assign a user'}
+                                            success={'User assigning pending'}
 
                                         />
                                     )}

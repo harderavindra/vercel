@@ -4,10 +4,11 @@ export const USER_TYPES = {
   };
   
   export const ROLES = {
-    MASTER_ADMIN: "master_admin",
+    MARKETING_MANAGER: "marketing_manager",
     ADMIN: "admin",
-    MANAGER: "manager",
-    USER: "user",
+    BRAND_MANAGER: "brand_manager",
+    ZONAL_MARKETING_MANAGER: "zonal_marketing_manager",
+    AGENCY: "agency",
   };
   
   export const DESIGNATIONS = {

@@ -16,6 +16,8 @@ import JobCreate from "./pages/JobCreate";
 import JobList from "./pages/JobList";
 import JobViewPage from "./pages/JobViewPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import DashboardPage from "./pages/DashboardPage";
+import UnauthorizedPage from "./pages/UnauthorizedPage";
 
 const App = () => {
     return (
@@ -24,21 +26,28 @@ const App = () => {
                 <Routes>
                     <Route path="/login" element={<LoginPage />} />
                     <Route element={<MainLayout />}>
+                    
+                        <Route element={<ProtectedRoute allowedRoles={['zonal_marketing_manager']} />}>
+                            <Route path="/create-artwork" element={<JobCreate />} />
+                        </Route>
+                        <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin']} />}>
+                            <Route path="/users" element={<UsersPage />} />
+                            <Route path="/add" element={<Users />} />
+                            <Route path="/adduser" element={<AddUser />} />
+                        </Route>
                         <Route element={<ProtectedRoute />}>
-                            <Route index element={<JobList />} />
+                            <Route index element={<DashboardPage />} />
                             <Route path="/artworks" element={<JobList />} />
                             <Route path="/about" element={<About />} />
                             <Route path="/profile" element={<ProfilePage />} />
-                            <Route path="/add" element={<Users />} />
                             <Route path="/masterdata" element={<MasterDataPage />} />
-                            <Route path="/create-artwork" element={<JobCreate />} />
                             <Route path="/artwork/:fileId" element={<JobViewPage />} />
-                            <Route path="/users" element={<UsersPage />} />
+                           
                             <Route path="/user/:id" element={<UserDetailPage />} />
-                            <Route path="/adduser" element={<AddUser />} />
                             
                         </Route>
                         <Route path="*" element={<NotFoundPage />} />
+                        <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
                     </Route>
                 </Routes>

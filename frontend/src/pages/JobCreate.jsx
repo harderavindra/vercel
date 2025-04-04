@@ -134,34 +134,34 @@ const JobCreate = () => {
 
         // Get signed URL from backend
         const { data } = await axios.post(
-            `${import.meta.env.VITE_BACKEND_BASE_URL}/api/files/signed-url/upload`,
-            { fileName: fileNameWithFolder, fileType: formData.attachment.type }
+          `${import.meta.env.VITE_BACKEND_BASE_URL}/api/files/signed-url/upload`,
+          { fileName: fileNameWithFolder, fileType: formData.attachment.type }
         );
 
         if (!data.signedUrl) throw new Error("Failed to get signed URL");
 
         // Upload file to Google Cloud using signed URL
         await axios.put(data.signedUrl, formData.attachment, {
-            headers: { "Content-Type": formData.attachment.type },
-            onUploadProgress: (progressEvent) => {
-                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                setUploadProgress(percentCompleted); // Update the progress state
+          headers: { "Content-Type": formData.attachment.type },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted); // Update the progress state
 
-                console.log("Upload Progress:", percentCompleted + "%");
-            },
+            console.log("Upload Progress:", percentCompleted + "%");
+          },
         });
 
         fileUrl = data.fileUrl; // Use the file URL from the response
-    }
-    alert(fileUrl);
+      }
 
       await axios.post(
         `${import.meta.env.VITE_BACKEND_BASE_URL}/api/jobs/create`,
-        { ...formData, attachment:fileUrl},
+        { ...formData, attachment: fileUrl },
         { withCredentials: true }
       );
 
-      alert("Job created successfully!");
+      navigate('/artworks', { state: { success: 'Artwork request created successfully!' } });
+
       setFormData({
         title: "",
         type: "",
@@ -194,8 +194,13 @@ const JobCreate = () => {
       {/* Header Section */}
       <div className="flex justify-between items-center pb-4">
         <PageTitle>Create Artwork Request</PageTitle>
-        <StatusMessageWrapper loading={loading} success={success} error={error} />
-        <Button variant="outline" width="auto" onClick={() => navigate('/create-artwork')}>Add Artwork</Button>
+
+        <StatusMessageWrapper loading={loading} success={success} error={
+          error || Object.keys(errors).length > 0
+            ? "Please fill all required fields"
+            : ''
+        } />
+        <Button variant="outline" width="auto" onClick={() => navigate('/artworks')}>Back</Button>
       </div>
       <form onSubmit={handleSubmit} className="flex gap-12" >
         <div className="flex flex-col gap-3 bg-white border border-blue-300/60 rounded-lg p-10 w-xl">
@@ -247,7 +252,7 @@ const JobCreate = () => {
             <p><strong>Type:</strong> {formData.attachment.type}</p> */}
           </div>
         </div>
-        <div className="w-full">
+        <div className="w-full flex flex-col">
           <div className='fle gap-4 bg-gray-50 rounded-lg items-start justify-start'>
             <div className=' bg-white rounded-t-md w-fit border border-blue-300/70 overflow-hidden  ' style={{ boxShadow: "inset 0px -6px 5px 0px rgba(0, 0, 0, 0.13)" }}>
               <button type="button" className={`px-4 py-2 cursor-pointer ${activeTab === "location" ? 'bg-red-600/90 text-white' : ''}`} onClick={() => setActiveTab('location')}>Location</button>
@@ -255,11 +260,11 @@ const JobCreate = () => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 bg-white border border-blue-300/60 rounded-b-lg rounded-r-lg p-10  w-full">
+          <div className="flex flex-col gap-3 bg-white border border-blue-300/60 rounded-b-lg rounded-r-lg p-10  w-full h-full">
             {
               activeTab === "location" && (
                 <div>
-                  <div className="flex gap-8">
+                  <div className="flex gap-8 mb-3">
                     <div className="w-full">
 
                       <label>Zone</label>
@@ -301,66 +306,71 @@ const JobCreate = () => {
                       ))}
                     </div>
                   </div>
+                  <div className="flex gap-5 mt-6">
+                    
+                    <Button variant="outline" className={'max-w-sm'} onClick={()=>setActiveTab("specifications")}>Next</Button>
+                  </div>
                 </div>
               )}
- {
+            {
               activeTab === "specifications" && (
-                <div>
-            <div className="flex gap-8">
-              <div className='flex flex-col gap-1 w-full'>
-                <label>Product</label>
-                <select
-                  className="w-full border border-gray-400 rounded-md py-2 px-2"
-                  name="product"
-                  value={formData.product}
-                  onChange={handleProductChange}
-                >
-                  <option value="">Select Product</option>
-                  {products.map((product) => (
-                    <option key={product._id} value={product._id}>
-                      {product.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className='flex flex-col gap-1 w-full'>
-                <label>Brand</label>
-                <select name="brand" value={formData.brand} onChange={handleBrandChange} className="w-full border p-2 rounded-md" disabled={!formData.product}>
-                  <option value="">Select Brand</option>
-                  {brands.map((brand) => (
-                    <option key={brand._id} value={brand._id}>
-                      {brand.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                <div className="flex flex-col gap-3">
+                  <div className="flex gap-8">
+                    <div className='flex flex-col gap-1 w-full'>
+                      <label>Product</label>
+                      <select
+                        className="w-full border border-gray-400 rounded-md py-2 px-2"
+                        name="product"
+                        value={formData.product}
+                        onChange={handleProductChange}
+                      >
+                        <option value="">Select Product</option>
+                        {products.map((product) => (
+                          <option key={product._id} value={product._id}>
+                            {product.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className='flex flex-col gap-1 w-full'>
+                      <label>Brand</label>
+                      <select name="brand" value={formData.brand} onChange={handleBrandChange} className="w-full border p-2 rounded-md" disabled={!formData.product}>
+                        <option value="">Select Brand</option>
+                        {brands.map((brand) => (
+                          <option key={brand._id} value={brand._id}>
+                            {brand.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-            </div>
-            <div className="flex gap-8">
+                  </div>
+                  <div className="flex gap-8">
 
-              <div className='flex flex-col gap-1 w-full'>
-                <label>Model</label>
-                <select name="model" value={formData.model} onChange={handleChange} className="w-full border p-2 rounded-md" disabled={!formData.brand}>
-                  <option value="">Select Model</option>
-                  {models.map((model) => (
-                    <option key={model._id} value={model._id}>
-                      {model.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                    <div className='flex flex-col gap-1 w-full'>
+                      <label>Model</label>
+                      <select name="model" value={formData.model} onChange={handleChange} className="w-full border p-2 rounded-md" disabled={!formData.brand}>
+                        <option value="">Select Model</option>
+                        {models.map((model) => (
+                          <option key={model._id} value={model._id}>
+                            {model.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-              <InputText label={"Offer Type"} name="offerType" value={formData.offerType} handleOnChange={handleChange} placeholder="Offer Type" />
-            </div>
-            <textarea name="offerDetails" value={formData.offerDetails} onChange={handleChange} placeholder="Offer Details" className="w-full border p-2 rounded mt-5"></textarea>
-            </div>)}
+                    <InputText label={"Offer Type"} name="offerType" value={formData.offerType} handleOnChange={handleChange} placeholder="Offer Type" />
+                  </div>
+                  <textarea name="offerDetails" value={formData.offerDetails} onChange={handleChange} placeholder="Offer Details" className="w-full border p-2 rounded mt-5"></textarea>
+                  <div className="flex gap-5 mt-4">
+                    <Button type="submit">
+                      {loading ? "Creating..." : "Create Job"}
+                    </Button>
+                    <Button variant="outline">Back</Button>
+                  </div>
+                </div>)}
 
-                  <div className="flex gap-5">
-            <Button  type="submit">
-              {loading ? "Creating..." : "Create Job"}
-            </Button>
-            <Button variant="outline">Back</Button>
-            </div>
+
           </div>
         </div>
       </form>
