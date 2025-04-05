@@ -179,36 +179,41 @@ const JobViewPage = () => {
                 <PageTitle>Artwork Request</PageTitle>
                 <StatusMessageWrapper
                     loading={loading}
-                    success={success}
                     error={error}
                 />
                 <Button width="auto" type="button" onClick={() => navigate('/artworks')} >Back</Button>
             </div>
+
+            <div className="flex  justify-start ">
             <div className="flex flex-row-reverse justify-end mb-5">
                 {mergedHistory.length > 0 ? (
                     mergedHistory.map((history) => (
-                        <div key={history._id} className="flex gap-2 items-center border border-gray-300 bg-white px-3 py-1  text-xs capitalize rounded-md mr-0 relative ">
+                        <div key={history._id} className={`flex gap-2 items-center border  px-3 py-1  text-xs capitalize rounded-md mr-0 relative  ${history?.status.toLowerCase() === "artwork approved" ? 'bg-red-500 border-red-500 text-white':'border-gray-300 bg-white'}`}>
+                            <Avatar name={history?.updatedBy?.firstName} src={history?.updatedBy?.profilePic} size="xs" />
 
-                                <Avatar src={history?.updatedBy?.profilePic} size="xs" />
-
-                                <StatusBubble
-                                    size="xxs"
-                                    icon={statusIcons[history?.status?.toLowerCase()] || "clock"}
-                                    status={getStatusColor(history?.status)?.toLowerCase().trim() || "error"}
-                                    className={'test'}
-                                />
-                                {history.status.replace(/artwork/gi, "").trim()}
-
-                                <span
-    className="absolute -right-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-gray-300 z-10"
-  />
-                            
+                            {/* <StatusBubble
+                                size="xxs"
+                                icon={statusIcons[history?.status?.toLowerCase()] || "clock"}
+                                status={getStatusColor(history?.status)?.toLowerCase().trim() || "error"}
+                                className={'test'}
+                            /> */}
+                            {history.status.replace(/artwork/gi, "").trim()}
+                                    {history?.status.toLowerCase() !== "artwork approved" && (
+                            <span
+                                className="absolute -right-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-gray-300 z-10"
+                            />
+                        )}
 
                         </div>
                     ))
                 ) : (
                     <p className="text-gray-500">No history available</p>
                 )}
+                <div className="flex gap-2 items-center border border-red-500 bg-red-500 text-white font-bold px-3 py-1  text-xs capitalize rounded-md mr-0 relative ">
+                    Timeline
+                    <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-red-500 z-10" />
+                </div>
+            </div>
             </div>
             <div className=' flex gap-10'>
                 <div className='flex flex-col gap-4 bg-white border border-blue-300/60 rounded-lg p-6 px-10 w-3xl shadow-md'>
@@ -222,7 +227,7 @@ const JobViewPage = () => {
                     </div>
                     <div className="flex justify-between items-center">
                         <div className="flex gap-3">
-                            <Avatar src={job?.createdBy?.profilePic} size="sm" />
+                            <Avatar name={job?.createdBy?.firstName} src={job?.createdBy?.profilePic} size="sm" />
                             <div>
                                 <p className="text-base/4 capitalize">{job?.createdBy?.firstName} {job?.createdBy?.lastName}</p>
                                 <p className="text-sm">{formatDateTime(job?.createdAt)}</p>
@@ -274,18 +279,22 @@ const JobViewPage = () => {
                         {job?.offerDetails}
                     </div>
                     <div className="flex gap-5">
-                        <Button type="button" onClick={() => handleDelete(job?._id)}>Delete Job</Button>
+                        {['admin', 'marketing_manager'].includes(user?.role) && (
+                            <Button type="button" onClick={() => handleDelete(job?._id)}>
+                                Delete Job
+                            </Button>
+                        )}
                         <Button type="button" variant="outline" onClick={() => navigate('/artworks')}>Back to Artworks</Button>
                     </div>
                 </div>
                 <div className=' bg-white border border-blue-300/60 rounded-lg  w-full shadow-md overflow-hidden '>
                     <div className='flex justify-between p-0 h-full '>
-                        <div className=" w-full p-6">
+                        <div className=" w-[70%] p-6">
                             {job?.assignedTo ? (
                                 <div className="assigne-to-seaction">
                                     <h3 className="text-lg font-semibold text-gray-700">Assigned to</h3>
                                     <div className="flex gap-3 items-center">
-                                        <Avatar src={job?.assignedTo?.profilePic} size="sm" />
+                                        <Avatar  name={job?.assignedTo?.firstName} src={job?.assignedTo?.profilePic} size="sm" />
 
                                         <div>
                                             <p className="text-gray-400 text-base/tight">
@@ -356,7 +365,7 @@ const JobViewPage = () => {
                                         </div>
                                         <div className="flex gap-4">
                                             <div className="min-w-8">
-                                                <Avatar src={history?.updatedBy?.profilePic} size="sm" />
+                                                <Avatar name={history?.updatedBy?.firstName} src={history?.updatedBy?.profilePic} size="sm" />
                                             </div>
                                             <div className="w-full">
                                                 <p>by: {history?.updatedBy?.firstName} {history?.updatedBy?.lastName}</p>

@@ -154,7 +154,7 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
                     <select
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
-                        className="border border-gray-400 rounded-lg p-2 mb-2"
+                        className="border border-gray-400 rounded-lg p-2 mb-2 capitalize"
                     >
                         <option value="">Select Status</option>
                         {statuses.map((s) => (
@@ -170,7 +170,7 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
                     />
                     <button type="button"
                         onClick={() => document.getElementById("fileInput").click()}
-                        className="bg-amber-50 py-2 border border-amber-100 text-red-500 w-full rounded-md flex justify-center items-center gap-2"
+                        className="bg-amber-50 py-2 border border-amber-100 text-red-500 w-full rounded-md flex justify-center items-center gap-2 cursor-pointer"
                     >
                         <FiUploadCloud size={18} /> Select a file to upload
                     </button>
@@ -191,7 +191,9 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
                     </div>
                 </>
             )}
+            <div className="my-4">
             <StatusMessageWrapper success={message} />
+            </div>
         </div>
     );
 };

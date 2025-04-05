@@ -30,15 +30,7 @@ const MainLayout = () => {
                 <div className='py-4 px-2 flex justify-center gap-2 relative'>
                     <img src={logoImage} width='40' alt='Logo' />
                     {expanded && <span className='text-2xl font-bold'>Catena</span>}
-                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 z-10">
-                        {/* Arrow */}
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-orange-200"></div>
 
-                        {/* Popover Box */}
-                        <div className="bg-orange-200 text-sm text-orange-700 rounded shadow-lg px-3 py-1 border-b border-white text-nowrap">
-                           {snakeToCapitalCase(user?.role) }
-                        </div>
-                    </div>
                 </div>
 
                 <div
@@ -91,7 +83,24 @@ const MainLayout = () => {
             </aside>
 
             {/* Main Content */}
-            <main className='border border-gray-200 w-full h-auto transition-transform'>
+            <main className='border border-gray-200 w-full h-auto transition-transform '>
+                <div className='bg-white flex justify-end py-1 px-4 border-b border-b-gray-300'>
+                    <div className='flex gap-4 '>
+                        {user?.firstName}
+                        <div className=" relative ">
+                            {/* Arrow */}
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-orange-200"></div>
+
+                            {/* Popover Box */}
+                            <div className="bg-orange-200 text-sm text-orange-700 rounded  px-3 py-1 border-b border-white text-nowrap">
+                                {snakeToCapitalCase(user?.role)}
+                            </div>
+                        </div>
+                    <Avatar src={user?.profilePic} size='sm' />
+                    </div>
+
+
+                </div>
                 <Outlet />
             </main>
         </div>
