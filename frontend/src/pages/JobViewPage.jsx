@@ -352,13 +352,13 @@ const JobViewPage = () => {
                                                     {formatDateDistance(history.timestamp).relative}
                                                 </span>
                                                 <p className="flex gap-2 items-center capitalize text-xs font-semibold ">
+                                                    {history.status.replace(/artwork/gi, "").trim()}
                                                     <StatusBubble
                                                         size="xs"
                                                         icon={statusIcons[history?.status?.toLowerCase()] || "clock"}
                                                         status={getStatusColor(history?.status)?.toLowerCase().trim() || "error"}
                                                         className={'test'}
                                                     />
-                                                    {history.status.replace(/artwork/gi, "").trim()}
 
                                                 </p>
                                             </div>
