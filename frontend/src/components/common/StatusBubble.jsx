@@ -1,5 +1,6 @@
 import React from 'react'
-import { FiCheck, FiClock, FiEyeOff, FiStar, FiUser } from 'react-icons/fi'
+import { FaTimesCircle } from 'react-icons/fa'
+import { FiCheck, FiClipboard, FiClock, FiEye, FiEyeOff, FiRotateCcw, FiStar, FiThumbsUp, FiUser } from 'react-icons/fi'
 
 const StatusBubble = ({status ='success',icon,  size= 'sm', className, onClick}) => {
     const statusStyles = {
@@ -28,14 +29,18 @@ const StatusBubble = ({status ='success',icon,  size= 'sm', className, onClick})
         xs: 12,
         sm: 14,
         md: 18,
-        lg:24
+        lg:24,
+        xxs:5,
     }
     const statusIcons = {
         star: <FiStar size={sizes[size]}/>,
         check: <FiCheck size={sizes[size]}/>,
-        eyeOff: <FiEyeOff size={sizes[size]}/>,
+        reject: <FiRotateCcw size={sizes[size]}/>,
+        eye: <FiEye size={sizes[size]}/>,
         clock: <FiClock size={sizes[size]}/>,
         user: <FiUser size={sizes[size]}/>,
+        done:<FiThumbsUp size={sizes[size]} />,
+        pad:<FiClipboard size={sizes[size]} />
 
     }
    

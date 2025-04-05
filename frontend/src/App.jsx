@@ -27,7 +27,7 @@ const App = () => {
                     <Route path="/login" element={<LoginPage />} />
                     <Route element={<MainLayout />}>
                     
-                        <Route element={<ProtectedRoute allowedRoles={['zonal_marketing_manager']} />}>
+                        <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin','zonal_marketing_manager']} />}>
                             <Route path="/create-artwork" element={<JobCreate />} />
                         </Route>
                         <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin']} />}>

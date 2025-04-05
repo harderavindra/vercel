@@ -73,3 +73,22 @@ export const PRIORITY = {
   HIGH: "high",
   URGENT: "urgent",
 };
+
+
+export const ARTWORK_TYPES = [
+  'whatsapp/digital',
+  'banner',
+  'leaflet',
+  'van',
+  'standee',
+  'poster',
+];
+
+export const OFFER_TYPES = [
+  'ldp (low down payment)',
+  'fix price offer',
+  'combo offer',
+  'feature promotion',
+  'subcidy',
+  'other',
+];

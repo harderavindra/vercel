@@ -30,25 +30,33 @@ const getStatusColor = (status) => {
         created: "success",
         assigned: "info",
         approved: "success",
-        inprogress: "info",
         hold: "warning",
-        rejected: "error",
-        resubmitted: "info",
-        completed: "success",
+        "under review": "error",
+        "artwork rejected": "error",
+        "artwork approved": "success",
+        inprogress: "info",
+        "artwork submitted": "info",
     };
     return statusMap[status?.toLowerCase()] || "default";
 };
 const statusIcons = {
     created: "clock",
+    assigned: "user",
     approved: "check",
-    inprogress: "star",
-    assigned: "star",
+    hold: "eye",
+    "under review": "eye",
+    "artwork rejected": "reject",
+    "artwork approved": "done",
+    inprogress: "clock",
+    "artwork submitted": "pad",
+
+
 
 };
 
 const JobViewPage = () => {
-        const { user } = useAuth();
-    
+    const { user } = useAuth();
+
     const { fileId } = useParams();
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -57,7 +65,7 @@ const JobViewPage = () => {
     const navigate = useNavigate();
     const [mergedHistory, setMergedHistory] = useState([]);
     const [assigUser, setAssigUser] = useState(null)
-    const isApproved = job?.decisionHistory?.some(item => item.status === "Approved") ?? false;
+    const isApproved = job?.decisionHistory?.some(item => item.status === "approved") ?? false;
     const [statusUpdated, setStatusUpdated] = useState(false);
 
     const LabelValue = ({ label, value }) => (
@@ -174,32 +182,49 @@ const JobViewPage = () => {
                     success={success}
                     error={error}
                 />
-                <Button  width="auto" type="button" onClick={() => navigate('/artworks')} >Back</Button>
+                <Button width="auto" type="button" onClick={() => navigate('/artworks')} >Back</Button>
             </div>
+            <div className="flex flex-row-reverse justify-end mb-5">
+                {mergedHistory.length > 0 ? (
+                    mergedHistory.map((history) => (
+                        <div key={history._id} className="flex gap-2 items-center border border-gray-300 bg-white px-3 py-1  text-xs capitalize rounded-md mr-0 relative ">
 
+                                <Avatar src={history?.updatedBy?.profilePic} size="xs" />
 
+                                <StatusBubble
+                                    size="xxs"
+                                    icon={statusIcons[history?.status?.toLowerCase()] || "clock"}
+                                    status={getStatusColor(history?.status)?.toLowerCase().trim() || "error"}
+                                    className={'test'}
+                                />
+                                {history.status.replace(/artwork/gi, "").trim()}
 
+                                <span
+    className="absolute -right-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-gray-300 z-10"
+  />
+                            
+
+                        </div>
+                    ))
+                ) : (
+                    <p className="text-gray-500">No history available</p>
+                )}
+            </div>
             <div className=' flex gap-10'>
-
-
                 <div className='flex flex-col gap-4 bg-white border border-blue-300/60 rounded-lg p-6 px-10 w-3xl shadow-md'>
                     <div className="pb-2 flex justify-between gap-3 items-start">
                         <h2 className="text-2xl font-bold text-gray-800">{job?.title}</h2>
                         {isApproved ? (
-
                             <StatusBubble size="xs" icon={'check'} status={"success"} />
                         ) : (
                             <StatusBubble size="xs" icon={'clock'} status={"error"} />
-
                         )}
-
-
                     </div>
                     <div className="flex justify-between items-center">
                         <div className="flex gap-3">
                             <Avatar src={job?.createdBy?.profilePic} size="sm" />
                             <div>
-                                <p className="text-base/4">{job?.createdBy?.firstName}</p>
+                                <p className="text-base/4 capitalize">{job?.createdBy?.firstName} {job?.createdBy?.lastName}</p>
                                 <p className="text-sm">{formatDateTime(job?.createdAt)}</p>
                             </div>
                         </div>
@@ -208,25 +233,26 @@ const JobViewPage = () => {
                     <h2>Specification</h2>
                     <div className="bg-gray-100/70 p-4 rounded-lg">
                         <div className="flex gap-4">
-                            <LabelValue label="Offer Type" value={job?.type} />
-                            <LabelValue label="Zone" value={job?.zone} />
+                            <LabelValue label="Type Of Artwork" value={job?.typeOfArtwork} />
+                            <LabelValue label="Offer Type" value={job?.offerType} />
                         </div>
                         <div className="flex gap-4">
+                            <LabelValue label="Zone" value={job?.zone} />
                             <LabelValue label="State" value={job?.state} />
+                        </div>
+                        <div className="flex gap-4">
                             <LabelValue label="Language" value={job?.language} />
                         </div>
                         <div className="flex gap-4">
-                            <LabelValue label="Product" value={job?.product} />
-                            <LabelValue label="Brand" value={job?.brand} />
+                            <LabelValue label="Product" value={job?.product?.name} />
+                            <LabelValue label="Brand" value={job?.brand?.name} />
                         </div>
                         <div className="flex gap-4">
-                            <LabelValue label="Model" value={job?.model} />
+                            <LabelValue label="Model" value={job?.model.name} />
                         </div>
-
                     </div>
-                    {job?.attachment && (
+                    {job?.attachmentSignedUrl && (
                         <div className="flex gap-2 items-center justify-start">
-
                             <FileIcon
                                 mimeType={getMimeTypeFromUrl(job.attachmentSignedUrl)}
                                 size={24}
@@ -255,13 +281,12 @@ const JobViewPage = () => {
                 <div className=' bg-white border border-blue-300/60 rounded-lg  w-full shadow-md overflow-hidden '>
                     <div className='flex justify-between p-0 h-full '>
                         <div className=" w-full p-6">
-                            {user?.role}
-                            {job?.assignedTo ? "yes":"no"}
-                            {job?.assignedTo  ?  (
+                            {job?.assignedTo ? (
                                 <div className="assigne-to-seaction">
                                     <h3 className="text-lg font-semibold text-gray-700">Assigned to</h3>
                                     <div className="flex gap-3 items-center">
                                         <Avatar src={job?.assignedTo?.profilePic} size="sm" />
+
                                         <div>
                                             <p className="text-gray-400 text-base/tight">
                                                 Assigned to{" "}
@@ -279,7 +304,6 @@ const JobViewPage = () => {
                                     </div>
                                 </div>
                             ) : (
-
                                 <>
                                     {isApproved && ['admin', 'marketing_manager'].includes(user?.role) ? (
                                         <div>
@@ -292,12 +316,11 @@ const JobViewPage = () => {
                                             </div>
                                         </div>
                                     ) : (
+                                        ""
+                                        // <StatusMessageWrapper
+                                        //     error={'An artwork approval is required to continue.'}
 
-                                        <StatusMessageWrapper
-
-                                            success={'User assigning pending'}
-
-                                        />
+                                        // />
                                     )}
 
                                 </>
@@ -319,14 +342,14 @@ const JobViewPage = () => {
                                                 <span className="text-xs text=gray-100 font-semibold opacity-40">
                                                     {formatDateDistance(history.timestamp).relative}
                                                 </span>
-                                                <p className="flex gap-2 items-center">
+                                                <p className="flex gap-2 items-center capitalize text-xs font-semibold ">
                                                     <StatusBubble
                                                         size="xs"
                                                         icon={statusIcons[history?.status?.toLowerCase()] || "clock"}
                                                         status={getStatusColor(history?.status)?.toLowerCase().trim() || "error"}
                                                         className={'test'}
                                                     />
-                                                    {history.status}
+                                                    {history.status.replace(/artwork/gi, "").trim()}
 
                                                 </p>
                                             </div>
@@ -336,6 +359,7 @@ const JobViewPage = () => {
                                                 <Avatar src={history?.updatedBy?.profilePic} size="sm" />
                                             </div>
                                             <div className="w-full">
+                                                <p>by: {history?.updatedBy?.firstName} {history?.updatedBy?.lastName}</p>
                                                 <p className=" text-gray-600 text-base/tight mb-2 ">{history.comment}</p>
                                                 {history.attachmentSignedUrl && (
                                                     <a
@@ -346,7 +370,6 @@ const JobViewPage = () => {
                                                     >
                                                         <FiPaperclip size={14} /> Attachment
                                                     </a>
-
                                                 )}
                                             </div>
                                         </div>
@@ -356,13 +379,6 @@ const JobViewPage = () => {
                                 <p className="text-gray-500">No history available</p>
                             )}
                         </div>
-                    </div>
-                    <div>
-
-
-                    </div>
-                    <div>
-
                     </div>
                 </div>
             </div>

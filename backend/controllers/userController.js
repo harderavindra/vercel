@@ -123,7 +123,7 @@ export const registerUser = async (req, res) => {
 
 
 // Middleware to verify JWT token
-export const authenticate = (req, res, next) => {
+export const authenticate = async(req, res, next) => {
     const token = req.cookies?.authToken;
 
     if (!token) {
@@ -132,7 +132,18 @@ export const authenticate = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        req.user = decoded; // Add the decoded user info to the request
+        const user = await User.findById(decoded.userId).select("email role firstName lastName"); // ✅ now includes role
+
+        if (!user) return res.status(404).json({ message: "User not found" });
+    
+        req.user = {
+          userId: user._id,
+          email: user.email,
+          role: user.role,
+          name: `${user.firstName} ${user.lastName}`,
+        };
+
+
         next();
     } catch (err) {
         return res.status(401).json({ message: 'Invalid or expired token' });

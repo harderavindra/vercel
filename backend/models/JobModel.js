@@ -1,13 +1,11 @@
 import mongoose from "mongoose";
 
-// Enum for job statuses and decisions
-const JOB_STATUS = ["Inprogress", "Hold", "Submited"];
-const DECISION_STATUS = ["Created", "Approved", "Assigned", "Completed", "Rejected", "Resubmitted"];
+
 // const DECISION_STATUS = ["Created", "Request Approved", "Assigned", "Artwork Approved", "Rejected", "Resubmitted"];
 
 // Subdocument Schema for Status History
 const StatusHistorySchema = new mongoose.Schema({
-  status: { type: String, enum: JOB_STATUS, required: true },
+  status: { type: String,  required: true },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   timestamp: { type: Date, default: Date.now },
   comment: { type: String },
@@ -16,7 +14,7 @@ const StatusHistorySchema = new mongoose.Schema({
 
 // Subdocument Schema for Decision History
 const DecisionHistorySchema = new mongoose.Schema({
-  status: { type: String, enum: DECISION_STATUS, required: true },
+  status: { type: String,  required: true },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   timestamp: { type: Date, default: Date.now },
   comment: { type: String },
@@ -27,20 +25,20 @@ const DecisionHistorySchema = new mongoose.Schema({
 const jobSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    type: { type: String, required: true },
     priority: {
       type: String,
       enum: ["low", "medium", "high", "urgent"], // Only these values allowed
       required: true,
       lowercase: true, // Ensures stored value is always lowercase
     },
+    typeOfArtwork: { type: String, required: true },
     offerType: { type: String, required: true },
     zone: { type: String, required: true },
     state: { type: String, required: true },
     language: { type: String, required: true },
-    product: { type: String, required: true },
-    brand: { type: String, required: true },
-    model: { type: String, required: true },
+    product: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductCategory', required: true },
+    brand: {type: mongoose.Schema.Types.ObjectId, ref: 'BrandCategory', required: true  },
+    model: {type: mongoose.Schema.Types.ObjectId, ref: 'ModelCategory', required: true },
     attachment:{},
     offerDetails: { type: String },
     otherDetails: { type: String },
@@ -52,7 +50,7 @@ const jobSchema = new mongoose.Schema(
     decisionHistory: [DecisionHistorySchema],
     dueDate: { type: Date, required: true }, 
 
-    finalStatus: { type: String, enum: ["Created", "Approved", "Assigned", "Completed", "Rejected", "Resubmitted","Inprogress", "Hold", "Submited","Pending"], default: "Pending" }
+    finalStatus: { type: String,  default: "pending" }
   },
   { timestamps: true }
 );

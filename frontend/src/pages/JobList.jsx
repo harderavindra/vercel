@@ -115,7 +115,7 @@ const JobList = () => {
             <div className="flex justify-between items-center pb-4">
                 <PageTitle>Artwork Requests</PageTitle>
                 <StatusMessageWrapper loading={loading} success={success} error={error} />
-                {hasAccess(user?.role, ['zonal_marketing_manager']) && (
+                {hasAccess(user?.role, ['marketing_manager','admin','zonal_marketing_manager']) && (
                 <Button width="auto" onClick={() => navigate('/create-artwork')}>
                     Add Artwork Re
                 </Button>

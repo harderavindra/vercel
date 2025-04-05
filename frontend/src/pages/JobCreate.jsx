@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import FileUpload from "../components/common/FileGcsUpload"; // Import the reusable FileUpload component
-import { BRAND_TREASURY_DOCUMENTS, LANGUAGES, PRIORITY, ZONES } from "../utils/constants"; // Assuming this is defined
+import { ARTWORK_TYPES, OFFER_TYPES, LANGUAGES, PRIORITY, ZONES } from "../utils/constants"; // Assuming this is defined
 import { useLocation, useNavigate } from "react-router-dom";
 import PageTitle from "../components/common/PageTitle";
 import StatusMessageWrapper from "../components/common/StatusMessageWrapper";
@@ -16,6 +16,7 @@ const JobCreate = () => {
     title: "",
     type: "",
     priority: "",
+    typeOfArtwork: "",
     offerType: "",
     zone: "",
     state: "",
@@ -115,7 +116,6 @@ const JobCreate = () => {
   const validateForm = () => {
     let newErrors = {};
     if (!formData.title) newErrors.title = "Title is required";
-    if (!formData.type) newErrors.type = "Job Type is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -166,6 +166,7 @@ const JobCreate = () => {
         title: "",
         type: "",
         priority: "",
+        typeOfArtwork: "",
         offerType: "",
         zone: "",
         state: "",
@@ -211,11 +212,19 @@ const JobCreate = () => {
           </div>
           <div className="flex gap-8">
             <SelectField
-              label="Request Type"
-              name="type"
-              value={formData.type}
+              label="Type of Artwork"
+              name="typeOfArtwork"
+              value={formData.typeOfArtwork}
               onChange={handleChange}
-              options={["Full-Time", "Second-Time", "Part-Time"]}
+              options={ARTWORK_TYPES}
+            />
+
+            <SelectField
+              label="Offer Type"
+              name="OfferType"
+              value={formData.OfferType}
+              onChange={handleChange}
+              options={OFFER_TYPES}
             />
           </div>
           <div className="w-full">
@@ -307,8 +316,8 @@ const JobCreate = () => {
                     </div>
                   </div>
                   <div className="flex gap-5 mt-6">
-                    
-                    <Button variant="outline" className={'max-w-sm'} onClick={()=>setActiveTab("specifications")}>Next</Button>
+
+                    <Button variant="outline" className={'max-w-sm'} onClick={() => setActiveTab("specifications")}>Next</Button>
                   </div>
                 </div>
               )}

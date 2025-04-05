@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from '../../context/auth-context';
 import { FiUploadCloud } from "react-icons/fi";
 import Button from "./Button";
 import ProgressBar from "./ProgressBar";
+import { constructFrom } from "date-fns";
+import StatusMessageWrapper from "./StatusMessageWrapper";
 
 const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
     const { user } = useAuth();
@@ -13,20 +15,55 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
     const [comment, setComment] = useState("");
     const [attachment, setAttachment] = useState(null);
     const [uploadProgress, setUploadProgress] = useState(0);
-
+    const [message, setMessage] = useState('')
+    const normalizedStatus = currentStatus?.toLowerCase();
+    const role = user?.role?.toLowerCase();
     const statuses = (() => {
-        if (currentStatus === "Pending" && ['admin', 'marketing_manager'].includes(user?.role)) {
-            return ["Approved"];
+        console.log(role, "/role")
+
+        if (normalizedStatus === "pending" && ["admin", "marketing_manager"].includes(role)) {
+            return ["approved"];
         }
         if (!assignedTo) return [];
-        if (["agency"].includes(user?.role)) {
-            return ["Inprogress", "Hold", "Completed"]
-                .filter((s) => !(s === "Approved" && currentStatus === "Approved"))
-                .filter((s) => !(s === "Completed" && user?.role !== "admin"));
+
+        if (role === "agency") {
+            return ["inprogress", "artwork submitted"];
         }
-    
+
+        if (["marketing_manager", "admin", "zonal_marketing_manager"].includes(role)) {
+            if (normalizedStatus === "artwork submitted") {
+                return [
+                    "under review",
+                    "review rejected",
+                    "artwork approved"
+                ];
+            } else {
+                return [
+                    "hold"
+                ];
+            }
+        }
+
         return [];
     })();
+     // Set informative message based on available statuses
+  useEffect(() => {
+    if (normalizedStatus === "pending" && ["admin", "marketing_manager", "zonal_marketing_manager"].includes(role)) {
+      setMessage("You may approve the job to proceed further.");
+    } else if (!assignedTo) {
+      setMessage("Please assign this job to continue.");
+    } else if (role === "agency") {
+      setMessage("You may start working on the job or submit the artwork.");
+    } else if (["marketing_manager", "admin", "zonal_marketing_manager"].includes(role)) {
+      if (normalizedStatus === "artwork submitted") {
+        setMessage("Artwork has been submitted. You can now review it or mark it as approved/rejected.");
+      } else {
+        setMessage("Artwork has not been submitted yet, so you may only put the job on hold at this stage.");
+      }
+    } else {
+      setMessage("No available actions for your role at the current status.");
+    }
+  }, [normalizedStatus, role, assignedTo]);
 
     const handleFileChange = (e) => {
         setAttachment(e.target.files[0]);
@@ -45,35 +82,35 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
 
         try {
             let fileUrl = " ";
-      if (attachment) {
-        const timestamp = Date.now();
-        const folderName = "job";
-        const fileNameWithFolder = `${folderName}/${timestamp}-${attachment.name}`;
+            if (attachment) {
+                const timestamp = Date.now();
+                const folderName = "job";
+                const fileNameWithFolder = `${folderName}/${timestamp}-${attachment.name}`;
 
-        // Get signed URL from backend
-        const { data } = await axios.post(
-            `${import.meta.env.VITE_BACKEND_BASE_URL}/api/files/signed-url/upload`,
-            { fileName: fileNameWithFolder, fileType: attachment.type }
-        );
+                // Get signed URL from backend
+                const { data } = await axios.post(
+                    `${import.meta.env.VITE_BACKEND_BASE_URL}/api/files/signed-url/upload`,
+                    { fileName: fileNameWithFolder, fileType: attachment.type }
+                );
 
-        if (!data.signedUrl) throw new Error("Failed to get signed URL");
+                if (!data.signedUrl) throw new Error("Failed to get signed URL");
 
-        // Upload file to Google Cloud using signed URL
-        await axios.put(data.signedUrl, attachment, {
-            headers: { "Content-Type": attachment.type },
-            onUploadProgress: (progressEvent) => {
-                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                setUploadProgress(percentCompleted); // Update the progress state
+                // Upload file to Google Cloud using signed URL
+                await axios.put(data.signedUrl, attachment, {
+                    headers: { "Content-Type": attachment.type },
+                    onUploadProgress: (progressEvent) => {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setUploadProgress(percentCompleted); // Update the progress state
 
-                console.log("Upload Progress:", percentCompleted + "%");
-            },
-        });
+                        console.log("Upload Progress:", percentCompleted + "%");
+                    },
+                });
 
-        fileUrl = data.fileUrl; // Use the file URL from the response
-    }
+                fileUrl = data.fileUrl; // Use the file URL from the response
+            }
 
             const response = await axios.post(
-               `${import.meta.env.VITE_BACKEND_BASE_URL}/api/jobs/${jobId}/update-status`,
+                `${import.meta.env.VITE_BACKEND_BASE_URL}/api/jobs/${jobId}/update-status`,
                 { status, comment, attachment: fileUrl },
                 { withCredentials: true }
             );
@@ -102,10 +139,9 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
 
     return (
         <div className="flex flex-col gap-3">
-
             {statuses.length > 0 && (
                 <>
-                <h3 className="text-lg font-semibold mt-4 mb-1">Task Status Update</h3>
+                    <h3 className="text-lg font-semibold mt-4 mb-1">Task Status Update</h3>
                     {attachment && <p>Selected file: {attachment.name}</p>}
                     <textarea
                         className="border border-gray-400 focus:outline-blue-300 rounded-lg"
@@ -148,13 +184,14 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
                     )}
 
                     <div className="flex gap-4">
-                        <Button type="button" variant="outline" disabled={loading }>Cancel</Button>
+                        <Button type="button" variant="outline" disabled={loading}>Cancel</Button>
                         <Button type="button" onClick={updateStatus} disabled={loading || !status}>
                             {loading ? "Updating..." : "Submit"}
                         </Button>
                     </div>
                 </>
             )}
+            <StatusMessageWrapper success={message} />
         </div>
     );
 };

@@ -90,7 +90,7 @@ const MasterDataPage = () => {
 
     setLoading(true);
     try {
-      await addNewBrand({ name: newBrand, product: selectedProduct });
+      await addNewBrand({ name: newBrand.toLowerCase(), product: selectedProduct });
       setNewBrand("");
       getBrandsById(selectedProduct); // Refresh the brands list after adding
     } catch (err) {
@@ -113,7 +113,7 @@ const MasterDataPage = () => {
 
     setLoading(true);
     try {
-      await addNewModelCategory({ name: newModel, brand: selectedBrand });
+      await addNewModelCategory({ name: newModel.toLowerCase(), brand: selectedBrand });
       console.log(selectedBrand)
       setNewModel("");
       getModelsById(selectedBrand); // Refresh the brands list after adding
@@ -180,7 +180,7 @@ const MasterDataPage = () => {
             ) : brands.length > 0 ? (
               brands.map((brand) => (
                 <div key={brand._id}
-                  className={`${selectedBrand === brand._id ? selectedStyle : defaultStyle} ${labelStyle} cursor-pointer`}
+                  className={`${selectedBrand === brand._id ? selectedStyle : defaultStyle} ${labelStyle} cursor-pointer capitalize`}
                   onClick={() => {
                     setSelectedBrand(brand._id);
                     getModelsById(brand._id);
@@ -234,7 +234,7 @@ const MasterDataPage = () => {
               <p>Loading model...</p>
             ) : models.length > 0 ? (
               models.map((model) => (
-                <div key={model._id} className={`${labelStyle} ${defaultStyle}`}  >
+                <div key={model._id} className={`${labelStyle} ${defaultStyle} uppercase cursor-pointer`}  >
                   {model.name}
                   <span onClick={() => removeModel(model._id)}
                   ><FiX />

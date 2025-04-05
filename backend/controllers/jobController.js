@@ -3,17 +3,17 @@ import { bucket } from "../config/storage.js";
 import Job from "../models/JobModel.js";
 import User from "../models/User.js";
 
-const JOB_STATUS = ["Inprogress", "Hold", "Submited"];
-const DECISION_STATUS = ["Created", "Approved", "Assigned", "Completed", "Rejected", "Resubmitted"];
+const JOB_STATUS = ["inprogress", "artwork submitted"];
+const DECISION_STATUS = ["approved","under review", "review rejected", "artwork approved", "hold"];
 export const createJob = async (req, res) => {
   try {
-    const { title, type, priority, offerType, zone, state, language, product, brand, model, offerDetails, otherDetails, attachment, dueDate } = req.body;
+    const { title, typeOfArtwork, priority, offerType, zone, state, language, product, brand, model, offerDetails, otherDetails, attachment, dueDate } = req.body;
     console.log(req.user)
 
     const newJob = new Job({
       title,
-      type,
       priority,
+      typeOfArtwork,
       offerType,
       zone,
       state,
@@ -25,6 +25,7 @@ export const createJob = async (req, res) => {
       otherDetails,
       attachment,
       dueDate,
+      createdBy: req.user.userId,
       decisionHistory: [{ status: "Created", updatedBy: req.user.userId }] // Auto-add initial status
     });
 
@@ -39,11 +40,18 @@ export const createJob = async (req, res) => {
 
 export const getAllJobs = async (req, res) => {
   try {
-    let { page = 1, limit = 2, search,priority,languages } = req.query;
+    let { page = 1, limit = 2, search, priority, languages } = req.query;
 
-    console.log('getAllJobs', page)
 
     let filter = {};
+    if (req?.user?.role === "agency") {
+      filter.assignedTo = req.user.userId;
+    
+    }
+    if ( req?.user?.role === "zonal_marketing_manager") {
+      filter.createdBy = req.user.userId;
+    
+    }
     if (search) {
       filter.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -54,9 +62,9 @@ export const getAllJobs = async (req, res) => {
     if (languages) {
       const languagesArray = languages.split(",");
       if (languagesArray.length > 0) {
-          filter.language = { $in: languagesArray };
+        filter.language = { $in: languagesArray };
       }
-  }
+    }
 
 
     // Convert limit and page to integers
@@ -126,85 +134,103 @@ export const getJobById = async (req, res) => {
     const { id } = req.params;
 
     const job = await Job.findById(id)
-      .populate('decisionHistory.updatedBy', 'firstName lastName email profilePic')
+    .populate('product', 'name')
+    .populate('brand', 'name')
+    .populate('model', 'name')
+    .populate('decisionHistory.updatedBy', 'firstName lastName email profilePic')
       .populate('statusHistory.updatedBy', 'firstName lastName email profilePic')
-      .populate({ path: 'createdBy', select: 'firstName lastName profilePic role' })
+      .populate('createdBy', 'firstName lastName email profilePic role')
       .populate('assignedTo', 'firstName lastName email profilePic');
 
     if (!job) {
       return res.status(404).json({ error: "Job not found" });
     }
 
+    // Reusable helper to generate safe signed URL
+    const getSignedUrlSafe = async (filePath) => {
+      if (filePath && typeof filePath === 'string' && filePath.trim() !== '') {
+        try {
+          return await generateSignedUrl(filePath);
+        } catch (err) {
+          console.error("Signed URL generation error:", err);
+        }
+      }
+      return null;
+    };
+
+    // createdBy with profilePic
     let createdBy = null;
-    let approvedBy = null;
-
-    // Find the "Created" status entry
-    const createdStatus = job.decisionHistory.find(entry => entry.status === "Created");
-    if (createdStatus?.updatedBy) {
-      const profilePicSignedUrl = createdStatus.updatedBy.profilePic
-        ? await generateSignedUrl(createdStatus.updatedBy.profilePic)
-        : null;
-
+    if (job.createdBy) {
       createdBy = {
-        _id: createdStatus.updatedBy._id,
-        email: createdStatus.updatedBy.email,
-        firstName: createdStatus.updatedBy.firstName,
-        lastName: createdStatus.updatedBy.lastName,
-        profilePic: profilePicSignedUrl || createdStatus.updatedBy.profilePic
+        _id: job.createdBy._id,
+        email: job.createdBy.email,
+        firstName: job.createdBy.firstName,
+        lastName: job.createdBy.lastName,
+        role: job.createdBy.role,
+        profilePic: await getSignedUrlSafe(job.createdBy.profilePic)
       };
     }
 
-    // Find the "Approved" status entry
+    // assignedTo with profilePic
+    let assignedTo = null;
+    if (job.assignedTo) {
+      assignedTo = {
+        _id: job.assignedTo._id,
+        email: job.assignedTo.email,
+        firstName: job.assignedTo.firstName,
+        lastName: job.assignedTo.lastName,
+        profilePic: await getSignedUrlSafe(job.assignedTo.profilePic)
+      };
+    }
+
+    // approvedBy from decisionHistory
+    let approvedBy = null;
     const approvedStatus = job.decisionHistory.find(entry => entry.status === "Approved");
     if (approvedStatus?.updatedBy) {
-      const profilePicSignedUrl = approvedStatus.updatedBy.profilePic
-        ? await generateSignedUrl(approvedStatus.updatedBy.profilePic)
-        : null;
-
       approvedBy = {
         _id: approvedStatus.updatedBy._id,
         email: approvedStatus.updatedBy.email,
         firstName: approvedStatus.updatedBy.firstName,
         lastName: approvedStatus.updatedBy.lastName,
-        profilePic: profilePicSignedUrl || approvedStatus.updatedBy.profilePic
+        profilePic: await getSignedUrlSafe(approvedStatus.updatedBy.profilePic)
       };
     }
 
-    // Generate signed URL for main job attachment
-    let attachmentSignedUrl = null;
-    if (job.attachment) {
-      attachmentSignedUrl = await generateSignedUrl(job.attachment);
-    }
+    // Main attachment
+    const attachmentSignedUrl = await getSignedUrlSafe(job.attachment);
 
-    // Generate signed URLs for statusHistory attachments
+    // statusHistory with signed attachments and profilePics
     const statusHistoryWithSignedUrls = await Promise.all(
-      job.statusHistory.map(async (entry) => {
-        const attachmentSignedUrl = entry.attachment ? await generateSignedUrl(entry.attachment) : null;
-        return {
-          ...entry.toObject(),
-          attachmentSignedUrl,
-        };
-      })
+      job.statusHistory.map(async (entry) => ({
+        ...entry.toObject(),
+        updatedBy: {
+          ...entry.updatedBy.toObject(),
+          profilePic: await getSignedUrlSafe(entry.updatedBy?.profilePic)
+        },
+        attachmentSignedUrl: await getSignedUrlSafe(entry.attachment)
+      }))
     );
 
-    // Generate signed URLs for decisionHistory attachments
+    // decisionHistory with signed attachments and profilePics
     const decisionHistoryWithSignedUrls = await Promise.all(
-      job.decisionHistory.map(async (entry) => {
-        const attachmentSignedUrl = entry.attachment ? await generateSignedUrl(entry.attachment) : null;
-        return {
-          ...entry.toObject(),
-          attachmentSignedUrl,
-        };
-      })
+      job.decisionHistory.map(async (entry) => ({
+        ...entry.toObject(),
+        updatedBy: {
+          ...entry.updatedBy.toObject(),
+          profilePic: await getSignedUrlSafe(entry.updatedBy?.profilePic)
+        },
+        attachmentSignedUrl: await getSignedUrlSafe(entry.attachment)
+      }))
     );
 
     res.status(200).json({
       ...job.toObject(),
       createdBy,
       approvedBy,
+      assignedTo,
       attachmentSignedUrl,
       statusHistory: statusHistoryWithSignedUrls,
-      decisionHistory: decisionHistoryWithSignedUrls,
+      decisionHistory: decisionHistoryWithSignedUrls
     });
 
   } catch (error) {
@@ -212,6 +238,9 @@ export const getJobById = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+
+
 
 
 // Utility function to generate signed URL
