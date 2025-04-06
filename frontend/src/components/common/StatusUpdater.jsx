@@ -27,10 +27,29 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
         if (!assignedTo) return [];
 
         if (role === "agency") {
+            if (normalizedStatus !== "ho approved") {
             return ["inprogress", "artwork submitted"];
         }
+        return [];
+        }
 
-        if (["marketing_manager", "admin", "zonal_marketing_manager"].includes(role)) {
+        if (["marketing_manager", "admin"].includes(role)) {
+            if (normalizedStatus === "artwork submitted") {
+                return [
+                    "under review",
+                    "review rejected",
+                    "artwork approved"
+                ];
+            }
+        
+            if (normalizedStatus === "artwork approved") {
+                return ["ho approved"];
+            }
+        
+            return ["hold"];
+        }
+
+        if (["zonal_marketing_manager"].includes(role)) {
             if (normalizedStatus === "artwork submitted") {
                 return [
                     "under review",
@@ -38,9 +57,7 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
                     "artwork approved"
                 ];
             } else {
-                return [
-                    "hold"
-                ];
+                return [];
             }
         }
 
@@ -53,7 +70,7 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
     } else if (!assignedTo) {
       setMessage("Please assign this job to continue.");
     } else if (role === "agency") {
-      setMessage("You may start working on the job or submit the artwork.");
+      setMessage("You may start working on the Artwork or submit the artwork.");
     } else if (["marketing_manager", "admin", "zonal_marketing_manager"].includes(role)) {
       if (normalizedStatus === "artwork submitted") {
         setMessage("Artwork has been submitted. You can now review it or mark it as approved/rejected.");

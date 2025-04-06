@@ -9,12 +9,12 @@ import Button from "../components/common/Button";
 import SelectField from "../components/common/SelectField";
 import InputText from "../components/common/InputText";
 import { fetchAllProducts, fetchBrandByProductId, fetchModelCategoriesByBrand } from "../api/masterDataApi";
+import ProgressBar from "../components/common/ProgressBar";
 
 
 const JobCreate = () => {
   const [formData, setFormData] = useState({
     title: "",
-    type: "",
     priority: "",
     typeOfArtwork: "",
     offerType: "",
@@ -44,6 +44,22 @@ const JobCreate = () => {
   const [brands, setBrands] = useState([]);
   const [models, setModels] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadedFileUrl, setUploadedFileUrl] = useState(null);
+
+  const isLocationComplete = formData.zone && formData.state && formData.language;
+  const isAllComplete =
+    formData.title &&
+    formData.priority &&
+    formData.typeOfArtwork &&
+    formData.offerType &&
+    formData.zone &&
+    formData.state &&
+    formData.language &&
+    formData.product &&
+    formData.brand &&
+    formData.model &&
+    formData.offerDetails &&
+    formData.dueDate;
 
   useEffect(() => {
     const getProducts = async () => {
@@ -126,8 +142,9 @@ const JobCreate = () => {
     setLoading(true);
 
     try {
-      let fileUrl = " ";
-      if (formData.attachment) {
+      let fileUrl = uploadedFileUrl || " ";
+
+      if (formData.attachment && !uploadedFileUrl) {
         const timestamp = Date.now();
         const folderName = "job";
         const fileNameWithFolder = `${folderName}/${timestamp}-${formData.attachment.name}`;
@@ -152,6 +169,7 @@ const JobCreate = () => {
         });
 
         fileUrl = data.fileUrl; // Use the file URL from the response
+        setUploadedFileUrl(fileUrl);
       }
 
       await axios.post(
@@ -164,7 +182,6 @@ const JobCreate = () => {
 
       setFormData({
         title: "",
-        type: "",
         priority: "",
         typeOfArtwork: "",
         offerType: "",
@@ -177,6 +194,7 @@ const JobCreate = () => {
         offerDetails: "",
         attachment: null,
       });
+      setUploadedFileUrl(null);
     } catch (error) {
       console.error("Error response:", error.response?.data);
       alert("Error creating job: " + (error.response?.data?.message || error.message));
@@ -186,8 +204,8 @@ const JobCreate = () => {
 
   const handleDateChange = (e) => {
     const value = e.target.value;
+    setDueDate(value)
     setFormData({ ...formData, dueDate: value });
-    console.log(formData)
   };
 
   return (
@@ -210,7 +228,7 @@ const JobCreate = () => {
             <InputText name={'title'} label={'Title'} value={formData.title} handleOnChange={handleChange} placeholder={'Job Title'} />
 
           </div>
-          <div className="flex gap-8">
+          <div className="flex gap-8 capitalize">
             <SelectField
               label="Type of Artwork"
               name="typeOfArtwork"
@@ -221,39 +239,44 @@ const JobCreate = () => {
 
             <SelectField
               label="Offer Type"
-              name="OfferType"
-              value={formData.OfferType}
+              name="offerType"
+              value={formData.offerType}
               onChange={handleChange}
               options={OFFER_TYPES}
             />
           </div>
-          <div className="w-full">
+          <div className="flex gap-8">
 
-            <label>Priority</label>
-            <select name="priority" value={formData.priority} onChange={handleChange} className="block w-full mt-1 border rounded-md p-2">
-              <option value="">Select Priority</option>
-              {Object.keys(PRIORITY).map((priority) => (
-                <option key={priority} value={priority}>{priority}</option>
-              ))}
-            </select>
+            <div className="w-full">
+
+              <label>Priority</label>
+              <select name="priority" value={formData.priority} onChange={handleChange} className="block w-full mt-1 border rounded-md p-2">
+                <option value="">Select Priority</option>
+                {Object.keys(PRIORITY).map((priority) => (
+                  <option key={priority} value={priority}>{priority}</option>
+                ))}
+              </select>
+            </div>
+            <div className="w-full">
+              <label>Due Date</label>
+              <input
+                type="date"
+                value={dueDate}
+                onChange={handleDateChange}
+                min={getMinDate()}
+                max={getMaxDate()}
+                className="mt-1 p-2 border rounded w-full"
+              />
+            </div>
           </div>
-          <input
-            type="date"
-            value={dueDate}
-            onChange={handleDateChange}
-            min={getMinDate()}
-            max={getMaxDate()}
-            className="mt-1 p-2 border rounded w-full"
-          />
-
-          <div className="bg-amber-50 border border-amber-100/75 p-5 rounded-md">
+          <div className="bg-amber-50 border border-amber-100/75 p-5 rounded-md mt-4">
 
             <FileUpload onFileSelect={handleFileChange} />
 
             {uploadProgress > 0 && (
               <div className="flex items-center gap-2">
-                <progress value={uploadProgress} max="100"></progress>
-                <span>{uploadProgress}%</span>
+                <ProgressBar progress={uploadProgress} />
+
               </div>
             )}
 
@@ -264,8 +287,15 @@ const JobCreate = () => {
         <div className="w-full flex flex-col">
           <div className='fle gap-4 bg-gray-50 rounded-lg items-start justify-start'>
             <div className=' bg-white rounded-t-md w-fit border border-blue-300/70 overflow-hidden  ' style={{ boxShadow: "inset 0px -6px 5px 0px rgba(0, 0, 0, 0.13)" }}>
-              <button type="button" className={`px-4 py-2 cursor-pointer ${activeTab === "location" ? 'bg-red-600/90 text-white' : ''}`} onClick={() => setActiveTab('location')}>Location</button>
-              <button type="button" className={`px-4 py-2 cursor-pointer ${activeTab === "specifications" ? 'bg-red-600/90 text-white' : ''}`} onClick={() => setActiveTab('specifications')}>Specifications</button>
+              <button type="button" className={`px-4 py-2 cursor-pointer ${activeTab === "location" ? 'bg-red-600/90 text-white' : ''}`} onClick={() => setActiveTab('location')} >Location</button>
+              <button type="button" className={`px-4 py-2 transition-all duration-200 
+    ${activeTab === "specifications" ? 'bg-red-600/90 text-white' : ''}
+    ${!isLocationComplete ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer '}`}
+                onClick={() => isLocationComplete && setActiveTab('specifications')}
+                disabled={!isLocationComplete}
+              >
+                Specifications
+              </button>
             </div>
           </div>
 
@@ -315,9 +345,15 @@ const JobCreate = () => {
                       ))}
                     </div>
                   </div>
-                  <div className="flex gap-5 mt-6">
+                  <div className="flex gap-5 mt-6 items-center">
 
-                    <Button variant="outline" className={'max-w-sm'} onClick={() => setActiveTab("specifications")}>Next</Button>
+                    <Button variant="outline" className={'max-w-sm'} onClick={() => isLocationComplete && setActiveTab('specifications')}
+                      disabled={!isLocationComplete}>Next</Button>
+                    {!isLocationComplete && (
+                      <p className="text-xs text-red-500">
+                        Please select/fill all fields to proceed.
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
@@ -368,14 +404,23 @@ const JobCreate = () => {
                       </select>
                     </div>
 
-                    <InputText label={"Offer Type"} name="offerType" value={formData.offerType} handleOnChange={handleChange} placeholder="Offer Type" />
+                    {/* <InputText label={"Offer Type"} name="offerType" value={formData.offerType} handleOnChange={handleChange} placeholder="Offer Type" /> */}
                   </div>
                   <textarea name="offerDetails" value={formData.offerDetails} onChange={handleChange} placeholder="Offer Details" className="w-full border p-2 rounded mt-5"></textarea>
                   <div className="flex gap-5 mt-4">
-                    <Button type="submit">
+                    <Button type="submit"
+                      disabled={!isAllComplete}
+                    >
                       {loading ? "Creating..." : "Create Job"}
                     </Button>
                     <Button variant="outline">Back</Button>
+                  </div>
+                  <div>
+                  {!isAllComplete && (
+                      <p className="text-xs text-red-500">
+                        Please select/fill all fields to proceed.
+                      </p>
+                    )}
                   </div>
                 </div>)}
 

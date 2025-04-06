@@ -65,11 +65,12 @@ const LoginPage = () => {
         <h2 className="text-xl  mb-4 text-center font-bold">Welcome back</h2>
         <span className="flex gap-3 text-2xl items-end font-semibold font-base/2 py-2 justify-center"><img src={LogoImage} className="h-8" alt="Description" />Catena</span>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="on">
           <InputText
             label="Email"
             name="email"
             type="email"
+            autoComplete="email"
             value={email}
             handleOnChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
@@ -82,9 +83,10 @@ const LoginPage = () => {
               label="Password"
               name="password"
               type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
               value={password}
               handleOnChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your email"
+              placeholder="Enter your password"
               aria-label="Email"
               aria-describedby="email-error"
               required

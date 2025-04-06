@@ -11,6 +11,7 @@ import { DESIGNATIONS, ROLES } from "../utils/enums";
 import AdminResetPassword from '../components/user/AdminResetPassword';
 import { useAuth } from '../context/auth-context';
 
+import { hasAccess } from "../utils/permissions";
 
 const ViewText = ({ children }) => (<p className='text-xl capitalize'>{children}</p>)
 
@@ -42,9 +43,6 @@ const UserDetails = () => {
 
     const { user } = useAuth(); // current logged-in user
 
-    // Check access
-    const allowedRoles = ['admin', 'marketing_manager'];
-    const hasAccess = user?.role && (allowedRoles.includes(user.role) || user._id === id);
     if (!hasAccess) {
         return <Navigate to="/unauthorized" />; // or show a message / redirect
     }
@@ -65,7 +63,6 @@ const UserDetails = () => {
             try {
                 const data = await fetchUserById(id);
                 setViewUser(data);
-                console.log(data)
             } catch (err) {
                 setError(err.response?.data?.message || "Something went wrong");
             } finally {
@@ -249,7 +246,7 @@ const UserDetails = () => {
                                 <div className='flex gap-8 max-w-2xl items-start mb-6'>
                                     <div className='w-full'>
                                         <label className='text-gray-400'>User Type</label>
-                                        {editSections.professionalInfo ? (
+                                        {editSections.professionalInfo && hasAccess(user?.role, ['marketing_manager', 'admin']) ? (
 
                                             <select className='w-full border border-gray-400 rounded-md py-1 px-2'
                                                 name="userType"
@@ -272,7 +269,7 @@ const UserDetails = () => {
                                     <div className='w-full'>
                                         <label className='text-gray-400'>Designation</label>
 
-                                        {editSections.professionalInfo ? (
+                                        {editSections.professionalInfo && hasAccess(user?.role, ['marketing_manager', 'admin']) ? (
 
                                             <select className='w-full border border-gray-400 rounded-md py-1 px-2'
                                                 name="designation"
@@ -292,6 +289,7 @@ const UserDetails = () => {
 
                                     </div>
                                     <div>
+                                    {  hasAccess(user?.role, ['marketing_manager', 'admin']) &&(
                                         <EditButton
                                             isEditing={editSections.professionalInfo}
                                             toggleEdit={() => toggleEditSection("professionalInfo")}
@@ -302,12 +300,13 @@ const UserDetails = () => {
                                                 )
                                             }
                                         />
+                                    )}
                                     </div>
                                 </div>
                                 <div className='flex gap-8 max-w-2xl items-start mb-6'>
                                     <div className='w-full'>
                                         <label className='text-gray-400'>Status</label>
-                                        {editSections.status ? (
+                                        {editSections.status && hasAccess(user?.role, ['marketing_manager', 'admin']) ? (
                                             <select className='w-full border border-gray-400 rounded-md py-1 px-2'
                                                 name="status"
                                                 value={updatedFields.status ?? viewUser?.status}
@@ -324,7 +323,7 @@ const UserDetails = () => {
                                     <div className='w-full'>
                                         <label className='text-gray-400'>Role</label>
 
-                                        {editSections.status ? (
+                                        {editSections.status && hasAccess(user?.role, ['marketing_manager', 'admin']) ? (
                                             <select className='w-full border border-gray-400 rounded-md py-1 px-2'
                                                 name="role"
                                                 value={updatedFields.role ?? viewUser?.role}
@@ -342,13 +341,14 @@ const UserDetails = () => {
                                         )}
                                     </div>
                                     <div>
-
+                                   {  hasAccess(user?.role, ['marketing_manager', 'admin']) &&(
                                         <EditButton
                                             isEditing={editSections.status}
                                             toggleEdit={() => toggleEditSection("status")}
                                             updateProfile={updateUserProfile}
                                             isDisabled={Object.keys(updatedFields).length === 0}
                                         />
+                                   )}
 
                                     </div>
                                 </div>

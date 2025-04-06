@@ -36,6 +36,8 @@ const getStatusColor = (status) => {
         "artwork approved": "success",
         inprogress: "info",
         "artwork submitted": "info",
+        "ho approved": "success",
+
     };
     return statusMap[status?.toLowerCase()] || "default";
 };
@@ -49,6 +51,7 @@ const statusIcons = {
     "artwork approved": "done",
     inprogress: "clock",
     "artwork submitted": "pad",
+    "ho approved": "shieldcheck",
 
 
 
@@ -354,7 +357,7 @@ const JobViewPage = () => {
                                                 <p className="flex gap-2 items-center capitalize text-xs font-semibold ">
                                                     {history.status.replace(/artwork/gi, "").trim()}
                                                     <StatusBubble
-                                                        size="xs"
+                                                        size="md"
                                                         icon={statusIcons[history?.status?.toLowerCase()] || "clock"}
                                                         status={getStatusColor(history?.status)?.toLowerCase().trim() || "error"}
                                                         className={'test'}

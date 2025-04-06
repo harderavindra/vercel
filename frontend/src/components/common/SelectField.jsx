@@ -3,7 +3,7 @@ const SelectField = ({ label, name, value, onChange, options, className = "" }) 
         <div className={`flex flex-col gap-1 w-full ${className || ''}`}>
             {label && <label className="font-medium">{label}</label>}
             <select
-                className="border rounded-md border-gray-400 px-3 py-2 focus:border-blue-300 focus:outline-0"
+                className="border rounded-md border-gray-400 px-3 py-2 focus:border-blue-300 focus:outline-0 capitalize"
                 name={name}
                 value={value}
                 onChange={onChange}

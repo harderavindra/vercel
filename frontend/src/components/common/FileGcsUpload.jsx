@@ -13,14 +13,16 @@ const FileGcsUpload = ({ onFileSelect }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center ">
+    <div className="flex flex-col items-center justify-center  ">
       <input type="file" onChange={handleFileChange} id="fileInput" hidden className="border p-2 rounded" />
       <button   type="button"
 
         onClick={() => document.getElementById("fileInput").click()}
-        className="flex flex-col  items-center justify-center text-center"
+        className="flex flex-col  items-center justify-center text-center cursor-pointer"
       >
-        <span className="w-10 h-10 bg-white rounded-full flex justify-center items-center"><FiUploadCloud size={24} className="text-red-500" /> </span>{file ? (<p className="max-w-[200px] truncate overflow-hidden whitespace-nowrap ">File selected to upload</p>) : ("Select a file to upload")}
+        <span className="w-10 h-10 bg-white rounded-full flex justify-center items-center cursor-pointer"
+         onClick={() => document.getElementById("fileInput").click()}
+        ><FiUploadCloud size={24} className="text-red-500" /> </span>{file ? (<p className="max-w-[200px] truncate overflow-hidden whitespace-nowrap ">File selected to upload</p>) : ("Select a file to upload")}
       </button>
       {file &&
      (<><p className="flex gap-2 items-center"><FileIcon size={18} mimeType={file?.type} />{file?.name}</p>

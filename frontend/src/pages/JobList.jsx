@@ -64,7 +64,7 @@ const JobList = () => {
         try {
             const params = {
                 page,
-                limit: 2,
+                limit: 4,
                 search: debouncedSearch,
                 priority,
                 languages: selectedLanguages.join(",")

@@ -1,6 +1,7 @@
 import React from 'react'
 import { FaTimesCircle } from 'react-icons/fa'
 import { FiCheck, FiClipboard, FiClock, FiEye, FiEyeOff, FiRotateCcw, FiStar, FiThumbsUp, FiUser } from 'react-icons/fi'
+import { LuShieldCheck } from "react-icons/lu";
 
 const StatusBubble = ({status ='success',icon,  size= 'sm', className, onClick}) => {
     const statusStyles = {
@@ -40,12 +41,13 @@ const StatusBubble = ({status ='success',icon,  size= 'sm', className, onClick})
         clock: <FiClock size={sizes[size]}/>,
         user: <FiUser size={sizes[size]}/>,
         done:<FiThumbsUp size={sizes[size]} />,
-        pad:<FiClipboard size={sizes[size]} />
-
+        pad:<FiClipboard size={sizes[size]} />,
+        
+        shieldcheck:<LuShieldCheck size={sizes[size]} />
     }
    
   return (
-    <button className={`rounded-full p-1 text-white green-status green-shadow-md ${className}`}
+    <button className={`rounded-full p-[6px] text-white green-status green-shadow-md  ${className}`}
     style={{
         background: statusStyles[status]?.background,
         boxShadow: statusStyles[status]?.boxShadow,

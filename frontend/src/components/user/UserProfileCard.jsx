@@ -5,12 +5,15 @@ import { FiCalendar, FiCheckSquare, FiMail, FiPhone } from "react-icons/fi";
 import { formatDateTime } from "../../utils/formatDateTime";
 import DeleteUserButton from "../user/DeleteUserButton";
 import { snakeToCapitalCase } from "../../utils/convertCase";
+import { hasAccess } from "../../utils/permissions";
+import { useAuth } from '../../context/auth-context';
 // import ChangeAvatar from "./ChangeAvatar";
 const UserProfileCard = ({ user }) => {
     if (!user) return null;
-
+ const { user: currentUser } = useAuth(); // current logged-in user
     return (
         <div className='bg-white rounded-lg border border-blue-300/70 flex flex-col min-h-full min-w-[20%] items-center  '>
+            
             <div className='p-5 text-center relative w-full items-center justify-center'>
                 <StatusBubble size='sm' status={`${user.status === 'active' ? 'success' : 'error'}`} icon={user.status === 'inactive' ? 'eyeOff' : 'check'} className='absolute right-5 top-5' />
                 <div className="relative">
@@ -32,7 +35,9 @@ const UserProfileCard = ({ user }) => {
                 <p className='  text-sm text-gray-400 flex items-center gap-2 lowercase'><FiCheckSquare size={14} />{user?.lastUpdatedAt ? formatDateTime(user.lastUpdatedAt) : "No updates yet"}</p>
             </div>
             <div className="flex flex-col gap-3 px-4 py-4 w-full border-t border-t-blue-300/70 ">
+            {hasAccess(currentUser?.role, ['marketing_manager', 'admin']) &&(
             <DeleteUserButton userId={user._id}  />
+        )}
             </div>
         </div>
     );

@@ -42,7 +42,7 @@ const DeleteUserButton = ({ userId, onDelete }) => {
       <button
         className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition w-full disabled:bg-gray-200"
 
-        onClick={() => setIsOpen(true)} disabled={user?.role?.toLowerCase() !== "admin"}
+        onClick={() => setIsOpen(true)} 
       >
         Delete
       </button>
