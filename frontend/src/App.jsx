@@ -18,6 +18,11 @@ import JobViewPage from "./pages/JobViewPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import DashboardPage from "./pages/DashboardPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
+import BrandList from "./pages/BrandList";
+import BrandTreasuryCreate from "./pages/BrandTreasuryCreate";
+import BrandTreasuryCreatePage from "./pages/BrandTreasuryCreatePage";
+import BrandTreasuryList from "./pages/BrandTreasuryList";
+import ViewBrandTreasuryPage from "./pages/ViewBrandTreasuryPage";
 
 const App = () => {
     return (
@@ -37,6 +42,11 @@ const App = () => {
                         </Route>
                         <Route element={<ProtectedRoute />}>
                             <Route index element={<DashboardPage />} />
+                            <Route path="/brand-treasury" element={<BrandTreasuryList />} />
+                            <Route path="/create-brand" element={<BrandTreasuryCreate />} />
+                            <Route path="/create-brand-treasury" element={<BrandTreasuryCreatePage />} />
+                            <Route path="/view-brandtreasury/:fileId" element={<ViewBrandTreasuryPage />} />
+
                             <Route path="/artworks" element={<JobList />} />
                             <Route path="/about" element={<About />} />
                             <Route path="/profile" element={<ProfilePage />} />

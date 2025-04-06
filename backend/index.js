@@ -6,6 +6,7 @@ import userRoutes from "./routes/userRoutes.js";
 import signedUrlRoutes from "./routes/signedUrlRoutes.js";
 import masterDataRoutes from "./routes/masterDataRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
+import brandTreasuryRoutes from "./routes/brandTreasuryRoutes.js";
 import cookieParser from 'cookie-parser';
 import { bucket, uuidv4 } from './config/storage.js';
 
@@ -21,7 +22,7 @@ app.use(cookieParser());
 
 app.use(cors({
   origin: ['http://localhost:5173', 'https://vercel-frontend-henna.vercel.app'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH','DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   credentials: true,  // Allows sending cookies with requests
 }));
@@ -36,6 +37,7 @@ app.use("/api/users", userRoutes);
 app.use('/api/files', signedUrlRoutes);
 app.use("/api/master", masterDataRoutes);
 app.use("/api/jobs", jobRoutes);
+app.use("/api/brand-treasury", brandTreasuryRoutes);
 
 
 app.get('/', (req, res) => {
