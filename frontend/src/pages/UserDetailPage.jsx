@@ -63,6 +63,7 @@ const UserDetails = () => {
             try {
                 const data = await fetchUserById(id);
                 setViewUser(data);
+                console.log(data)
             } catch (err) {
                 setError(err.response?.data?.message || "Something went wrong");
             } finally {

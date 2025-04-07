@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FiStar } from "react-icons/fi";
+import { FiGrid, FiStar, FiUserPlus } from "react-icons/fi";
 import Pagination from "../components/common/Pagination";
 import BrandCard from "../components/brand/BrandCard";
 import SearchInput from "../components/user/SearchInput";
@@ -183,25 +183,26 @@ const [successMessage, setSuccessMessage] = useState('');
       </div>
 
       {/* Sidebar Filters */}
-      <div className="bg-white shadow-md w-[220px]">
-        <button
-          className={`flex gap-2 items-center py-2 px-3 text-lg ${starred ? "text-red-500" : ""}`}
-          onClick={() => { setStarred(true); setMyDocuments(false); setPage(1); }}
-        >
-          <FiStar size={24} /> Starred
-        </button>
-        <button
-          className={`flex gap-2 items-center py-2 px-3 text-lg ${myDocuments ? "text-red-500" : ""}`}
-          onClick={() => { setMyDocuments(true); setStarred(false); setPage(1); }}
-        >
-          <FiStar size={24} /> My Documents
-        </button>
-        <button
-          className="flex gap-2 items-center py-2 px-3 text-lg"
+      <div className="bg-white shadow-md min-w-[40px] px-2 py-3">
+      <button
+          className={`flex flex-col gap-1 items-center py-2 px-3 text-xs w-full cursor-pointer ${!myDocuments &&  !starred ? "text-red-500" : ""}`}
           onClick={() => { setMyDocuments(false); setStarred(false); setPage(1); }}
         >
-          <FiStar size={24} /> All Documents
+          <FiGrid size={18} /> All
         </button>
+        <button
+          className={`flex flex-col gap-1 items-center py-2 px-3 text-xs w-full cursor-pointer ${starred ? "text-red-500" : ""}`}
+          onClick={() => { setStarred(true); setMyDocuments(false); setPage(1); }}
+        >
+          <FiStar size={18} /> Starred
+        </button>
+        <button
+          className={`flex flex-col gap-1 items-center py-2 px-3 text-xs w-full cursor-pointer ${myDocuments ? "text-red-500" : ""}`}
+          onClick={() => { setMyDocuments(true); setStarred(false); setPage(1); }}
+        >
+          <FiUserPlus size={18} /> My
+        </button>
+       
       </div>
     </div>
   );

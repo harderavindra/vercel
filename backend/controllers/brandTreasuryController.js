@@ -101,6 +101,15 @@ export const getBrandTreasuryById = async (req, res) => {
         ? await attachmentSignedUrl(document.attachment)
         : null;
 
+        // Generate signed URL for profile pictures if they exist
+const createdByProfilePicUrl = document.createdBy?.profilePic
+? await generateSignedUrl(document.createdBy.profilePic)
+: null;
+
+const approvedByProfilePicUrl = document.approvedBy?.profilePic
+  ? await generateSignedUrl(document.approvedBy.profilePic)
+  : null;
+
         res.json({
             _id: document._id,
             title: document.title,
@@ -117,11 +126,17 @@ export const getBrandTreasuryById = async (req, res) => {
             brand: document.brand?.name || null,
             model: document.model?.name || null,
             lastUpdatedBy: document.lastUpdatedBy,
-            createdBy: document.createdBy,
+            createdBy: {
+                ...document.createdBy?._doc,
+                profilePic: createdByProfilePicUrl
+            },
             updatedAt: document.updatedAt,
             createdAt: document.createdAt,
             approved: document.approved,
-            approvedBy: document.approvedBy,
+            approvedBy: {
+                ...document.approvedBy?._doc,
+                profilePic: approvedByProfilePicUrl
+            },
             approvedAt: document.approvedAt,
             isStarred: !!isStarred,
             comment: document?.comment,
@@ -150,8 +165,7 @@ export const getBrandTreasuries = async (req, res) => {
             ];
         }
         if (myDocuments === "true") {
-            console.log(myDocuments, "myDocuments")
-            filter.lastUpdatedBy = userId;  // Ensure `createdBy` is stored in the Document model
+            filter.createdBy = userId;  // Ensure `createdBy` is stored in the Document model
         }
 
         if (languages) {
@@ -196,15 +210,26 @@ export const getBrandTreasuries = async (req, res) => {
                 const signedThumbnails = await Promise.all(
                     (docObj.thumbnailUrls || []).map((url) => generateSignedUrl(url))
                 );
+                // Generate signed URL for createdBy.profilePic if it exists
+        let signedProfilePic = null;
+        if (docObj.createdBy?.profilePic) {
+            signedProfilePic = await generateSignedUrl(docObj.createdBy.profilePic);
+        }
+
 
                 return {
                     ...docObj,
+                    createdBy: {
+                        ...docObj.createdBy,
+                        profilePic: signedProfilePic,
+                    },
                     thumbnailUrls: signedThumbnails,
                     isStarred: starredIds.includes(doc._id.toString()),
                 };
             })
         );
 
+        
         // Count total documents
         const totalDocuments = await BrandTreasury.countDocuments(filter);
 

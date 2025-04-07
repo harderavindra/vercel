@@ -51,6 +51,7 @@ const ViewBrandTreasuryPage = () => {
         setThumbnails(data?.thumbnailUrls || []);
         setIsApproved(data?.approved);
         setIsStarred(data?.isStarred);
+        console.log(data)
       } catch (error) {
         console.error("Error fetching file:", error);
         setMessage("Failed to fetch file details.");
@@ -185,11 +186,13 @@ const ViewBrandTreasuryPage = () => {
           <div className="flex gap-2 justify-between bg-gray-50 px-6 py-2 text-lg">
             <div className="flex flex-col gap-2">
               <label className="text-gray-400 mb-1">Created: {formatDateTime(document?.createdAt)}</label>
-              <div className="flex items-center gap-2">
+              
+              <div className="flex items-start gap-2">
                 <Avatar src={document?.createdBy?.profilePic} size="md" />
-                <div>
+                
+                <div className="flex flex-col">
                   <label>{document?.createdBy?.firstName} {document?.createdBy?.lastName}</label>
-                  <label className="capitalize text-gray-500">{document?.createdBy?.role}</label>
+                  <label className="capitalize text-gray-500 text-base"> {snakeToCapitalCase( document?.createdBy?.role)}</label>
                 </div>
               </div>
             </div>
@@ -198,11 +201,12 @@ const ViewBrandTreasuryPage = () => {
               {isApproved ? (
                 <>
                   <label className="text-gray-400 mb-1">Approved: {formatDateTime(document?.approvedAt)}</label>
-                  <div className="flex items-center gap-2">
+                  <div className="flex justify-start items-start gap-2">
                     <Avatar src={document?.approvedBy?.profilePic} size="md" />
-                    <div>
+                    <div className="flex flex-col">
                       <label>{document?.approvedBy?.firstName} {document?.approvedBy?.lastName}</label>
-                      <label className="capitalize text-gray-500">{document?.approvedBy?.role}</label>
+                      <label className="capitalize text-gray-500 text-base"> {snakeToCapitalCase( document?.approvedBy?.role)}</label>
+                      
                     </div>
                   </div>
                 </>
