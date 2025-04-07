@@ -13,7 +13,8 @@ const BrandTreasurySchema = new mongoose.Schema(
     state: { type: String, required: false, trim: true },
     language: { type: String, required: false, trim: true },
 
-    content: { type: String, required: false, trim: true },
+    contentType: { type: String, required: false, trim: true },
+    comment: { type: String, required: false, trim: true },
 
     // Reference to Product, Brand, and Model
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductCategory', required: false },
@@ -26,6 +27,8 @@ const BrandTreasurySchema = new mongoose.Schema(
     attachment:{},
     // Metadata
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
+    approved: { type: Boolean, default:false },
+
     approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     approvedAt: { type: Date },
     lastUpdatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

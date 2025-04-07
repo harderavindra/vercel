@@ -55,7 +55,7 @@ const BrandTreasuryCreate = () => {
     formData.product &&
     formData.brand &&
     formData.model &&
-    formData.comment 
+    formData.comment
 
   useEffect(() => {
     const getProducts = async () => {
@@ -167,14 +167,14 @@ const BrandTreasuryCreate = () => {
         fileUrl = data.fileUrl; // Use the file URL from the response
         setUploadedFileUrl(fileUrl);
       }
-console.log(fileUrl,"fileUrl")
+      console.log(fileUrl, "fileUrl")
       await axios.post(
         `${import.meta.env.VITE_BACKEND_BASE_URL}/api/brand-treasury/create`,
         { ...formData, attachment: fileUrl },
         { withCredentials: true }
       );
 
-      navigate('/artworks', { state: { success: 'Artwork request created successfully!' } });
+      navigate('/brand-treasury', { state: { success: 'Artwork request created successfully!' } });
 
       setFormData({
         title: "",
@@ -188,12 +188,12 @@ console.log(fileUrl,"fileUrl")
         model: "",
         offerDetails: "",
         attachment: null,
-        
+
       });
       setUploadedFileUrl(null);
     } catch (error) {
       console.error("Error response:", error.response?.data);
-      alert("Error creating job: " + (error.response?.data?.message || error.message));
+      setError("Error creating job: " + (error.response?.data?.message || error.message));
     }
     setLoading(false);
   };
@@ -208,14 +208,14 @@ console.log(fileUrl,"fileUrl")
     <div className="p-10">
       {/* Header Section */}
       <div className="flex justify-between items-center pb-4">
-        <PageTitle>Create Brand Treasury add</PageTitle>
+        <PageTitle>Create Brand Treasury</PageTitle>
 
         <StatusMessageWrapper loading={loading} success={success} error={
           error || Object.keys(errors).length > 0
             ? "Please fill all required fields"
             : ''
         } />
-        <Button variant="outline" width="auto" onClick={() => navigate('/artworks')}>Back</Button>
+        <Button variant="outline" width="auto" onClick={() => navigate('/brand-treasury')}>Back</Button>
       </div>
       <form onSubmit={handleSubmit} className="flex gap-12" >
         <div className="flex flex-col gap-3 bg-white border border-blue-300/60 rounded-lg p-10 w-xl">
@@ -241,7 +241,7 @@ console.log(fileUrl,"fileUrl")
               options={BRAND_TREASURY_DOCUMENTS}
             />
           </div>
-         
+
           <div className="bg-amber-50 border border-amber-100/75 p-5 rounded-md mt-4">
 
             <FileUpload onFileSelect={handleFileChange} />
@@ -389,7 +389,7 @@ console.log(fileUrl,"fileUrl")
                     <Button variant="outline">Back</Button>
                   </div>
                   <div>
-                  {!isAllComplete && (
+                    {!isAllComplete && (
                       <p className="text-xs text-red-500">
                         Please select/fill all fields to proceed.
                       </p>

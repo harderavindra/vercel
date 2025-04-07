@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FiStar } from "react-icons/fi";
 import Pagination from "../components/common/Pagination";
 import BrandCard from "../components/brand/BrandCard";
@@ -10,9 +10,17 @@ import { BRAND_TREASURY_DOCUMENTS, LANGUAGES } from "../utils/constants";
 import StatusMessage from "../components/common/StatusMessage";
 import MultiSelect from "../components/common/MultiSelect";
 import axios from "axios";
+import PageTitle from "../components/common/PageTitle";
+import StatusMessageWrapper from "../components/common/StatusMessageWrapper";
+import { hasAccess } from "../utils/permissions";
+import { useAuth } from "../context/auth-context";
 
 const BrandTreasuryList = () => {
+  const { user } = useAuth();
+
   const navigate = useNavigate();
+  const location = useLocation();
+const [successMessage, setSuccessMessage] = useState('');
 
   const [page, setPage] = useState(1);
   const [documentType, setDocumentType] = useState("");
@@ -27,6 +35,18 @@ const BrandTreasuryList = () => {
   const [success, setSuccess] = useState("");
   const [selectedLanguages, setSelectedLanguages] = useState([]);
 
+  useEffect(() => {
+    if (location.state?.success) {
+      setSuccess(location.state.success);
+  
+      // Clear the message after a delay (optional)
+      const timer = setTimeout(() => {
+        setSuccess('');
+      }, 3000);
+  
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
 
   // Debounce search input
   useEffect(() => {
@@ -44,17 +64,16 @@ const BrandTreasuryList = () => {
       const params = {
         page, limit: 4, documentType, starred, myDocuments, search: debouncedSearch, languages: selectedLanguages.join(",")
       };
-       const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/brand-treasury/`, {
-      
+      const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/brand-treasury/`, {
+
         params,
         withCredentials: true,
       });
-      console.log(data.data,'api/brand-treasury/')
       setDocuments(data?.data || []);
       setPagination(data?.pagination || { currentPage: 1, totalPages: 1 });
     } catch (error) {
       setError(error.response?.data?.message || "Failed to fetch documents.");
-      console.error("❌ Error fetching brand treasury data:", error.response?.data || error.message);
+      console.error(" Error fetching brand treasury data:", error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
@@ -83,12 +102,18 @@ const BrandTreasuryList = () => {
     <div className="flex justify-between items-stretch min-h-full gap-10">
       {/* Left Content */}
       <div className="w-full p-10">
-        <div className="flex justify-between py-3">
-          <h1 className="text-3xl font-semibold">Brand Treasury</h1>
+        <div className="flex justify-between items-center pb-4">
+          <PageTitle>Brand Treasury</PageTitle>
+          <StatusMessageWrapper loading={loading} success={success} error={error} />
+          {hasAccess(user?.role, ['marketing_manager', 'admin', 'zonal_marketing_manager']) && (
+            <Button width="auto" onClick={() => navigate('/create-brand-treasury')}>
+              Add Brand Treasury
+            </Button>
+          )}
         </div>
 
         {/* Filters */}
-        {/* <div className={`flex justify-between ${selectedLanguages.length > 0
+        <div className={`flex justify-between ${selectedLanguages.length > 0
           ? 'pb-10' : 'pb-0'}`}>
           <div className={`flex gap-4 mb-5 ${error ? "hidden" : ""}`}>
             <SearchInput
@@ -98,7 +123,13 @@ const BrandTreasuryList = () => {
               placeholder="Search by name (min 3 chars)"
             />
             <DropdownFilter
-              options={BRAND_TREASURY_DOCUMENTS}
+              options={{
+                label: "Document Type",
+                items: BRAND_TREASURY_DOCUMENTS.map((doc) => ({
+                  value: doc.toLowerCase(),
+                  label: doc
+                }))
+              }}
               value={documentType}
               onChange={(e) => setDocumentType(e.target.value.toLowerCase())}
               onClear={() => setDocumentType("")}
@@ -115,10 +146,8 @@ const BrandTreasuryList = () => {
               Clear All
             </button>
           </div>
-          <div>
-            <Button onClick={() => navigate("/add-brand-treasury")}>Add</Button>
-          </div>
-        </div> */}
+       
+        </div>
 
 
         {/* Status Messages */}
@@ -128,14 +157,26 @@ const BrandTreasuryList = () => {
         </div>
 
         {/* Documents List */}
-        <div className="grid grid-cols-4 gap-10">
-          {loading
-            ? Array.from({ length: 4 }, (_, i) => <BrandCard key={i} loading />)
-            : documents.length > 0
-              ? documents.map((doc) => <BrandCard key={doc._id} document={doc} />)
-              : <p>No documents found.</p>
-          }
+        <div>
+          {loading ? (
+            <div className="grid grid-cols-4 gap-10">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <BrandCard key={i} loading />
+              ))}
+            </div>
+          ) : documents.length > 0 ? (
+            <div className="grid grid-cols-4 gap-10">
+              {documents.map((doc) => (
+                <BrandCard key={doc._id} document={doc} />
+              ))}
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <p className="py-2 px-3 bg-blue-100 border border-blue-400 rounded-lg text-blue-600">Brand Treasury is currently empty.</p>
+            </div>
+          )}
         </div>
+      
 
         {/* Pagination */}
         <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} onPageChange={setPage} />

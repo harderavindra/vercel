@@ -37,106 +37,111 @@ export const createBrandTreasury = async (req, res) => {
 export const uploadThumbnail = async (req, res) => {
     const { fileId } = req.params;
     const { thumbnailUrl: publicUrl } = req.body;
-  
-    try {
-      // Find the document by ID
-      const document = await BrandTreasury.findById(fileId);
-      if (!document) {
-        return res.status(404).json({ error: "Document not found" });
-      }
-  
-      // Limit to 4 thumbnails
-      if (document.thumbnailUrls && document.thumbnailUrls.length >= 4) {
-        return res.status(400).json({ error: "Maximum 4 thumbnails allowed" });
-      }
-  
-      // Save the public URL
-      document.thumbnailUrls = [...(document.thumbnailUrls || []), publicUrl];
-      await document.save();
-  
-      // Generate a signed URL for the uploaded file
-      const signedUrl = await generateSignedUrl(publicUrl);
-  
-      if (!signedUrl) {
-        return res.status(500).json({ error: "Failed to generate signed URL" });
-      }
-  
-      return res.json({
-        message: "Thumbnail uploaded successfully",
-        thumbnailUrl: signedUrl,
-      });
-    } catch (error) {
-      console.error("Error uploading thumbnail:", error);
-      return res.status(500).json({ error: "Server error. Please try again later." });
-    }
-  };
-  
 
-  export const getBrandTreasuryById = async (req, res) => {
     try {
-      const { fileId } = req.params;
-      const userId = req.user.userId;
-  
-      const document = await BrandTreasury.findById(fileId)
-        .populate({ path: 'product', select: 'name' })
-        .populate({ path: 'brand', select: 'name' })
-        .populate({ path: 'model', select: 'name' })
-        .populate({ path: 'lastUpdatedBy', select: 'firstName lastName profilePic role' })
-        .populate({ path: 'createdBy', select: 'firstName lastName profilePic role' })
-        .populate({ path: 'approvedBy', select: 'firstName lastName profilePic role' });
-  
-      if (!document) {
-        return res.status(404).json({ error: "File not found" });
-      }
-  
-      const isStarred = await StarredDocument.exists({ userId, documentId: fileId });
-  
-      // Generate signed URLs for thumbnail images
-      const signedThumbnailUrls = await Promise.all(
-        (document.thumbnailUrls || []).map((url) => generateSignedUrl(url))
-      );
-  
-      // Generate signed URL for attachment if exists
-      const signedAttachmentUrl = document.attachment
-        ? await generateSignedUrl(document.attachment)
-        : null;
-  
-      res.json({
-        _id: document._id,
-        title: document.title,
-        documentType: document.documentType,
-        contentType: document.contentType,
-        thumbnailUrls: signedThumbnailUrls,
-        attachment: signedAttachmentUrl,
-        product: document.product?.name || null,
-        brand: document.brand?.name || null,
-        model: document.model?.name || null,
-        lastUpdatedBy: document.lastUpdatedBy,
-        createdBy: document.createdBy,
-        updatedAt: document.updatedAt,
-        createdAt: document.createdAt,
-        approved: document.approved,
-        approvedBy: document.approvedBy,
-        approvedAt: document.approvedAt,
-        isStarred: !!isStarred,
-        comment: document?.comment,
-      });
+        // Find the document by ID
+        const document = await BrandTreasury.findById(fileId);
+        if (!document) {
+            return res.status(404).json({ error: "Document not found" });
+        }
+
+        // Limit to 4 thumbnails
+        if (document.thumbnailUrls && document.thumbnailUrls.length >= 4) {
+            return res.status(400).json({ error: "Maximum 4 thumbnails allowed" });
+        }
+
+        // Save the public URL
+        document.thumbnailUrls = [...(document.thumbnailUrls || []), publicUrl];
+        await document.save();
+
+        // Generate a signed URL for the uploaded file
+        const signedUrl = await generateSignedUrl(publicUrl);
+
+        if (!signedUrl) {
+            return res.status(500).json({ error: "Failed to generate signed URL" });
+        }
+
+        return res.json({
+            message: "Thumbnail uploaded successfully",
+            thumbnailUrl: signedUrl,
+        });
     } catch (error) {
-      console.error("Error fetching file:", error);
-      res.status(500).json({ success: false, message: error.message });
+        console.error("Error uploading thumbnail:", error);
+        return res.status(500).json({ error: "Server error. Please try again later." });
     }
-  };
-  
-  
+};
+
+
+export const getBrandTreasuryById = async (req, res) => {
+    try {
+        const { fileId } = req.params;
+        const userId = req.user.userId;
+
+        const document = await BrandTreasury.findById(fileId)
+            .populate({ path: 'product', select: 'name' })
+            .populate({ path: 'brand', select: 'name' })
+            .populate({ path: 'model', select: 'name' })
+            .populate({ path: 'lastUpdatedBy', select: 'firstName lastName profilePic role' })
+            .populate({ path: 'createdBy', select: 'firstName lastName profilePic role' })
+            .populate({ path: 'approvedBy', select: 'firstName lastName profilePic role' });
+
+        if (!document) {
+            return res.status(404).json({ error: "File not found" });
+        }
+
+        const isStarred = await StarredDocument.exists({ userId, documentId: fileId });
+
+        // Generate signed URLs for thumbnail images
+        const signedThumbnailUrls = await Promise.all(
+            (document.thumbnailUrls || []).map((url) => generateSignedUrl(url))
+        );
+        
+        // Generate signed URL for attachment if exists
+        const signedAttachmentUrl = document.attachment
+        ? await attachmentSignedUrl(document.attachment)
+        : null;
+
+        res.json({
+            _id: document._id,
+            title: document.title,
+            documentType: document.documentType,
+            contentType: document.contentType,
+            state: document.state,
+            zone: document.zone,
+            language: document.language,
+            thumbnailUrls: signedThumbnailUrls || null,
+            size: signedAttachmentUrl?.size || null,
+            mime: signedAttachmentUrl?.mime || null,
+            attachment: signedAttachmentUrl,
+            product: document.product?.name || null,
+            brand: document.brand?.name || null,
+            model: document.model?.name || null,
+            lastUpdatedBy: document.lastUpdatedBy,
+            createdBy: document.createdBy,
+            updatedAt: document.updatedAt,
+            createdAt: document.createdAt,
+            approved: document.approved,
+            approvedBy: document.approvedBy,
+            approvedAt: document.approvedAt,
+            isStarred: !!isStarred,
+            comment: document?.comment,
+        });
+    } catch (error) {
+        console.error("Error fetching file:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
 
 export const getBrandTreasuries = async (req, res) => {
     try {
-        let { page = 1, limit = 10, documentType, starred,myDocuments, search ,languages } = req.query;
-        console.log(languages ,"lectedLanguages")
+        let { page = 1, limit = 10, documentType, starred, myDocuments, search, languages } = req.query;
+        console.log(languages, "lectedLanguages")
         const userId = req.user.userId;
 
         let filter = {};
-        
+
         if (documentType) filter.documentType = documentType;
         if (search) {
             filter.$or = [
@@ -145,7 +150,7 @@ export const getBrandTreasuries = async (req, res) => {
             ];
         }
         if (myDocuments === "true") {
-            console.log(myDocuments , "myDocuments")
+            console.log(myDocuments, "myDocuments")
             filter.lastUpdatedBy = userId;  // Ensure `createdBy` is stored in the Document model
         }
 
@@ -169,10 +174,12 @@ export const getBrandTreasuries = async (req, res) => {
             filter._id = { $in: starredIds }; // Apply filter to fetch only starred documents
         }
 
+
+
         // Fetch documents
         const brandTreasuries = await BrandTreasury.find(filter)
             .skip(skip)
-            .sort({ createdAt: -1 }) 
+            .sort({ createdAt: -1 })
             .limit(perPage)
             .populate('createdBy', 'firstName lastName location profilePic');
 
@@ -182,15 +189,25 @@ export const getBrandTreasuries = async (req, res) => {
             starredIds = starredDocuments.map(doc => doc.documentId.toString()); // Convert to array
         }
 
-        // Add `isStarred` field to each document
-        const updatedDocuments = brandTreasuries.map(doc => ({
-            ...doc.toObject(),
-            isStarred: starredIds.includes(doc._id.toString()) // Now always an array
-        }));
+        const updatedDocuments = await Promise.all(
+            brandTreasuries.map(async (doc) => {
+                const docObj = doc.toObject();
+
+                const signedThumbnails = await Promise.all(
+                    (docObj.thumbnailUrls || []).map((url) => generateSignedUrl(url))
+                );
+
+                return {
+                    ...docObj,
+                    thumbnailUrls: signedThumbnails,
+                    isStarred: starredIds.includes(doc._id.toString()),
+                };
+            })
+        );
 
         // Count total documents
         const totalDocuments = await BrandTreasury.countDocuments(filter);
-        
+
         res.status(200).json({
             data: updatedDocuments,
             pagination: {
@@ -230,22 +247,180 @@ export const toggleStarred = async (req, res) => {
 };
 
 
+export const updateApproval = async (req, res) => {
+
+const { id } = req.params;
+const { approved } = req.body;
+const userId = req.user.userId; // Get logged-in user ID from middleware
+
+try {
+    const updateData = { approved };
+
+    // If approved, set approvedBy and approvedAt; otherwise, reset them
+    if (approved) {
+        updateData.approvedBy = userId;
+        updateData.approvedAt = new Date();
+    } else {
+        updateData.approvedBy = null;
+        updateData.approvedAt = null;
+    }
+
+    // Use $set to ensure all fields update properly
+    const document = await BrandTreasury.findByIdAndUpdate(
+        id,
+        { $set: updateData },
+        { new: true, upsert: false } // Don't create a new document if not found
+    );
+
+    if (!document) {
+        return res.status(404).json({ error: "Document not found." });
+    }
+
+    res.json({ success: true, document });
+} catch (error) {
+    console.error("Update Error:", error);
+    res.status(500).json({ error: "Database update failed." });
+}
+};
+
+
+
+export const deleteBrandTreasuryDocument = async (req, res) => {
+    try {
+      const { id, attachment, thumbnailUrls } = req.body;
+      console.log("Received for deletion:", { id, attachment, thumbnailUrls });
+  
+      const BASE_URL = "https://storage.googleapis.com/brand-treasury/";
+  
+      // 1. Delete main attachment file
+      if (attachment) {
+        const decodedUrl = decodeURIComponent(attachment);
+        const filePath = decodedUrl.replace(BASE_URL, "").split("?")[0];
+        console.log("Deleting attachment:", filePath);
+        const file = bucket.file(filePath);
+        await file.delete().catch(err => {
+          console.warn(`Failed to delete attachment: ${filePath}`, err.message);
+        });
+      }
+  
+      // 2. Delete thumbnail files
+      if (Array.isArray(thumbnailUrls)) {
+        for (const thumbUrl of thumbnailUrls) {
+          const decodedUrl = decodeURIComponent(thumbUrl);
+          const filePath = decodedUrl.replace(BASE_URL, "").split("?")[0];
+          console.log("Deleting thumbnail:", filePath);
+          const file = bucket.file(filePath);
+          await file.delete().catch(err => {
+            console.warn(`Failed to delete thumbnail: ${filePath}`, err.message);
+          });
+        }
+      }
+  
+      // 3. Delete MongoDB document
+      const deletedDoc = await BrandTreasury.findByIdAndDelete(id);
+      if (!deletedDoc) {
+        return res.status(404).json({ message: 'Document not found' });
+      }
+  
+      return res.status(200).json({ message: 'Document and all files deleted successfully.' });
+  
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  };
+  export const deleteThumbnail = async (req, res) => {
+    try {
+      const { fileId, imageUrl } = req.body;
+  
+      if (!fileId || !imageUrl) {
+        return res.status(400).json({
+          success: false,
+          message: 'fileId and imageUrl are required',
+        });
+      }
+  
+      // Decode the URL
+      const decodedUrl = decodeURIComponent(imageUrl);
+      const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+      const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];
+  
+      // Remove query params to get the stored version
+      const strippedImageUrl = decodedUrl.split("?")[0];
+  
+      // Delete from Google Cloud Storage
+      const file = bucket.file(filePath);
+      await file.delete().catch(err => {
+        console.warn(`Error deleting file from GCS: ${filePath}`, err.message);
+      });
+  
+      // Remove thumbnail from MongoDB
+      const updatedDoc = await BrandTreasury.findByIdAndUpdate(
+        fileId,
+        { $pull: { thumbnailUrls: strippedImageUrl } },
+        { new: true }
+      );
+  
+      if (!updatedDoc) {
+        return res.status(404).json({
+          success: false,
+          message: "Document not found",
+        });
+      }
+  
+      return res.status(200).json({
+        success: true,
+        message: 'Thumbnail deleted successfully',
+        updatedDoc,
+      });
+  
+    } catch (error) {
+      console.error("Error deleting thumbnail:", error);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal Server Error',
+      });
+    }
+  };
+
 const generateSignedUrl = async (url) => {
-  try {
-    const decodedUrl = decodeURIComponent(url);
-    const baseUrl = "https://storage.googleapis.com/brand-treasury/";
-    const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];
-    const file = bucket.file(filePath);
+    try {
+        const decodedUrl = decodeURIComponent(url);
+        const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+        const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];
+        const file = bucket.file(filePath);
 
-    // Generate a signed URL
-    const [signedUrl] = await file.getSignedUrl({
-      action: 'read',
-      expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
-    });
+        // Generate a signed URL
+        const [signedUrl] = await file.getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
+        });
 
-    return signedUrl;
-  } catch (err) {
-    console.error(`Error generating signed URL: `, err);
-    return null;
-  }
+        return signedUrl;
+    } catch (err) {
+        console.error(`Error generating signed URL: `, err);
+        return null;
+    }
+};
+const attachmentSignedUrl = async (url) => {
+    try {
+        const decodedUrl = decodeURIComponent(url);
+        const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+        const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];
+        const file = bucket.file(filePath);
+    
+        // Generate a signed URL
+        const [signedUrl] = await file.getSignedUrl({
+          action: 'read',
+          expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
+        });
+    
+        // Get metadata
+        const [metadata] = await file.getMetadata();
+
+        return {signedUrl, size: metadata.size, mime: metadata.contentType};
+    } catch (err) {
+        console.error(`Error generating signed URL: `, err);
+        return null;
+    }
 };
