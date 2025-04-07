@@ -1,11 +1,12 @@
 import { useRef, useState } from "react";
 import axios from "axios";
 import { useEffect } from "react";
-import { FiChevronDown, FiChevronLeft, FiChevronRight, FiTrash2, FiUploadCloud } from "react-icons/fi";
+import { FiChevronDown, FiChevronLeft, FiChevronRight, FiMaximize2, FiMinimize2, FiTrash2, FiUploadCloud } from "react-icons/fi";
 import Button from '../common/Button'
 import StatusMessageWrapper from "../common/StatusMessageWrapper";
 import ProgressBar from "../common/ProgressBar";
 const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails }) => {
+    
     const [uploading, setUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [thumbSuccess, setThumbSuccess] = useState("");
@@ -14,11 +15,17 @@ const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails }) => {
     const sliderRef = useRef(null);
     const [currentIndex, setCurrentIndex] = useState(0);
     const fileInputRef = useRef(null);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
 
     const totalSlides = thumbnails.length;
     useEffect(() => {
         console.log(thumbnails, 'thumbnails')
     }, [])
+
+    const toggleFullscreen = () => {
+        setIsFullscreen((prev) => !prev);
+    };
 
     const handleThumbnailUpload = async (e) => {
         const file = e.target.files[0];
@@ -27,20 +34,20 @@ const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails }) => {
             setMessage("Please select a file.");
             return;
         }
-    
+
         if (thumbnails.length >= 4) {
             setMessage("You can only upload up to 4 images.");
             return;
         }
-    
+
         try {
             setUploading(true);
             setUploadProgress(0);
-    
+
             const timestamp = Date.now();
             const folderName = "brand-treasury-thumbs";
             const fileNameWithFolder = `${folderName}/${timestamp}-${file.name}`;
-    
+
             // Step 1: Get signed URL from backend
             const { data } = await axios.post(
                 `${import.meta.env.VITE_BACKEND_BASE_URL}/api/files/signed-url/upload`,
@@ -49,9 +56,9 @@ const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails }) => {
                     fileType: file.type,
                 }
             );
-    
+
             if (!data.signedUrl) throw new Error("Failed to get signed URL");
-    
+
             // Step 2: Upload to GCS
             await axios.put(data.signedUrl, file, {
                 headers: { "Content-Type": file.type },
@@ -60,7 +67,7 @@ const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails }) => {
                     setUploadProgress(percent);
                 },
             });
-    
+
             // Step 3: Save URL to DB
             const uploadedUrl = data.fileUrl;
             const response = await axios.put(
@@ -68,7 +75,7 @@ const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails }) => {
                 { thumbnailUrl: uploadedUrl },
                 { withCredentials: true }
             );
-    
+
             // Step 4: Add to thumbnail list (functional state update)
             if (response.data.thumbnailUrl) {
                 setThumbnails(prev => [...prev, response.data.thumbnailUrl]);
@@ -77,7 +84,7 @@ const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails }) => {
             } else {
                 setThumbError("Upload succeeded but response was invalid.");
             }
-    
+
         } catch (error) {
             console.error("Upload failed:", error);
             setThumbError("Upload failed. Please try again.");
@@ -93,7 +100,7 @@ const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails }) => {
                 { fileId, imageUrl },
                 { withCredentials: true }
             );
-    
+
             // Check response from backend
             if (response.data?.success) {
                 setThumbnails(prev => prev.filter(img => img !== imageUrl));
@@ -102,7 +109,7 @@ const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails }) => {
             } else {
                 setThumbError("Error deleting thumbnail: " + response.data?.message);
             }
-    
+
         } catch (error) {
             console.error("Delete error:", error);
             setThumbError("Failed to delete thumbnail");
@@ -132,29 +139,34 @@ const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails }) => {
         <div>
             <div
                 ref={sliderRef}
-                className=" w-full"
-                style={{ scrollSnapType: "x mandatory", whiteSpace: "nowrap" }}
-            >
+                className={` w-full ${isFullscreen ? "fixed top-0 left-0 z-50 w-screen h-screen p-10 bg-black/40" : "relative"}`}
+                style={{ scrollSnapType: "x mandatory", whiteSpace: "nowrap" }}>
+                      <button
+                        onClick={toggleFullscreen}
+                        className={`${isFullscreen ? "right-8  p-3":"right-2  p-1"} cursor-pointer absolute top-4  z-10 bg-white/90 rounded-full text-gray-700 hover:bg-white transition`}
+                    >
+                        {isFullscreen ? <FiMinimize2 /> : <FiMaximize2 />}
+                    </button>
 
                 {thumbnails.length > 0 ? (
                     <>
-                        <div className="relative h-[180px] ">
+                        <div className={`${isFullscreen ? "h-full" : "h-[200px] " } relative w-full `}>
                             {
                                 thumbnails.map((thumbnail, index) => (
                                     <div key={index}
-                                        className={`absolute inset-0 transition-opacity duration-700 h-[180px]  ${index === currentIndex ? "opacity-100" : "opacity-0"
+                                        className={`${isFullscreen ? " p-10" : " p-0" } absolute inset-0 transition-opacity duration-700 h-full   ${index === currentIndex ? "opacity-100" : "opacity-0"
                                             }`}
                                     >
                                         {/* <p>Thumb {index + 1} - <span>{thumbnail.split('/').pop()}</span></p> */}
-                                        <img src={thumbnail} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover object-center rounded-md" />
+                                        <img src={thumbnail} alt={`Thumbnail ${index + 1}`} className={`${isFullscreen ? 'object-contain' :'object-cover'} w-full h-full  object-center rounded-md`} />
                                         <button onClick={() => deleteThumbImage(thumbnail)}
-                                            className="absolute w-6 h-6 bg-white/50 rounded-lg flex items-center justify-center top-4 right-4 cursor-pointer"
+                                            className={`${isFullscreen ? "right-8  p-3":"right-2  p-1"} absolute  bg-white/90 rounded-lg flex items-center justify-center bottom-4 right-4 cursor-pointer`}
                                         ><FiTrash2 size={14} /></button>
                                     </div>
                                 ))
                             }
                         </div>
-                        <div className="transform  flex justify-center items-center gap-2 py-3">
+                        <div className="transform  flex justify-center items-center gap-2 py-3 w-full">
                             <span className="mr-auto" > Reference Images {currentIndex + 1}/{thumbnails.length}</span>
                             <button onClick={prevSlide} className="w-6 h-6 bg-gray-200 flex justify-center items-center rounded-full cursor-pointer"><FiChevronLeft /></button>
                             {thumbnails.map((_, index) => (
