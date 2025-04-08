@@ -190,7 +190,7 @@ const ViewBrandTreasuryPage = () => {
                   href={`${fileUrl}&response-content-disposition=attachment%3B%20filename%3D${encodeURIComponent(fileName)}`}
                   className=" border border-gray-300 py-2 text-center rounded-md w-full "
                   download={fileName}
-                >
+                > 
                   Download
                 </a>
                 <button
