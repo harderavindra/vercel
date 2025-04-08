@@ -27,10 +27,10 @@ const DashboardPage = () => {
           </div>
         </div>
         <div className='w-full bg-white  rounded-2xl shadow-lg p-4 flex justify-center items-center cursor-pointer'
-          onClick={() => navigate('/artworks')}>
+          onClick={() => navigate('/brand-treasury')}>
           <div className='flex flex-col gap-3 justify-center items-center'>
             <FiFolder size={40} />
-            <p className='text-3xl text-center'>Artwork</p>
+            <p className='text-3xl text-center'>Brand Treasury</p>
           </div>
         </div>
       </div>

@@ -37,29 +37,21 @@ export const getFileIcon = (mimeType) => {
 
 
 export const ZONES = {
-  "North Zone": ["Jammu & Kashmir", "Himachal Pradesh", "Punjab", "Uttarakhand", "Haryana", "Delhi", "Rajasthan", "Uttar Pradesh", "Chandigarh"],
-  "South Zone": ["Andhra Pradesh", "Karnataka", "Kerala", "Tamil Nadu", "Telangana", "Puducherry", "Lakshadweep"],
-  "East Zone": ["Bihar", "Jharkhand", "Odisha", "West Bengal", "Andaman & Nicobar Islands"],
-  "West Zone": ["Goa", "Gujarat", "Maharashtra", "Madhya Pradesh", "Chhattisgarh", "Dadra & Nagar Haveli and Daman & Diu"],
-  "North-East Zone": ["Arunachal Pradesh", "Assam", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Sikkim", "Tripura"]
+  "Zone1": ["Haryana", "Himachal Pradesh", "J&K", "Punjab", "Rajasthan", "Rajasthan East", "Rajasthan West"],
+  "Zone2": ["UP", "UP Central", "UP East", "UP West", "Uttarakhand"],
+  "Zone3": ["Arunachal Pradesh", "Assam", "Bihar", "Jharkhand", "Manipur", "Meghalaya", "Nagaland", "Tripura", "West Bengal"],
+  "Zone4": ["Chhattisgarh", "Madhya Pradesh", "Madhya Pradesh East", "Madhya Pradesh West", "Orissa"],
+  "Zone5": ["Goa", "Gujarat", "Gujarat North", "Gujarat South", "Gujarat Rajkot", "Karnataka", "Maharashtra", "Maharashtra East", "Maharashtra West"],
+  "Zone6": ["Andhra Pradesh", "Kerala", "Tamilnadu", "Telangana"]
 };
 
 export const LANGUAGES = [
-  "Hindi", "English", "Bengali", "Telugu", "Marathi",
-  "Tamil", "Urdu", "Gujarati", "Malayalam", "Kannada",
-  "Odia", "Punjabi", "Assamese", "Maithili", "Santali",
-  "Kashmiri", "Nepali", "Konkani", "Sindhi", "Dogri",
-  "Manipuri", "Bodo", "Sanskrit"
+  "English", "Hindi", "Punjabi", "Odia", "Bengali", "Assamese", "Tamil", "Telugu", "Kannada", "Marathi", "Gujarati"
+
 ];
 export const BRAND_TREASURY_DOCUMENTS = [
-  "logo",
-  "brand guidelines",
-  "typography",
-  "color palette",
-  "iconography",
-  "brand templates",
-  "marketingmaterials",
-  "other",
+ "3d renders", "aston bands", "backdrop", "backlit led", "balloon branding", "banner", "behind the scenes bts", "booklet", "brand stickers", "brochure", "bus shelter", "catalogue", "certificate", "coupon", "cover page design", "danglers", "dealer boards", "digital post gif", "digital post static", "digital post video", "discount coupons", "flange", "floor sticker", "gantry", "gate arch", "gate arch", "gate branding", "hoarding", "image purchase", "inshop branding", "kiosks", "leaflets", "logo", "magazine ads", "merchandise", "metro wrap", "other", "other", "packaging", "panel designs", "pillar branding", "pole kiosks", "postcards", "poster", "press ad", "price list", "radio", "range board", "segment development booklet", "segment development booklet", "shelf strips", "side panel", "standee", "stickers", "streamers", "take home price list", "tempo branding", "train wrap", "truck branding", "tvc", "van branding", "web banners"
+
 ];
 export const CONTENT_TYPE_DOCUMENTS = [
   "source files",

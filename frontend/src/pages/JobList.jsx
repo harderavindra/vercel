@@ -117,7 +117,7 @@ const JobList = () => {
                 <StatusMessageWrapper loading={loading} success={success} error={error} />
                 {hasAccess(user?.role, ['marketing_manager','admin','zonal_marketing_manager']) && (
                 <Button width="auto" onClick={() => navigate('/create-artwork')}>
-                    Add Artwork Re
+                    Add Artwork Request
                 </Button>
                 )}
             </div>

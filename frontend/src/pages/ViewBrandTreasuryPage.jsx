@@ -40,25 +40,27 @@ const ViewBrandTreasuryPage = () => {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
+  const fetchFile = async () => {
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_BACKEND_BASE_URL}/api/brand-treasury/get-brandtreasury/${fileId}`,
+        { withCredentials: true }
+      );
+      setDocument(data);
+      setThumbnails(data?.thumbnailUrls || []);
+      setIsApproved(data?.approved);
+      setIsStarred(data?.isStarred);
+      console.log(data)
+    } catch (error) {
+      console.error("Error fetching file:", error);
+      setMessage("Failed to fetch file details.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchFile = async () => {
-      try {
-        const { data } = await axios.get(
-          `${import.meta.env.VITE_BACKEND_BASE_URL}/api/brand-treasury/get-brandtreasury/${fileId}`,
-          { withCredentials: true }
-        );
-        setDocument(data);
-        setThumbnails(data?.thumbnailUrls || []);
-        setIsApproved(data?.approved);
-        setIsStarred(data?.isStarred);
-        console.log(data)
-      } catch (error) {
-        console.error("Error fetching file:", error);
-        setMessage("Failed to fetch file details.");
-      } finally {
-        setLoading(false);
-      }
-    };
+    
 
     fetchFile();
   }, [fileId]);
@@ -76,6 +78,7 @@ const ViewBrandTreasuryPage = () => {
       if (response.data?.success) {
         setIsApproved(newStatus);
         setSuccess("Approval status updated successfully.");
+        fetchFile();
         setError(null);
       } else {
         setError("Failed to update approval status.");

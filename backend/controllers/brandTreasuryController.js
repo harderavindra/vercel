@@ -152,7 +152,6 @@ const approvedByProfilePicUrl = document.approvedBy?.profilePic
 export const getBrandTreasuries = async (req, res) => {
     try {
         let { page = 1, limit = 10, documentType, starred, myDocuments, search, languages } = req.query;
-        console.log(languages, "lectedLanguages")
         const userId = req.user.userId;
 
         let filter = {};

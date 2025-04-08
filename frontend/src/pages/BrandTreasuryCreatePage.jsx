@@ -337,7 +337,7 @@ const BrandTreasuryCreate = () => {
                     <div className='flex flex-col gap-1 w-full'>
                       <label>Product</label>
                       <select
-                        className="w-full border border-gray-400 rounded-md py-2 px-2"
+                        className="w-full border border-gray-400 rounded-md py-2 px-2 capitalize"
                         name="product"
                         value={formData.product}
                         onChange={handleProductChange}
@@ -352,7 +352,7 @@ const BrandTreasuryCreate = () => {
                     </div>
                     <div className='flex flex-col gap-1 w-full'>
                       <label>Brand</label>
-                      <select name="brand" value={formData.brand} onChange={handleBrandChange} className="w-full border p-2 rounded-md" disabled={!formData.product}>
+                      <select name="brand" value={formData.brand} onChange={handleBrandChange} className="w-full border p-2 rounded-md capitalize" disabled={!formData.product}>
                         <option value="">Select Brand</option>
                         {brands.map((brand) => (
                           <option key={brand._id} value={brand._id}>
@@ -367,7 +367,7 @@ const BrandTreasuryCreate = () => {
 
                     <div className='flex flex-col gap-1 w-full'>
                       <label>Model</label>
-                      <select name="model" value={formData.model} onChange={handleChange} className="w-full border p-2 rounded-md" disabled={!formData.brand}>
+                      <select name="model" value={formData.model} onChange={handleChange} className="w-full border p-2 rounded-md capitalize" disabled={!formData.brand}>
                         <option value="">Select Model</option>
                         {models.map((model) => (
                           <option key={model._id} value={model._id}>

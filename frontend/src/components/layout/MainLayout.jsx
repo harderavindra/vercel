@@ -62,11 +62,11 @@ const MainLayout = () => {
 
                         <li className='flex gap-2 px-4 py-2 items-center'>
                             <NavLink to={`/user/${user._id}`} className='flex gap-2'>
-                                <div className='w-8'><Avatar src={user.profilePic} size='sm' /></div>
+                                <div className='w-12'><Avatar src={user.profilePic} size='sm' /></div>
 
                                 <div className={`flex flex-col leading-none font-semibold transition-opacity duration-300 ${expanded ? 'opacity-100 delay-300 visible' : 'opacity-0 delay-0 invisible'}`}>
                                     {user.firstName}
-                                    <p className='capitalize text-gray-400'>{user.role.toLowerCase()}</p>
+                                    <p className='capitalize text-gray-400 line-clamp-1'>{snakeToCapitalCase(user?.role)}</p>
                                 </div>
 
                             </NavLink>

@@ -174,7 +174,7 @@ const MasterDataPage = () => {
       <div className="flex  gap-6 p-8 bg-white  border border-blue-300/60 rounded-xl  shadow-md items-center justify-between">
         <h2 className="font-semibold text-lg min-w-1/5">Brand Category</h2>
         <div className="flex justify-between items-center w-full">
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
             {loading ? (
               <p>Loading brands...</p>
             ) : brands.length > 0 ? (
@@ -195,7 +195,7 @@ const MasterDataPage = () => {
               <p>No brands available.</p>
             )}
           </div>
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-start justify-center gap-3">
             <div className="w-12">
               {
                 !isAddingBrand && (
@@ -205,7 +205,7 @@ const MasterDataPage = () => {
               }
             </div>
             {isAddingBrand && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-start justify-start">
                 <input
                   type="text"
                   value={newBrand}
@@ -214,7 +214,7 @@ const MasterDataPage = () => {
                   className="border border-gray-300 px-4 py-2 rounded-md"
                 />
                 <button onClick={addBrand} className="bg-red-500 text-white px-4 py-2 rounded-md">
-                  Add Brand
+                  Add 
                 </button>
                 <button className="bg-white border border-gray-400 text-gray-800 px-4 py-2 rounded-md"
                   onClick={() => setIsAddingBrand(false)}
@@ -228,13 +228,13 @@ const MasterDataPage = () => {
 
       <div className="flex  gap-6 p-8 bg-white  border border-blue-300/60 rounded-xl  shadow-md items-center justify-between">
         <h2 className="font-semibold text-lg min-w-1/5">Model Category</h2>
-        <div className="flex justify-between items-center w-full">
-          <div className="flex gap-4">        
+        <div className="flex justify-between  items-start w-full">
+          <div className="flex gap-4 flex-wrap">        
             {loading ? (
               <p>Loading model...</p>
             ) : models.length > 0 ? (
               models.map((model) => (
-                <div key={model._id} className={`${labelStyle} ${defaultStyle} uppercase cursor-pointer`}  >
+                <div key={model._id} className={`${labelStyle} ${defaultStyle} capitalize cursor-pointer`}  >
                   {model.name}
                   <span onClick={() => removeModel(model._id)}
                   ><FiX />
@@ -269,7 +269,7 @@ const MasterDataPage = () => {
                       className="border border-gray-300 px-4 py-2 rounded-md"
                     />
                     <button onClick={addModel} className="bg-red-500 text-white px-4 py-2 rounded-md">
-                      Add Model
+                      Add
                     </button>
                   </div>
                   <button className="bg-white border border-gray-400 text-gray-800 px-4 py-2 rounded-md"
