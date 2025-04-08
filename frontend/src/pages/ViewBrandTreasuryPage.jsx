@@ -3,6 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   FiCamera,
+  FiCheck,
+  FiCopy,
+  FiMail,
+  FiShare2,
 } from "react-icons/fi";
 import Button from "../components/common/Button";
 import FileIcon from "../components/common/FileIcon";
@@ -39,6 +43,10 @@ const ViewBrandTreasuryPage = () => {
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [shortUrl, setShortUrl] = useState("");
+  const [copied, setCopied] = useState(false);
+  const fileUrl = document?.attachment?.signedUrl || "";
+  const fileName = fileUrl ? new URL(fileUrl).pathname.split("/").pop() : "";
 
   const fetchFile = async () => {
     try {
@@ -60,10 +68,31 @@ const ViewBrandTreasuryPage = () => {
   };
 
   useEffect(() => {
-    
+
 
     fetchFile();
   }, [fileId]);
+
+  const generateAndCopy = async () => {
+    if (!shortUrl) {
+      try {
+        const fullDownloadUrl = `${fileUrl}&response-content-disposition=attachment%3B%20filename%3D${encodeURIComponent(fileName)}`;
+        const res = await axios.get(
+          `https://tinyurl.com/api-create.php?url=${encodeURIComponent(fullDownloadUrl)}`
+        );
+        setShortUrl(res.data);
+        await navigator.clipboard.writeText(res.data);
+      } catch (err) {
+        console.error("Failed to shorten or copy:", err);
+        return;
+      }
+    } else {
+      await navigator.clipboard.writeText(shortUrl);
+    }
+
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   const handleApproval = async () => {
     const newStatus = !isApproved;
@@ -104,8 +133,7 @@ const ViewBrandTreasuryPage = () => {
     }
   };
 
-  const fileUrl = document?.attachment?.signedUrl || "";
-  const fileName = fileUrl ? new URL(fileUrl).pathname.split("/").pop() : "";
+
 
   return (
     <div className="w-full p-10">
@@ -154,17 +182,25 @@ const ViewBrandTreasuryPage = () => {
           </div>
 
           {fileUrl && (
-              <div className="w-full flex flex-col gap-2">
+            <div className="w-full flex flex-col gap-2">
 
-                <p className="text-sm text-gray-500 mb-1 break-all ">{fileName}</p>
+              <p className="text-sm text-gray-500 mb-1 break-all ">{fileName}</p>
+              <div className="flex gap-6 items-center justify-between">
+                <a
+                  href={`${fileUrl}&response-content-disposition=attachment%3B%20filename%3D${encodeURIComponent(fileName)}`}
+                  className=" border border-gray-300 py-2 text-center rounded-md w-full "
+                  download={fileName}
+                >
+                  Download
+                </a>
+                <button
+                  onClick={generateAndCopy}
+                  className={`${copied ? 'border-green-300 bg-green-100 ':'border-gray-300 '}flex items-center justify-center cursor-pointer gap-1 text-sm text-gray-700 hover:text-black border py-3 min-w-24 text-center rounded-md px-2 transition`}
+                >
+                  {copied ? <FiCheck className="text-green-600" /> : <FiCopy />} {copied ? "Copied!" : "Copy"}
+                </button>
+              </div>
 
-            <a
-              href={`${fileUrl}&response-content-disposition=attachment%3B%20filename%3D${encodeURIComponent(fileName)}`}
-              className=" border border-gray-300 py-2 text-center rounded-md "
-              download={fileName}
-            >
-              Download
-            </a>
             </div>
           )}
         </div>
@@ -189,13 +225,13 @@ const ViewBrandTreasuryPage = () => {
           <div className="flex gap-2 justify-between bg-gray-50 px-6 py-2 text-lg">
             <div className="flex flex-col gap-2">
               <label className="text-gray-400 mb-1">Created: {formatDateTime(document?.createdAt)}</label>
-              
+
               <div className="flex items-start gap-2">
                 <Avatar src={document?.createdBy?.profilePic} size="md" />
-                
+
                 <div className="flex flex-col">
                   <label>{document?.createdBy?.firstName} {document?.createdBy?.lastName}</label>
-                  <label className="capitalize text-gray-500 text-base"> {snakeToCapitalCase( document?.createdBy?.role)}</label>
+                  <label className="capitalize text-gray-500 text-base"> {snakeToCapitalCase(document?.createdBy?.role)}</label>
                 </div>
               </div>
             </div>
@@ -208,8 +244,8 @@ const ViewBrandTreasuryPage = () => {
                     <Avatar src={document?.approvedBy?.profilePic} size="md" />
                     <div className="flex flex-col">
                       <label>{document?.approvedBy?.firstName} {document?.approvedBy?.lastName}</label>
-                      <label className="capitalize text-gray-500 text-base"> {snakeToCapitalCase( document?.approvedBy?.role)}</label>
-                      
+                      <label className="capitalize text-gray-500 text-base"> {snakeToCapitalCase(document?.approvedBy?.role)}</label>
+
                     </div>
                   </div>
                 </>
