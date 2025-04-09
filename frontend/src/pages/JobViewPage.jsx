@@ -191,7 +191,7 @@ const JobViewPage = () => {
             <div className="flex flex-row-reverse justify-end mb-5">
                 {mergedHistory.length > 0 ? (
                     mergedHistory.map((history) => (
-                        <div key={history._id} className={`flex gap-2 items-center border  px-3 py-1  text-xs capitalize rounded-md mr-0 relative  ${history?.status.toLowerCase() === "artwork approved" ? 'bg-red-500 border-red-500 text-white':'border-gray-300 bg-white'}`}>
+                        <div key={history._id} className={`flex gap-2 items-center border  px-3 py-1  text-xs capitalize rounded-md mr-0 relative  ${history?.status.toLowerCase() === "ho approved" ? 'bg-red-500 border-red-500 text-white' : history?.status.toLowerCase() === "artwork approved" ? 'bg-orange-50 border-orange-200 text-orange-900':'border-gray-300 bg-white'}`}>
                             <Avatar name={history?.updatedBy?.firstName} src={history?.updatedBy?.profilePic} size="xs" />
 
                             {/* <StatusBubble
@@ -200,8 +200,8 @@ const JobViewPage = () => {
                                 status={getStatusColor(history?.status)?.toLowerCase().trim() || "error"}
                                 className={'test'}
                             /> */}
-                            {history.status.replace(/artwork/gi, "").trim()}
-                                    {history?.status.toLowerCase() !== "artwork approved" && (
+                            {history?.status}
+                                    {history?.status.toLowerCase() !== "ho approved" && (
                             <span
                                 className="absolute -right-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-gray-300 z-10"
                             />

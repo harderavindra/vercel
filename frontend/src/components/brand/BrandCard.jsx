@@ -70,11 +70,11 @@ const BrandCard = ({ document, loading, isEmpty }) => {
                                         <p className='font-semibold text-lg capitalize line-clamp-1' >
                                             {document.title?.toLowerCase()}
                                             </p></div>
-                                    <div className='flex gap-3 items-center'><FiCalendar size={14} /><p className=' text-sm capitalize'>{formatDateTime(document.updatedAt)}</p></div>
                                     <div className='flex gap-3 justify-start items-start'>
-                                        <div className='flex gap-3 items-center'><FiMapPin size={14} /><p className=' text-sm capitalize'>{document?.zone} </p></div>
+                                        <div className='flex gap-3 items-center'><FiFileText size={14} /><p className=' text-sm capitalize'>{document?.documentType} </p></div>
                                         <div className='flex gap-3 items-center'><IoLanguageOutline size={14} /><p className=' text-sm capitalize'>{document?.language}</p></div>
                                     </div>
+                                    <div className='flex gap-3 items-center'><FiCalendar size={14} /><p className=' text-sm capitalize'>{formatDateTime(document.updatedAt)}</p></div>
                                 </div>
                                 <div className='flex justify-between'>
                                     <div className='flex gap-2'><Avatar src={document.createdBy?.profilePic} size='sm' /><span>{document.createdBy?.firstName}</span></div>

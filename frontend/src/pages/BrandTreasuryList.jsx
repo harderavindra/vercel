@@ -62,7 +62,7 @@ const [successMessage, setSuccessMessage] = useState('');
     try {
       console.log(selectedLanguages, 'selectedLanguages')
       const params = {
-        page, limit: 4, documentType, starred, myDocuments, search: debouncedSearch, languages: selectedLanguages.join(",")
+        page, limit: 12, documentType, starred, myDocuments, search: debouncedSearch, languages: selectedLanguages.join(",")
       };
       const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/brand-treasury/`, {
 

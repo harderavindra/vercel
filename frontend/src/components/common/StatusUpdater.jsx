@@ -43,7 +43,7 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
             }
         
             if (normalizedStatus === "artwork approved") {
-                return ["ho approved"];
+                return ["review rejected","hold", "ho approved"];
             }
         
             return ["hold"];
