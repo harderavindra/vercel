@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import FileIcon from '../common/FileIcon';
 import { useNavigate } from 'react-router-dom';
 import { updateStar } from '../../api/brandTreasury';
-import { FiCalendar, FiMapPin, FiPlayCircle } from 'react-icons/fi';
+import { FiCalendar, FiFileText, FiMapPin, FiPlayCircle, FiPrinter } from 'react-icons/fi';
 import { IoLanguageOutline } from 'react-icons/io5';
 import { formatDateTime } from '../../utils/formatDateTime';
 import MoreOptions from '../common/MoreOptions';
@@ -65,7 +65,11 @@ const BrandCard = ({ document, loading, isEmpty }) => {
                                     )}
                                 </div>
                                 <div className='flex flex-col gap-1'>
-                                    <div className='flex gap-3 items-start' onClick={() => navigate(`/view-brandtreasury/${document._id}`)}><FiPlayCircle size={24} /><p className='font-semibold text-lg capitalize line-clamp-1' >{document.title?.toLowerCase()}</p></div>
+                                    <div className='flex gap-3 items-start' onClick={() => navigate(`/view-brandtreasury/${document._id}`)}>
+                                        {document?.contentType ==='print' ? (<FiPrinter size={24} />):(<FiFileText size={24} />)}
+                                        <p className='font-semibold text-lg capitalize line-clamp-1' >
+                                            {document.title?.toLowerCase()}
+                                            </p></div>
                                     <div className='flex gap-3 items-center'><FiCalendar size={14} /><p className=' text-sm capitalize'>{formatDateTime(document.updatedAt)}</p></div>
                                     <div className='flex gap-3 justify-start items-start'>
                                         <div className='flex gap-3 items-center'><FiMapPin size={14} /><p className=' text-sm capitalize'>{document?.zone} </p></div>

@@ -256,7 +256,7 @@ const JobViewPage = () => {
                             <LabelValue label="Brand" value={job?.brand?.name} />
                         </div>
                         <div className="flex gap-4">
-                            <LabelValue label="Model" value={job?.model.name} />
+                            <LabelValue label="Model" value={job?.model?.name} />
                         </div>
                     </div>
                     {job?.attachmentSignedUrl && (

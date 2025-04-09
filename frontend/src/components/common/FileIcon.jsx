@@ -1,6 +1,7 @@
-import { FiImage, FiFile, FiPlayCircle } from "react-icons/fi";
+import { FiImage, FiFile, FiPlayCircle, FiFolder } from "react-icons/fi";
 import { FaRegFilePdf } from "react-icons/fa";
 import { TbFileZip } from "react-icons/tb";
+import { MdOutlineFolderZip } from "react-icons/md";
 
 // Icon mapping object
 const iconMap = {
@@ -12,6 +13,7 @@ const iconMap = {
   "application/vnd.ms-excel": FiPlayCircle,
   "application/zip": TbFileZip,
   "video/mp4": FiPlayCircle,
+  "application/x-zip-compressed":MdOutlineFolderZip,
 };
 
 // Reusable FileIcon Component
@@ -21,7 +23,7 @@ const FileIcon = ({ mimeType, size = 42, className = "text-gray-600" }) => {
   return IconComponent ? (
     <IconComponent size={size} className={className} />
   ) : (
-    <span className="text-2xl text-gray-400">❓</span> // Default icon
+    <span className="text-2xl text-gray-400"><FiFolder /></span> // Default icon
   );
 };
 

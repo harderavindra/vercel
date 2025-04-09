@@ -20,6 +20,8 @@ import { updateStar } from "../api/brandTreasury";
 import PageTitle from "../components/common/PageTitle";
 import StatusMessageWrapper from "../components/common/StatusMessageWrapper";
 import { snakeToCapitalCase } from "../utils/convertCase";
+import { hasAccess } from "../utils/permissions";
+import { useAuth } from "../context/auth-context";
 
 // Reusable view components
 const ViewText = ({ children }) => <p className="text-xl capitalize">{children}</p>;
@@ -34,6 +36,7 @@ const InfoRow = ({ label, children }) => (
 const ViewBrandTreasuryPage = () => {
   const { fileId } = useParams();
   const navigate = useNavigate();
+    const { user } = useAuth();
 
   const [document, setDocument] = useState(null);
   const [thumbnails, setThumbnails] = useState([]);
@@ -190,12 +193,12 @@ const ViewBrandTreasuryPage = () => {
                   href={`${fileUrl}&response-content-disposition=attachment%3B%20filename%3D${encodeURIComponent(fileName)}`}
                   className=" border border-gray-300 py-2 text-center rounded-md w-full "
                   download={fileName}
-                > 
+                >
                   Download
                 </a>
                 <button
                   onClick={generateAndCopy}
-                  className={`${copied ? 'border-green-300 bg-green-100 ':'border-gray-300 '}flex items-center justify-center cursor-pointer gap-1 text-sm text-gray-700 hover:text-black border py-3 min-w-24 text-center rounded-md px-2 transition`}
+                  className={`${copied ? 'border-green-300 bg-green-100 ' : 'border-gray-300 '}flex items-center justify-center cursor-pointer gap-1 text-sm text-gray-700 hover:text-black border py-3 min-w-24 text-center rounded-md px-2 transition`}
                 >
                   {copied ? <FiCheck className="text-green-600" /> : <FiCopy />} {copied ? "Copied!" : "Copy"}
                 </button>
@@ -255,20 +258,21 @@ const ViewBrandTreasuryPage = () => {
             </div>
           </div>
 
-          <div className="flex gap-10 mt-6">
-            <div className="w-full">
-              <Button onClick={handleApproval} color={isApproved ? "red" : "green"}>
-                {isApproved ? "Remove Approval" : "Approve"}
-              </Button>
-            </div>
-            <div className="w-full">
-              <DeleteBrandComponent
-                id={document?._id}
-                attachment={document?.attachment?.signedUrl}
-                thumbnailUrls={document?.thumbnailUrls}
-              />
-            </div>
-          </div>
+          {hasAccess(user?.role, ['marketing_manager']) && (
+            <div className="flex gap-10 mt-6">
+              <div className="w-full">
+                <Button onClick={handleApproval} color={isApproved ? "red" : "green"}>
+                  {isApproved ? "Remove Approval" : "Approve"}
+                </Button>
+              </div>
+              <div className="w-full">
+                <DeleteBrandComponent
+                  id={document?._id}
+                  attachment={document?.attachment?.signedUrl}
+                  thumbnailUrls={document?.thumbnailUrls}
+                />
+              </div>
+            </div>)}
         </div>
       </div>
 

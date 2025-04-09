@@ -153,8 +153,12 @@ export const getBrandTreasuries = async (req, res) => {
     try {
         let { page = 1, limit = 10, documentType, starred, myDocuments, search, languages } = req.query;
         const userId = req.user.userId;
+        const userRole = req.user.role;
 
         let filter = {};
+if (userRole !== "marketing_manager") {
+    filter.contentType = "print";
+}
 
         if (documentType) filter.documentType = documentType;
         if (search) {
