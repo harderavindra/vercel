@@ -228,7 +228,7 @@ const BrandTreasuryCreate = () => {
             <SelectField
               label="Content Type"
               name="contentType"
-              value={formData.contentType}
+              value={formData?.contentType}
               onChange={handleChange}
               options={CONTENT_TYPE_DOCUMENTS}
             />
@@ -236,14 +236,13 @@ const BrandTreasuryCreate = () => {
             <SelectField
               label="Document Type"
               name="documentType"
-              value={formData.documentType}
+              value={formData?.documentType}
               onChange={handleChange}
               options={BRAND_TREASURY_DOCUMENTS}
             />
           </div>
 
           <div className="bg-amber-50 border border-amber-100/75 p-5 rounded-md mt-4">
-
             <FileUpload onFileSelect={handleFileChange} />
 
             {uploadProgress > 0 && (

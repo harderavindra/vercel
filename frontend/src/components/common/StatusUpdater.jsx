@@ -19,7 +19,6 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
     const normalizedStatus = currentStatus?.toLowerCase();
     const role = user?.role?.toLowerCase();
     const statuses = (() => {
-        console.log(role, "/role")
 
         if (normalizedStatus === "pending" && ["admin", "marketing_manager"].includes(role)) {
             return ["approved"];

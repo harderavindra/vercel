@@ -48,7 +48,7 @@ const BrandCard = ({ document, loading, isEmpty }) => {
 
                                     <StatusBubble size='sm' status={isStarred ? 'warning' : 'disabled'} icon={'star'} className='cursor-pointer' onClick={handleStarToggle} />
 
-                                    <p className="text-gray-500 capitalize  ">{snakeToCapitalCase(document?.documentType || 'N/A')}</p>
+                                    <p className="text-gray-500 capitalize line-clamp-1  " title={snakeToCapitalCase(document?.documentType || 'N/A')}>{snakeToCapitalCase(document?.documentType || 'N/A')}</p>
                                     <StatusBubble size='sm' status={document?.approved ? 'success' : 'disabled'} icon={'check'} className='' />
                                     {/* <StatusBubble size='sm' status={`${user.status === 'active' ? 'success' : 'error'}`} icon={user.status === 'inactive' ? 'eyeOff' : 'check'} className='absolute right-5 top-5' /> */}
                                 </div>
@@ -71,7 +71,7 @@ const BrandCard = ({ document, loading, isEmpty }) => {
                                             {document.title?.toLowerCase()}
                                             </p></div>
                                     <div className='flex gap-3 justify-start items-start'>
-                                        <div className='flex gap-3 items-center'><FiFileText size={14} /><p className=' text-sm capitalize'>{document?.documentType} </p></div>
+                                        <div className='flex gap-3 items-center'><FiFileText size={14} /><p className=' text-sm capitalize line-clamp-1'>{document?.documentType} </p></div>
                                         <div className='flex gap-3 items-center'><IoLanguageOutline size={14} /><p className=' text-sm capitalize'>{document?.language}</p></div>
                                     </div>
                                     <div className='flex gap-3 items-center'><FiCalendar size={14} /><p className=' text-sm capitalize'>{formatDateTime(document.updatedAt)}</p></div>

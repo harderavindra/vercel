@@ -21,7 +21,7 @@ const FileGcsUpload = ({ onFileSelect }) => {
         className="group flex flex-col  items-center justify-center text-center cursor-pointer focus:outline-0 "
       >
         <span className="w-10 h-10 bg-white rounded-full flex justify-center items-center cursor-pointer group-focus:bg-red-500"
-         onClick={() => document.getElementById("fileInput").click()}
+         
         ><FiUploadCloud size={24} className="text-red-500 group-focus:text-white" /> </span>{file ? (<p className="max-w-[200px] truncate overflow-hidden whitespace-nowrap ">File selected to upload</p>) : ("Select a file to upload")}
       </button>
       {file &&

@@ -22,12 +22,12 @@ const BrandTreasurySchema = new mongoose.Schema(
     model: { type: mongoose.Schema.Types.ObjectId, ref: 'ModelCategory', required: false },
 
     description: { type: String, trim: false },
-    thumbnailUrls: { type: [String], default: [] }, 
+    thumbnailUrls: { type: [String], default: [] },
     // Single Attachment
-    attachment:{},
+    attachment: {},
     // Metadata
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
-    approved: { type: Boolean, default:false },
+    approved: { type: Boolean, default: false },
 
     approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     approvedAt: { type: Date },
