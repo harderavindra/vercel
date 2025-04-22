@@ -177,8 +177,8 @@ const JobViewPage = () => {
     };
 
     return (
-        <div className="p-10">
-            <div className="flex justify-between items-center pb-4">
+        <div className=" p-4 sm:p-10">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pb-4 gap-4">
                 <PageTitle>Artwork Request</PageTitle>
                 <StatusMessageWrapper
                     loading={loading}
@@ -187,8 +187,8 @@ const JobViewPage = () => {
                 <Button width="auto" type="button" onClick={() => navigate('/artworks')} >Back</Button>
             </div>
 
-            <div className="flex  justify-start ">
-            <div className="flex flex-row-reverse justify-end mb-5">
+            <div className="flex   justify-start ">
+            <div className="hidden sm:flex  flex-row-reverse justify-end mb-5">
                 {mergedHistory.length > 0 ? (
                     mergedHistory.map((history) => (
                         <div key={history._id} className={`flex gap-2 items-center border  px-3 py-1  text-xs capitalize rounded-md mr-0 relative  ${history?.status.toLowerCase() === "ho approved" ? 'bg-red-500 border-red-500 text-white' : history?.status.toLowerCase() === "artwork approved" ? 'bg-orange-50 border-orange-200 text-orange-900':'border-gray-300 bg-white'}`}>
@@ -218,8 +218,8 @@ const JobViewPage = () => {
                 </div>
             </div>
             </div>
-            <div className=' flex gap-10'>
-                <div className='flex flex-col gap-4 bg-white border border-blue-300/60 rounded-lg p-6 px-10 w-3xl shadow-md'>
+            <div className=' flex gap-10 flex-col sm:flex-row'>
+                <div className='flex flex-col gap-4 bg-white border border-blue-300/60 rounded-lg p-6 px-10 sm:w-3xl shadow-md'>
                     <div className="pb-2 flex justify-between gap-3 items-start">
                         <h2 className="text-2xl font-bold text-gray-800">{job?.title}</h2>
                         {isApproved ? (
@@ -240,22 +240,22 @@ const JobViewPage = () => {
                     </div>
                     <h2>Specification</h2>
                     <div className="bg-gray-100/70 p-4 rounded-lg">
-                        <div className="flex gap-4">
+                        <div className="flex flex-col sm:flex-row gap-4">
                             <LabelValue label="Type Of Artwork" value={job?.typeOfArtwork} />
                             <LabelValue label="Offer Type" value={job?.offerType} />
                         </div>
-                        <div className="flex gap-4">
+                        <div className="flex flex-col sm:flex-row gap-4">
                             <LabelValue label="Zone" value={job?.zone} />
                             <LabelValue label="State" value={job?.state} />
                         </div>
-                        <div className="flex gap-4">
+                        <div className="flex flex-col sm:flex-row gap-4">
                             <LabelValue label="Language" value={job?.language} />
                         </div>
-                        <div className="flex gap-4">
+                        <div className="flex flex-col sm:flex-row gap-4">
                             <LabelValue label="Product" value={job?.product?.name} />
                             <LabelValue label="Brand" value={job?.brand?.name} />
                         </div>
-                        <div className="flex gap-4">
+                        <div className="flex flex-col sm:flex-row gap-4">
                             <LabelValue label="Model" value={job?.model?.name} />
                         </div>
                     </div>
@@ -281,7 +281,7 @@ const JobViewPage = () => {
                     <div className="bg-gray-100/70 p-4 rounded-lg">
                         {job?.offerDetails}
                     </div>
-                    <div className="flex gap-5">
+                    <div className="flex flex-col sm:flex-row  gap-5">
                         {['admin', 'marketing_manager'].includes(user?.role) && (
                             <Button type="button" onClick={() => handleDelete(job?._id)}>
                                 Delete Job
@@ -291,8 +291,8 @@ const JobViewPage = () => {
                     </div>
                 </div>
                 <div className=' bg-white border border-blue-300/60 rounded-lg  w-full shadow-md overflow-hidden '>
-                    <div className='flex justify-between p-0 h-full '>
-                        <div className=" w-[70%] p-6">
+                    <div className='flex flex-col sm:flex-row justify-between p-0 h-full '>
+                        <div className=" sm:w-[70%] p-6">
                             {job?.assignedTo ? (
                                 <div className="assigne-to-seaction">
                                     <h3 className="text-lg font-semibold text-gray-700">Assigned to</h3>

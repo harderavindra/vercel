@@ -152,8 +152,8 @@ const MasterDataPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-8  p-10">
-      <div className="flex  gap-6 p-8 bg-white  border border-blue-300/60 rounded-xl  shadow-md items-center justify-between">
+    <div className="flex flex-col gap-8 p-4  sm:p-10">
+      <div className="flex flex-col sm:flex-row  gap-6 p-8 bg-white  border border-blue-300/60 rounded-xl  shadow-md sm:items-center sm:justify-between">
         <h2 className="font-semibold text-lg min-w-1/5">Product Category</h2>
         <div className="flex gap-4 w-full">
           {products.map((product) => (
@@ -171,9 +171,9 @@ const MasterDataPage = () => {
         </div>
         <div></div>
       </div>
-      <div className="flex  gap-6 p-8 bg-white  border border-blue-300/60 rounded-xl  shadow-md items-center justify-between">
+      <div className="flex flex-col sm:flex-row  gap-6 p-8 bg-white  border border-blue-300/60 rounded-xl  shadow-md items-center justify-between">
         <h2 className="font-semibold text-lg min-w-1/5">Brand Category</h2>
-        <div className="flex justify-between items-center w-full">
+        <div className="flex flex-col gap-3 sm:flex-row  justify-between items-center w-full">
           <div className="flex gap-4 flex-wrap">
             {loading ? (
               <p>Loading brands...</p>
@@ -226,9 +226,9 @@ const MasterDataPage = () => {
         </div>
       </div>
 
-      <div className="flex  gap-6 p-8 bg-white  border border-blue-300/60 rounded-xl  shadow-md items-center justify-between">
+      <div className="flex flex-col  sm:flex-row  gap-6 p-8 bg-white  border border-blue-300/60 rounded-xl  shadow-md items-center justify-between">
         <h2 className="font-semibold text-lg min-w-1/5">Model Category</h2>
-        <div className="flex justify-between  items-start w-full">
+        <div className="flex flex-col gap-3 sm:flex-row justify-between  items-start w-full">
           <div className="flex gap-4 flex-wrap">        
             {loading ? (
               <p>Loading model...</p>

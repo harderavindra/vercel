@@ -101,8 +101,8 @@ const [successMessage, setSuccessMessage] = useState('');
   return (
     <div className="flex justify-between items-stretch min-h-full gap-10">
       {/* Left Content */}
-      <div className="w-full p-10">
-        <div className="flex justify-between items-center pb-4">
+      <div className="w-full p-3 sm:p-10">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pb-4 gap-3">
           <PageTitle>Brand Treasury</PageTitle>
           <StatusMessageWrapper loading={loading} success={success} error={error} />
           {hasAccess(user?.role, ['marketing_manager', 'admin', 'zonal_marketing_manager']) && (
@@ -113,9 +113,9 @@ const [successMessage, setSuccessMessage] = useState('');
         </div>
 
         {/* Filters */}
-        <div className={`flex justify-between ${selectedLanguages.length > 0
+        <div className={`flex  justify-between ${selectedLanguages.length > 0
           ? 'pb-10' : 'pb-0'}`}>
-          <div className={`flex gap-4 mb-5 ${error ? "hidden" : ""}`}>
+          <div className={`flex flex-col sm:flex-row gap-4 mb-5 ${error ? "hidden" : ""}`}>
             <SearchInput
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -165,7 +165,7 @@ const [successMessage, setSuccessMessage] = useState('');
               ))}
             </div>
           ) : documents.length > 0 ? (
-            <div className="grid grid-cols-4 gap-10">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-10">
               {documents.map((doc) => (
                 <BrandCard key={doc._id} document={doc} />
               ))}
@@ -183,7 +183,7 @@ const [successMessage, setSuccessMessage] = useState('');
       </div>
 
       {/* Sidebar Filters */}
-      <div className="bg-white shadow-md min-w-[40px] px-2 py-3">
+      <div className="bg-white shadow-md min-w-[40px] px-2 py-3 hidden sm:block">
       <button
           className={`flex flex-col gap-1 items-center py-2 px-3 text-xs w-full cursor-pointer ${!myDocuments &&  !starred ? "text-red-500" : ""}`}
           onClick={() => { setMyDocuments(false); setStarred(false); setPage(1); }}

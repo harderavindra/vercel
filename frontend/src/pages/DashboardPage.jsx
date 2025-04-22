@@ -9,9 +9,9 @@ const DashboardPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className='w-full h-full flex justify-center items-center'>
-      <div className='flex w-3xl gap-8'>
-        <div className='w-full bg-white  rounded-2xl shadow-lg p-4 flex justify-center items-center min-h-52 cursor-pointer'
+    <div className='w-full h-full flex justify-center items-center '>
+      <div className='flex w-3xl flex-col sm:flex-row gap-8 p-8 sm:p-0'>
+        <div className='w-full bg-white  rounded-2xl shadow-lg p-4 flex  justify-center items-center min-h-52 cursor-pointer'
          onClick={() => navigate(`/user/${user._id}`)} >
           <div className='flex flex-col gap-3 justify-center items-center'>
             <Avatar size='xl' src={user.profilePic} />

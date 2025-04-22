@@ -64,9 +64,9 @@ const UsersPage = () => {
       </div>
       <div>
         <div className="flex mb-4 justify-between">
-          <div className="flex gap-4 relative">
+          <div className="flex flex-col sm:flex-row gap-4 relative">
             <div className='relative'>
-              <SearchInput value={search} onChange={(e) => { setSearch(e.target.value); }} className="w-sm h-10"
+              <SearchInput value={search} onChange={(e) => { setSearch(e.target.value); }} className="sm:w-sm h-10"
                 onClear={() => {
                   setSearch("");
                   setSearchLoading(false);
@@ -113,7 +113,7 @@ const UsersPage = () => {
 
       </div>
 
-      <div className="grid grid-cols-4 gap-10 mt-10">
+      <div className="grid  sm:grid-cols-4 gap-10 mt-10">
         {(loading || searchLoading
           ? Array(4).fill({ isPlaceholder: true })
           : users.length > 0

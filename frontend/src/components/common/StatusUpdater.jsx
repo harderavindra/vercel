@@ -21,7 +21,7 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
     const statuses = (() => {
 
         if (normalizedStatus === "pending" && ["admin", "marketing_manager"].includes(role)) {
-            return ["approved"];
+            return ["approved", "unser review","reject"];
         }
         if (!assignedTo) return [];
 

@@ -95,20 +95,20 @@ export const getBrandTreasuryById = async (req, res) => {
         const signedThumbnailUrls = await Promise.all(
             (document.thumbnailUrls || []).map((url) => generateSignedUrl(url))
         );
-        
+
         // Generate signed URL for attachment if exists
         const signedAttachmentUrl = document.attachment
-        ? await attachmentSignedUrl(document.attachment)
-        : null;
+            ? await attachmentSignedUrl(document.attachment)
+            : null;
 
         // Generate signed URL for profile pictures if they exist
-const createdByProfilePicUrl = document.createdBy?.profilePic
-? await generateSignedUrl(document.createdBy.profilePic)
-: null;
+        const createdByProfilePicUrl = document.createdBy?.profilePic
+            ? await generateSignedUrl(document.createdBy.profilePic)
+            : null;
 
-const approvedByProfilePicUrl = document.approvedBy?.profilePic
-  ? await generateSignedUrl(document.approvedBy.profilePic)
-  : null;
+        const approvedByProfilePicUrl = document.approvedBy?.profilePic
+            ? await generateSignedUrl(document.approvedBy.profilePic)
+            : null;
 
         res.json({
             _id: document._id,
@@ -156,15 +156,16 @@ export const getBrandTreasuries = async (req, res) => {
         const userRole = req.user.role;
 
         let filter = {};
-if (userRole !== "marketing_manager") {
-    filter.contentType = "print";
-}
+        if (userRole !== "marketing_manager") {
+            filter.contentType = "print";
+        }
 
         if (documentType) filter.documentType = documentType;
         if (search) {
             filter.$or = [
                 { documentType: { $regex: search, $options: "i" } },
-                { language: { $regex: search, $options: "i" } }
+                { language: { $regex: search, $options: "i" } },
+                { title: { $regex: search, $options: "i" } }
             ];
         }
         if (myDocuments === "true") {
@@ -192,7 +193,6 @@ if (userRole !== "marketing_manager") {
         }
 
 
-
         // Fetch documents
         const brandTreasuries = await BrandTreasury.find(filter)
             .skip(skip)
@@ -214,10 +214,10 @@ if (userRole !== "marketing_manager") {
                     (docObj.thumbnailUrls || []).map((url) => generateSignedUrl(url))
                 );
                 // Generate signed URL for createdBy.profilePic if it exists
-        let signedProfilePic = null;
-        if (docObj.createdBy?.profilePic) {
-            signedProfilePic = await generateSignedUrl(docObj.createdBy.profilePic);
-        }
+                let signedProfilePic = null;
+                if (docObj.createdBy?.profilePic) {
+                    signedProfilePic = await generateSignedUrl(docObj.createdBy.profilePic);
+                }
 
 
                 return {
@@ -232,7 +232,7 @@ if (userRole !== "marketing_manager") {
             })
         );
 
-        
+
         // Count total documents
         const totalDocuments = await BrandTreasury.countDocuments(filter);
 
@@ -277,139 +277,139 @@ export const toggleStarred = async (req, res) => {
 
 export const updateApproval = async (req, res) => {
 
-const { id } = req.params;
-const { approved } = req.body;
-const userId = req.user.userId; // Get logged-in user ID from middleware
+    const { id } = req.params;
+    const { approved } = req.body;
+    const userId = req.user.userId; // Get logged-in user ID from middleware
 
-try {
-    const updateData = { approved };
+    try {
+        const updateData = { approved };
 
-    // If approved, set approvedBy and approvedAt; otherwise, reset them
-    if (approved) {
-        updateData.approvedBy = userId;
-        updateData.approvedAt = new Date();
-    } else {
-        updateData.approvedBy = null;
-        updateData.approvedAt = null;
+        // If approved, set approvedBy and approvedAt; otherwise, reset them
+        if (approved) {
+            updateData.approvedBy = userId;
+            updateData.approvedAt = new Date();
+        } else {
+            updateData.approvedBy = null;
+            updateData.approvedAt = null;
+        }
+
+        // Use $set to ensure all fields update properly
+        const document = await BrandTreasury.findByIdAndUpdate(
+            id,
+            { $set: updateData },
+            { new: true, upsert: false } // Don't create a new document if not found
+        );
+
+        if (!document) {
+            return res.status(404).json({ error: "Document not found." });
+        }
+
+        res.json({ success: true, document });
+    } catch (error) {
+        console.error("Update Error:", error);
+        res.status(500).json({ error: "Database update failed." });
     }
-
-    // Use $set to ensure all fields update properly
-    const document = await BrandTreasury.findByIdAndUpdate(
-        id,
-        { $set: updateData },
-        { new: true, upsert: false } // Don't create a new document if not found
-    );
-
-    if (!document) {
-        return res.status(404).json({ error: "Document not found." });
-    }
-
-    res.json({ success: true, document });
-} catch (error) {
-    console.error("Update Error:", error);
-    res.status(500).json({ error: "Database update failed." });
-}
 };
 
 
 
 export const deleteBrandTreasuryDocument = async (req, res) => {
     try {
-      const { id, attachment, thumbnailUrls } = req.body;
-      console.log("Received for deletion:", { id, attachment, thumbnailUrls });
-  
-      const BASE_URL = "https://storage.googleapis.com/brand-treasury/";
-  
-      // 1. Delete main attachment file
-      if (attachment) {
-        const decodedUrl = decodeURIComponent(attachment);
-        const filePath = decodedUrl.replace(BASE_URL, "").split("?")[0];
-        console.log("Deleting attachment:", filePath);
+        const { id, attachment, thumbnailUrls } = req.body;
+        console.log("Received for deletion:", { id, attachment, thumbnailUrls });
+
+        const BASE_URL = "https://storage.googleapis.com/brand-treasury/";
+
+        // 1. Delete main attachment file
+        if (attachment) {
+            const decodedUrl = decodeURIComponent(attachment);
+            const filePath = decodedUrl.replace(BASE_URL, "").split("?")[0];
+            console.log("Deleting attachment:", filePath);
+            const file = bucket.file(filePath);
+            await file.delete().catch(err => {
+                console.warn(`Failed to delete attachment: ${filePath}`, err.message);
+            });
+        }
+
+        // 2. Delete thumbnail files
+        if (Array.isArray(thumbnailUrls)) {
+            for (const thumbUrl of thumbnailUrls) {
+                const decodedUrl = decodeURIComponent(thumbUrl);
+                const filePath = decodedUrl.replace(BASE_URL, "").split("?")[0];
+                console.log("Deleting thumbnail:", filePath);
+                const file = bucket.file(filePath);
+                await file.delete().catch(err => {
+                    console.warn(`Failed to delete thumbnail: ${filePath}`, err.message);
+                });
+            }
+        }
+
+        // 3. Delete MongoDB document
+        const deletedDoc = await BrandTreasury.findByIdAndDelete(id);
+        if (!deletedDoc) {
+            return res.status(404).json({ message: 'Document not found' });
+        }
+
+        return res.status(200).json({ message: 'Document and all files deleted successfully.' });
+
+    } catch (error) {
+        console.error('Error deleting document:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+export const deleteThumbnail = async (req, res) => {
+    try {
+        const { fileId, imageUrl } = req.body;
+
+        if (!fileId || !imageUrl) {
+            return res.status(400).json({
+                success: false,
+                message: 'fileId and imageUrl are required',
+            });
+        }
+
+        // Decode the URL
+        const decodedUrl = decodeURIComponent(imageUrl);
+        const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+        const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];
+
+        // Remove query params to get the stored version
+        const strippedImageUrl = decodedUrl.split("?")[0];
+
+        // Delete from Google Cloud Storage
         const file = bucket.file(filePath);
         await file.delete().catch(err => {
-          console.warn(`Failed to delete attachment: ${filePath}`, err.message);
+            console.warn(`Error deleting file from GCS: ${filePath}`, err.message);
         });
-      }
-  
-      // 2. Delete thumbnail files
-      if (Array.isArray(thumbnailUrls)) {
-        for (const thumbUrl of thumbnailUrls) {
-          const decodedUrl = decodeURIComponent(thumbUrl);
-          const filePath = decodedUrl.replace(BASE_URL, "").split("?")[0];
-          console.log("Deleting thumbnail:", filePath);
-          const file = bucket.file(filePath);
-          await file.delete().catch(err => {
-            console.warn(`Failed to delete thumbnail: ${filePath}`, err.message);
-          });
+
+        // Remove thumbnail from MongoDB
+        const updatedDoc = await BrandTreasury.findByIdAndUpdate(
+            fileId,
+            { $pull: { thumbnailUrls: strippedImageUrl } },
+            { new: true }
+        );
+
+        if (!updatedDoc) {
+            return res.status(404).json({
+                success: false,
+                message: "Document not found",
+            });
         }
-      }
-  
-      // 3. Delete MongoDB document
-      const deletedDoc = await BrandTreasury.findByIdAndDelete(id);
-      if (!deletedDoc) {
-        return res.status(404).json({ message: 'Document not found' });
-      }
-  
-      return res.status(200).json({ message: 'Document and all files deleted successfully.' });
-  
-    } catch (error) {
-      console.error('Error deleting document:', error);
-      res.status(500).json({ message: 'Internal Server Error' });
-    }
-  };
-  export const deleteThumbnail = async (req, res) => {
-    try {
-      const { fileId, imageUrl } = req.body;
-  
-      if (!fileId || !imageUrl) {
-        return res.status(400).json({
-          success: false,
-          message: 'fileId and imageUrl are required',
+
+        return res.status(200).json({
+            success: true,
+            message: 'Thumbnail deleted successfully',
+            updatedDoc,
         });
-      }
-  
-      // Decode the URL
-      const decodedUrl = decodeURIComponent(imageUrl);
-      const baseUrl = "https://storage.googleapis.com/brand-treasury/";
-      const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];
-  
-      // Remove query params to get the stored version
-      const strippedImageUrl = decodedUrl.split("?")[0];
-  
-      // Delete from Google Cloud Storage
-      const file = bucket.file(filePath);
-      await file.delete().catch(err => {
-        console.warn(`Error deleting file from GCS: ${filePath}`, err.message);
-      });
-  
-      // Remove thumbnail from MongoDB
-      const updatedDoc = await BrandTreasury.findByIdAndUpdate(
-        fileId,
-        { $pull: { thumbnailUrls: strippedImageUrl } },
-        { new: true }
-      );
-  
-      if (!updatedDoc) {
-        return res.status(404).json({
-          success: false,
-          message: "Document not found",
-        });
-      }
-  
-      return res.status(200).json({
-        success: true,
-        message: 'Thumbnail deleted successfully',
-        updatedDoc,
-      });
-  
+
     } catch (error) {
-      console.error("Error deleting thumbnail:", error);
-      return res.status(500).json({
-        success: false,
-        message: 'Internal Server Error',
-      });
+        console.error("Error deleting thumbnail:", error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
+        });
     }
-  };
+};
 
 const generateSignedUrl = async (url) => {
     try {
@@ -436,17 +436,17 @@ const attachmentSignedUrl = async (url) => {
         const baseUrl = "https://storage.googleapis.com/brand-treasury/";
         const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];
         const file = bucket.file(filePath);
-    
+
         // Generate a signed URL
         const [signedUrl] = await file.getSignedUrl({
-          action: 'read',
-          expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
+            action: 'read',
+            expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
         });
-    
+
         // Get metadata
         const [metadata] = await file.getMetadata();
 
-        return {signedUrl, size: metadata.size, mime: metadata.contentType};
+        return { signedUrl, size: metadata.size, mime: metadata.contentType };
     } catch (err) {
         console.error(`Error generating signed URL: `, err);
         return null;

@@ -123,7 +123,7 @@ const UserDetails = () => {
     }
 
     return (
-        <div className='flex gap-20 p-10'>
+        <div className='flex flex-col sm:flex-row gap-20 p-4 sm:p-10'>
             <UserProfileCard user={viewUser} />
             <div className='flex flex-col min-h-full w-full bg-white'>
                 <div className='fle gap-4 bg-gray-50 rounded-lg items-start justify-start'>

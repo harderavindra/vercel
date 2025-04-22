@@ -59,7 +59,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="bg-gray-50 w-screen h-screen flex items-center justify-center">
+    <div className="bg-gray-50 w-screen h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-lg p-6 flex flex-col shadow-lg ring-1  shadow-gray-200/50  ring-gray-200/70 ring-offset-0">
 
         <h2 className="text-xl  mb-4 text-center font-bold">Welcome back</h2>

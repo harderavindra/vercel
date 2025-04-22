@@ -110,9 +110,9 @@ const JobList = () => {
     
 
     return (
-        <div className="p-10">
+        <div className="p-4 sm:p-10">
             {/* Header Section */}
-            <div className="flex justify-between items-center pb-4">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pb-4">
                 <PageTitle>Artwork Requests</PageTitle>
                 <StatusMessageWrapper loading={loading} success={success} error={error} />
                 {hasAccess(user?.role, ['marketing_manager','admin','zonal_marketing_manager']) && (
@@ -124,7 +124,7 @@ const JobList = () => {
 
             {/* Filters */}
             <div className="flex justify-between pb-8">
-                <div className={`flex gap-4 mb-5 ${error ? "hidden" : ""}`}>
+                <div className={`flex flex-col sm:flex-row gap-4 mb-5 ${error ? "hidden" : ""}`}>
                     <SearchInput
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -150,7 +150,7 @@ const JobList = () => {
             </div>
 
             {/* Job List */}
-            <div className="grid grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
                 {loading
                     ? Array.from({ length: 6 }, (_, index) => <LoadingCard key={index} />)
                     : error ? (

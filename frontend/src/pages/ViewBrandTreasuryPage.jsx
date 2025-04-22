@@ -139,7 +139,7 @@ const ViewBrandTreasuryPage = () => {
 
 
   return (
-    <div className="w-full p-10">
+    <div className="w-full p-4 sm:p-10">
       <div className="flex justify-between items-center pb-4">
         <PageTitle>Brand Treasury</PageTitle>
         <StatusMessageWrapper loading={loading} success={success} error={error} />
@@ -148,7 +148,7 @@ const ViewBrandTreasuryPage = () => {
         </Button>
       </div>
 
-      <div className="flex gap-10 overflow-hidden">
+      <div className="flex flex-col sm:flex-row gap-10 overflow-hidden">
         {/* LEFT CARD */}
         <div className="flex flex-col gap-4 bg-white border border-blue-300/60 rounded-xl p-6 shadow-md relative w-full max-w-lg">
           <div className="flex justify-between">
@@ -209,7 +209,7 @@ const ViewBrandTreasuryPage = () => {
         </div>
 
         {/* RIGHT DETAILS */}
-        <div className="flex flex-col gap-4 bg-white border border-blue-300/60 rounded-xl shadow-md relative px-20 py-10 w-full">
+        <div className="flex flex-col gap-4 bg-white border border-blue-300/60 rounded-xl shadow-md relative px-4 sm:px-20 py-10 w-full">
           <div className="flex flex-col gap-2">
             <InfoRow label="Document Type">{document?.documentType}</InfoRow>
             <InfoRow label="Content Type">{snakeToCapitalCase(document?.contentType || "N/A")}</InfoRow>
