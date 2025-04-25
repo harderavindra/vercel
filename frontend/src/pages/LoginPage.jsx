@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, Links, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/auth-context'; // Assuming you have this for context
 import LogoImage from '../assets/m-logo.svg'
 import InputText from '../components/common/InputText';
@@ -100,6 +100,7 @@ const LoginPage = () => {
               {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
             </button>
           </div>
+          <Link className="text-sm text-gray-500 hover:text-gray-700" to="/forgot-password">Forgot password?</Link>
 
           <Button className='w-full my-4' type="submit" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}

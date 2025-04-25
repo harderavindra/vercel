@@ -4,19 +4,23 @@ import jwt from 'jsonwebtoken';
 
 import bcrypt from 'bcryptjs';
 import { DESIGNATIONS, ROLES } from "../constants/enums.js";
+import { sendEmail } from "../utils/emailService.js";
 const JWT_SECRET = process.env.JWT_SECRET;
 export const login = async (req, res) => {
     const { email, password } = req.body;
 
     // Find the user
     const user = await User.findOne({ email });
+  // Log passwords for debugging
+console.log("Entered password:", password);
+console.log("Stored hashed password:", user.password);
+if (!user) {
+  return res.status(400).json({ message: 'User not found' });
+}
 
-    if (!user) {
-        return res.status(400).json({ message: 'User not found' });
-    }
-
-    // Compare passwords
-    const isMatch = await bcrypt.compare(password, user.password);
+// Compare passwords
+const isMatch = await bcrypt.compare(password, user.password);
+console.log("Stored hashed isMatch:", isMatch);
 
     if (!isMatch) {
         return res.status(400).json({ message: 'Invalid credentials' });
@@ -358,5 +362,78 @@ export const deleteUser = async (req, res) => {
     } catch (error) {
       console.error("Reset Password Error:", error);
       res.status(500).json({ message: "Server Error", error: error.message });
+    }
+  };
+
+
+  export const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+  
+    try {
+      // Find user by email
+      const user = await User.findOne({ email });
+      
+      // Return a generic message if user does not exist
+      if (!user) {
+        return res.json({
+          message: 'If an account with that email exists, a reset link has been sent.',
+        });
+      }
+  
+      // Generate JWT token for password reset (expires in 1 hour)
+      const token = jwt.sign(
+        { id: user._id }, 
+        JWT_SECRET, 
+        { expiresIn: '1h' }
+      );
+  
+      // Create the reset link with the token
+      const resetLink = `${process.env.FRONTEND_URL}reset-password/${token}`;
+  
+      // Email content
+      const subject = 'Reset Your Password';
+      const html = `
+        <p>Hi ${user.name || 'there'},</p>
+        <p>You requested a password reset. Click the link below to reset your password:</p>
+        <a href="${resetLink}" target="_blank">${resetLink}</a>
+        <p>This link will expire in 1 hour. If you did not request this, please ignore this email.</p>
+      `;
+  
+      // Send reset email
+      await sendEmail({ to: email, subject, html });
+  
+      return res.json({
+        message: 'If an account with that email exists, a reset link has been sent.',
+      });
+    } catch (err) {
+      console.error('Forgot password error:', err);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+
+  export const resetPassword = async (req, res) => {
+    const { token } = req.params; // Extract the token from URL params
+    const { newPassword } = req.body;
+  
+    try {
+      // Verify the JWT token
+      const decoded = jwt.verify(token, JWT_SECRET);
+      
+      // Find the user by ID from the decoded token
+      const user = await User.findById(decoded.id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+
+  
+      // Update the user's password
+      user.password = newPassword;
+      await user.save();
+  
+      return res.json({ message: 'Password reset successfully' });
+    } catch (err) {
+      console.error('Error during password reset:', err);
+      return res.status(500).json({ message: 'Internal server error' });
     }
   };

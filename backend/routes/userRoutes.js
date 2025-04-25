@@ -1,5 +1,5 @@
 import express from "express";
-import { authenticate, deleteUser, getAllusers, getUserById, getUserProfile, login, logout, registerUser, resetUserPassword, updateUser } from "../controllers/userController.js";
+import { authenticate, deleteUser, forgotPassword, getAllusers, getUserById, getUserProfile, login, logout, registerUser, resetPassword, resetUserPassword, updateUser } from "../controllers/userController.js";
 
 const router = express.Router();
 
@@ -17,6 +17,8 @@ router.put("/:id/reset-password", authenticate, resetUserPassword);
 
 router.put("/:id", authenticate, updateUser);
 router.delete("/:id", deleteUser);    
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password/:token', resetPassword ); // 6. Generic: Reset Password
 
 
 export default router;

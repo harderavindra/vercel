@@ -23,6 +23,8 @@ import BrandTreasuryCreate from "./pages/BrandTreasuryCreate";
 import BrandTreasuryCreatePage from "./pages/BrandTreasuryCreatePage";
 import BrandTreasuryList from "./pages/BrandTreasuryList";
 import ViewBrandTreasuryPage from "./pages/ViewBrandTreasuryPage";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const App = () => {
     return (
@@ -30,6 +32,9 @@ const App = () => {
             <AuthProvider>
                 <Routes>
                     <Route path="/login" element={<LoginPage />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password/:token" element={<ResetPassword />} />
+
                     <Route element={<MainLayout />}>
                     
                         <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin','zonal_marketing_manager']} />}>

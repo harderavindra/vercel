@@ -43,6 +43,8 @@ const userSchema = new mongoose.Schema(
       state: { type: String, trim: true },
       country: { type: String, default: "India", trim: true },
     },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
     lastUpdatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     lastUpdatedAt: { type: Date },
   },
