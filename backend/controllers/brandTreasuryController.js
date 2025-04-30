@@ -7,15 +7,13 @@ import User from "../models/User.js";
 
 export const createBrandTreasury = async (req, res) => {
     try {
-        const { title, documentType, contentType, zone, state, language, product, brand, model, comment, attachment } = req.body;
+        const { title, documentType, contentType,  language, product, brand, model, comment, attachment } = req.body;
         console.log(req.user, documentType)
 
         const newBrandTreasury = new BrandTreasury({
             title,
             documentType,
             contentType,
-            zone,
-            state,
             language,
             product,
             brand,
@@ -455,7 +453,7 @@ export const deleteThumbnail = async (req, res) => {
 const generateSignedUrl = async (url) => {
     try {
         const decodedUrl = decodeURIComponent(url);
-        const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+        const baseUrl = "https://storage.googleapis.com/mahindra_adbee_strg/";
         const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];
         const file = bucket.file(filePath);
 
@@ -474,7 +472,7 @@ const generateSignedUrl = async (url) => {
 const attachmentSignedUrl = async (url) => {
     try {
         const decodedUrl = decodeURIComponent(url);
-        const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+        const baseUrl = "https://storage.googleapis.com/mahindra_adbee_strg/";
         const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];
         const file = bucket.file(filePath);
 

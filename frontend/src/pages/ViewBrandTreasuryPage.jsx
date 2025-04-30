@@ -213,7 +213,7 @@ const ViewBrandTreasuryPage = () => {
           <div className="flex flex-col gap-2">
             <InfoRow label="Document Type">{document?.documentType}</InfoRow>
             <InfoRow label="Content Type">{snakeToCapitalCase(document?.contentType || "N/A")}</InfoRow>
-            <InfoRow label="Zone - State">{document?.zone} - {document?.state}</InfoRow>
+            {/* <InfoRow label="Zone - State">{document?.zone} - {document?.state}</InfoRow> */}
             <InfoRow label="Language Type">{document?.language}</InfoRow>
             <InfoRow label="Product">{document?.product}</InfoRow>
             <InfoRow label="Brand - Model">{document?.brand} - {document?.model}</InfoRow>

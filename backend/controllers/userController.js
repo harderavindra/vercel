@@ -74,7 +74,7 @@ export const getAllusers = async (req, res) => {
             try {
                 // Extract the file path from the GCS URL
                 const decodedUrl = decodeURIComponent(user.profilePic);
-                const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+                const baseUrl = "https://storage.googleapis.com/mahindra_adbee_strg/";
                 const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];  // Extract the file path part before the query string
 
                 // Get the file reference from GCS
@@ -170,7 +170,7 @@ export const getUserProfile = async (req, res) => {
             try {
                 // Extract the file path from the GCS URL
                 const decodedUrl = decodeURIComponent(user.profilePic);
-                const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+                const baseUrl = "https://storage.googleapis.com/mahindra_adbee_strg/";
                 const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];  // Extract the file path part before the query string
 
                 // Get the file reference from GCS
@@ -230,7 +230,7 @@ export const getUserById = async (req, res) => {
         try {
             // Extract the file path from the GCS URL
             const decodedUrl = decodeURIComponent(user.profilePic);
-            const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+            const baseUrl = "https://storage.googleapis.com/mahindra_adbee_strg/";
             const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];  // Extract the file path part before the query string
 
             // Get the file reference from GCS

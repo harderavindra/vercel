@@ -17,8 +17,6 @@ const BrandTreasuryCreate = () => {
     title: "",
     contentType: "",
     documentType: "",
-    zone: "",
-    state: "",
     language: "",
     product: "",
     brand: "",
@@ -44,13 +42,12 @@ const BrandTreasuryCreate = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedFileUrl, setUploadedFileUrl] = useState(null);
 
-  const isLocationComplete = formData.zone && formData.state && formData.language;
+  const isLocationComplete =  formData.language;
   const isAllComplete =
     formData.title &&
     formData.contentType &&
     formData.documentType &&
-    formData.zone &&
-    formData.state &&
+
     formData.language &&
     formData.product &&
     formData.brand &&
@@ -180,8 +177,7 @@ const BrandTreasuryCreate = () => {
         title: "",
         documentType: "",
         contentType: "",
-        zone: "",
-        state: "",
+       
         language: "",
         product: "",
         brand: "",
@@ -275,31 +271,7 @@ const BrandTreasuryCreate = () => {
             {
               activeTab === "location" && (
                 <div>
-                  <div className="flex gap-8 mb-3">
-                    <div className="w-full">
-
-                      <label>Zone</label>
-                      <select name="zone" value={formData.zone} onChange={handleChange} className="block w-full mt-1 border rounded-md p-2">
-                        <option value="">Select Zone</option>
-                        {Object.keys(ZONES).map((zone) => (
-                          <option key={zone} value={zone}>{zone}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="w-full">
-                      {formData.zone && (
-                        <div className="w-full">
-                          <label>State</label>
-                          <select name="state" value={formData.state} onChange={handleChange} className="block w-full mt-1 border rounded-md p-2">
-                            <option value="">Select State</option>
-                            {ZONES[formData.zone].map((state) => (
-                              <option key={state} value={state}>{state}</option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  
                   <div>
                     <label>Language</label>
                     <div className="grid grid-cols-4 gap-2 mt-1">

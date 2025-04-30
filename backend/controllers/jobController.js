@@ -247,7 +247,7 @@ export const getJobById = async (req, res) => {
 const generateSignedUrl = async (url) => {
   try {
     const decodedUrl = decodeURIComponent(url);
-    const baseUrl = "https://storage.googleapis.com/brand-treasury/";
+    const baseUrl = "https://storage.googleapis.com/mahindra_adbee_strg/";
     const filePath = decodedUrl.replace(baseUrl, "").split('?')[0];
     const file = bucket.file(filePath);
 
