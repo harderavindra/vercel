@@ -24,7 +24,7 @@ import { snakeToCapitalCase } from "../utils/convertCase";
 import { hasAccess } from "../utils/permissions";
 import { useAuth } from "../context/auth-context";
 import InputText from "../components/common/InputText";
-import { CONTENT_TYPE_DOCUMENTS, BRAND_TREASURY_DOCUMENTS } from "../utils/constants";
+import { CONTENT_TYPE_DOCUMENTS, BRAND_TREASURY_DOCUMENTS, LANGUAGES } from "../utils/constants";
 import SelectField from "../components/common/SelectField";
 import { fetchAllProducts, fetchBrandByProductId, fetchModelCategoriesByBrand } from "../api/masterDataApi";
 
@@ -429,8 +429,45 @@ const ViewBrandTreasuryPage = () => {
               </div>
             </div>
             {/* <InfoRow label="Zone - State">{document?.zone} - {document?.state}</InfoRow> */}
-            <InfoRow label="Language Type">{document?.language}</InfoRow>
+            {/* <InfoRow label="Language Type">{document?.language}</InfoRow> */}
+            <div className="flex  gap-4 items-start justify-between bg-gray-50 px-4 py-2 w-full">
+              <label className="text-gray-400 w-[30%] min-w-fit">Language</label>
+              <div className="w-full">
+                {editSections.language ? (
+                  <div className="grid grid-cols-4 gap-2 mt-1">
+                  {LANGUAGES.map((lang) => (
+                    <label key={lang} className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="language"
+                        value={lang}
+                        checked={updatedFields?.language === lang}
+                        onChange={handleOnChange}
+                      />
+                      <span>{lang}</span>
+                    </label>
+                  ))}
+                </div>
+                ): (
+                  <p className="text-lg capitalize">{snakeToCapitalCase(document?.language || "N/A")}</p>
 
+                )}
+
+                
+              </div>
+              <div>
+                <EditButton
+                  isEditing={editSections.language}
+                  toggleEdit={() => toggleEditSection("language")}
+                  updateBrand={updateBrand}
+                  isDisabled={Object.keys(updatedFields).length === 0
+                    || Object.values(updatedFields).some(value =>
+                      typeof value === "string" && value.trim() === ""
+                    )
+                  }
+                />
+              </div>
+            </div>
 
 
             <div className="">
@@ -492,17 +529,17 @@ const ViewBrandTreasuryPage = () => {
                       <p className="text-lg capitalize">{document?.product}</p><p className="text-lg capitalize">{document?.brand} - {document?.model}</p>
                     </div>)}
                 </div>
-                    <div>
-                <EditButton
-                  isEditing={editSections.product}
-                  toggleEdit={() => toggleEditSection("product")}
-                  updateBrand={updateBrand}
-                  isDisabled={Object.keys(updatedFields).length === 0
-                    || Object.values(updatedFields).some(value =>
-                      typeof value === "string" && value.trim() === ""
-                    )
-                  }
-                />
+                <div>
+                  <EditButton
+                    isEditing={editSections.product}
+                    toggleEdit={() => toggleEditSection("product")}
+                    updateBrand={updateBrand}
+                    isDisabled={Object.keys(updatedFields).length === 0
+                      || Object.values(updatedFields).some(value =>
+                        typeof value === "string" && value.trim() === ""
+                      )
+                    }
+                  />
                 </div>
               </div>
             </div>
@@ -512,7 +549,27 @@ const ViewBrandTreasuryPage = () => {
 
           <div>
             <h1 className="text-xl font-bold">Comment</h1>
-            <div dangerouslySetInnerHTML={{ __html: document?.comment }} />
+            <div className="flex gap-4 items-start justify-between bg-gray-50 px-4 py-2 w-full">
+            <div className="w-full" >
+            {            editSections.comment ? (
+
+              <textarea name="comment" value={updatedFields.comment} onChange={handleOnChange} placeholder="Comment" className="w-full border border-gray-400 focus:outline-blue-200 bg-white p-2 rounded mt-5"></textarea>
+            ):(
+              <div dangerouslySetInnerHTML={{ __html: document?.comment }} />
+            )}
+            </div>
+
+            
+            <EditButton
+              isEditing={editSections.comment}
+              toggleEdit={() => toggleEditSection("comment")}
+              updateBrand={updateBrand}
+              isDisabled={Object.keys(updatedFields).length === 0
+                || Object.values(updatedFields).some(value =>
+                  typeof value === "string" && value.trim() === ""
+                )
+              } />
+          </div>
           </div>
 
           <h1 className="text-base font-semibold">History & Ownership</h1>
