@@ -139,7 +139,7 @@ const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails }) => {
         <div>
             <div
                 ref={sliderRef}
-                className={` w-full ${isFullscreen ? "fixed top-0 left-0 z-50 w-screen h-screen p-10 bg-black/40" : "relative"}`}
+                className={` w-full  ${isFullscreen ? "fixed top-0 left-0 z-50 w-screen h-screen  p-10 bg-black/40" : "relative"}`}
                 style={{ scrollSnapType: "x mandatory", whiteSpace: "nowrap" }}>
                       <button
                         onClick={toggleFullscreen}
@@ -150,7 +150,7 @@ const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails }) => {
 
                 {thumbnails.length > 0 ? (
                     <>
-                        <div className={`${isFullscreen ? "h-full" : "h-[200px] " } relative w-full `}>
+                        <div className={`border border-gray-400 rounded-2xl overflow-hidden ${isFullscreen ? "h-full" : "h-[200px] " } relative w-full `}>
                             {
                                 thumbnails.map((thumbnail, index) => (
                                     <div key={index}

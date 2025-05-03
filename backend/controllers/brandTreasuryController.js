@@ -491,3 +491,41 @@ const attachmentSignedUrl = async (url) => {
         return null;
     }
 };
+
+export  const updateBrandTreasury = async (req, res) => {
+    const { id } = req.params;
+    const updates = req.body;
+  
+    try {
+      const brandDoc = await BrandTreasury.findById(id);
+  
+      if (!brandDoc) {
+        return res.status(404).json({ success: false, message: "Document not found" });
+      }
+  
+      // Optional: Add permission logic here
+      // Example: if (req.user.role !== 'admin') { ... }
+  
+      // Update fields
+      Object.keys(updates).forEach((key) => {
+        if (updates[key] !== undefined) {
+          brandDoc[key] = updates[key];
+        }
+      });
+  
+      const updatedDoc = await brandDoc.save();
+  
+      res.status(200).json({
+        success: true,
+        message: "Document updated successfully",
+        data: updatedDoc,
+      });
+    } catch (error) {
+      console.error("Update error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to update document",
+        error: error.message,
+      });
+    }
+  };

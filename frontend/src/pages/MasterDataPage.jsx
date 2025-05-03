@@ -125,12 +125,20 @@ const MasterDataPage = () => {
     }
   };
   const removeBrand = async (brandId) => {
-    if (!window.confirm("Are you sure you want to delete this brand?")) return;
-
-    setLoading(true);
     try {
+      const modelData = await fetchModelCategoriesByBrand(brandId); // same as in getModelsById
+      console.log(modelData) 
+      
+      if (modelData.length > 0) {
+        alert("This brand has associated models. Please delete the models first.");
+        return;
+      }
+  
+      if (!window.confirm("Are you sure you want to delete this brand?")) return;
+  
+      setLoading(true);
       await deleteBrand(brandId);
-      getBrandsById(selectedProduct); // Refresh brands after deletion
+      getBrandsById(selectedProduct); // Refresh brand list
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
     } finally {
@@ -181,11 +189,13 @@ const MasterDataPage = () => {
               brands.map((brand) => (
                 <div key={brand._id}
                   className={`${selectedBrand === brand._id ? selectedStyle : defaultStyle} ${labelStyle} cursor-pointer capitalize`}
-                  onClick={() => {
+                 >
+                  <span  onClick={() => {
                     setSelectedBrand(brand._id);
                     getModelsById(brand._id);
                   }}>
                   {brand.name}
+                  </span>
                   <span onClick={() => removeBrand(brand._id)}
                   ><FiX />
                   </span>

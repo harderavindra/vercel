@@ -58,6 +58,7 @@ export const getBrandCategoriesByProductId = async (req, res) => {
   export const deleteBrand = async (req, res) => {
     try {
       const { brandId } = req.params;
+      console.log(brandId,'brandId')
   
       const brand = await BrandCategory.findById(brandId);
       if (!brand) {
@@ -90,9 +91,7 @@ export const getModelCategoriesByBrand = async (req, res) => {
     const { brandId } = req.params;
     const modelCategories = await ModelCategory.find({ brand: brandId });
 
-    if (!modelCategories.length) {
-      return res.status(404).json({ message: "No model categories found for this brand." });
-    }
+  
 
     res.status(200).json(modelCategories);
   } catch (error) {

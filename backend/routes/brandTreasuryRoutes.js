@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticate} from "../controllers/userController.js";
-import { createBrandTreasury, deleteBrandTreasuryDocument, deleteThumbnail, getBrandTreasuries, getBrandTreasuryById, toggleStarred , updateApproval, uploadThumbnail} from "../controllers/brandTreasuryController.js";
+import { createBrandTreasury, deleteBrandTreasuryDocument, deleteThumbnail, getBrandTreasuries, getBrandTreasuryById, toggleStarred , updateApproval, updateBrandTreasury, uploadThumbnail} from "../controllers/brandTreasuryController.js";
 
 const router = express.Router();
 
@@ -14,6 +14,7 @@ router.post("/delete-thumbnail", authenticate,deleteThumbnail);
 router.patch("/star/:documentId", authenticate, toggleStarred);
 router.post("/:id", authenticate,deleteBrandTreasuryDocument);
 
+router.put("/update-brandtreasury/:id", authenticate, updateBrandTreasury);
 
 
 export default router;
