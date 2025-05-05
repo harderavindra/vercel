@@ -7,7 +7,7 @@ const JOB_STATUS = ["inprogress", "artwork submitted"];
 const DECISION_STATUS = ["approved","under review", "review rejected", "artwork approved", "hold", "ho approved"];
 export const createJob = async (req, res) => {
   try {
-    const { title, typeOfArtwork, priority, offerType, zone, state, language, product, brand, model, offerDetails, otherDetails, attachment, dueDate } = req.body;
+    const { title, typeOfArtwork, priority, offerType, zone, state, language,items, offerDetails, otherDetails, attachment, dueDate } = req.body;
     console.log(req.user)
 
     const newJob = new Job({
@@ -18,9 +18,7 @@ export const createJob = async (req, res) => {
       zone,
       state,
       language,
-      product,
-      brand,
-      model,
+      items,
       offerDetails,
       otherDetails,
       attachment,
@@ -134,9 +132,10 @@ export const getJobById = async (req, res) => {
     const { id } = req.params;
 
     const job = await Job.findById(id)
-    .populate('product', 'name')
-    .populate('brand', 'name')
-    .populate('model', 'name')
+    .populate('items.product', 'name')
+    .populate('items.model', 'name')
+    .populate('items.brand', 'name')
+
     .populate('decisionHistory.updatedBy', 'firstName lastName email profilePic')
       .populate('statusHistory.updatedBy', 'firstName lastName email profilePic')
       .populate('createdBy', 'firstName lastName email profilePic role')

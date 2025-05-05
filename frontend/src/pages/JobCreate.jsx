@@ -20,7 +20,10 @@ const JobCreate = () => {
     offerType: "",
     zone: "",
     state: "",
-    language: "",
+    language: [],
+    items: [
+
+    ],
     product: "",
     brand: "",
     model: "",
@@ -28,6 +31,12 @@ const JobCreate = () => {
     dueDate: "",
     attachment: null, // Store uploaded file object
   });
+  const [newItem, setNewItem] = useState({
+    product: "",
+    brand: "",
+    model: ""
+  });
+  const [idName, setIdName] = useState({});
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -45,6 +54,7 @@ const JobCreate = () => {
   const [models, setModels] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedFileUrl, setUploadedFileUrl] = useState(null);
+  const [adding, setAdding] = useState(true);  
 
   const isLocationComplete = formData.zone && formData.state && formData.language;
   const isAllComplete =
@@ -55,9 +65,7 @@ const JobCreate = () => {
     formData.zone &&
     formData.state &&
     formData.language &&
-    formData.product &&
-    formData.brand &&
-    formData.model &&
+
     formData.offerDetails &&
     formData.dueDate;
 
@@ -74,10 +82,19 @@ const JobCreate = () => {
     };
     getProducts();
   }, []);
-  const handleProductChange = async (e) => {
+  const handleProductChange = async (e, index) => {
     handleChange(e);
     const productId = e.target.value;
-    setFormData((prev) => ({ ...prev, product: productId, brand: "", model: "" }));
+    setFormData(prev => {
+      const updatedItems = [...prev.items];
+      updatedItems[index] = {
+        ...updatedItems[index],
+        product: productId,
+        brand: "",
+        model: "",
+      };
+      return { ...prev, items: updatedItems };
+    });
     setBrands([]);
     setModels([]);
 
@@ -85,16 +102,25 @@ const JobCreate = () => {
       try {
         const brandData = await fetchBrandByProductId(productId);
         setBrands(brandData);
+        console.log("Fetched Brands:", brandData); // Debugging
       } catch (error) {
         console.error("Error fetching brands:", error);
       }
     }
   };
 
-  const handleBrandChange = async (e) => {
+  const handleBrandChange = async (e, index) => {
     handleChange(e);
     const brandId = e.target.value;
-    setFormData((prev) => ({ ...prev, brand: brandId, model: "" }));
+    setFormData(prev => {
+      const updatedItems = [...prev.items];
+      updatedItems[index] = {
+        ...updatedItems[index],
+        brand: brandId,
+        model: "",
+      };
+      return { ...prev, items: updatedItems };
+    });
     setModels([]);
 
     if (brandId) {
@@ -187,7 +213,7 @@ const JobCreate = () => {
         offerType: "",
         zone: "",
         state: "",
-        language: "",
+        language: [],
         product: "",
         brand: "",
         model: "",
@@ -206,6 +232,88 @@ const JobCreate = () => {
     const value = e.target.value;
     setDueDate(value)
     setFormData({ ...formData, dueDate: value });
+  };
+  const handleLanguageChange = (e) => {
+    const { value, checked } = e.target;
+
+    setFormData((prev) => {
+      const updatedLanguages = checked
+        ? [...prev.language, value]
+        : prev.language.filter((lang) => lang !== value);
+
+      return { ...prev, language: updatedLanguages };
+    });
+  };
+
+  const addNewItem = () => {
+
+
+
+    setFormData(prev => ({
+      ...prev,
+      items: [...prev.items, newItem],
+
+      // Optional: Clear main selections after adding
+      product: "",
+      brand: "",
+      model: "",
+    }));
+    console.log("New Item Added:", formData); // Debugging
+    setAdding(prev => !prev)
+  };
+
+  const removeItem = (index) => {
+    if (formData.items.length <= 1) return;
+
+    setFormData(prev => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleItemChange = async (e, field) => {
+    const value = e.target.value;
+    // Find the selected item from products/brands/models
+    let selected;
+    if (field === "product") {
+      selected = products.find((p) => p._id === value);
+      setIdName((prev) => ({
+        ...prev,
+        [value]: selected?.name || ""
+      }));
+    } else if (field === "brand") {
+      selected = brands.find((b) => b._id === value);
+      setIdName((prev) => ({
+        ...prev,
+        [value]: selected?.name || ""
+      }));
+    } else if (field === "model") {
+      selected = models.find((m) => m._id === value);
+      setIdName((prev) => ({
+        ...prev,
+        [value]: selected?.name || ""
+      }));
+    }
+    setNewItem((prev) => ({
+      ...prev,
+      [field]: value
+    }));
+
+
+
+    // Optional: Fetch dependent dropdown data
+    if (field === "product") {
+      setNewItem(prev => ({ ...prev, brand: "", model: "" }));
+      const brandData = await fetchBrandByProductId(value);
+      setBrands(brandData);
+    }
+
+    if (field === "brand") {
+      setNewItem(prev => ({ ...prev, model: "" }));
+      const modelData = await fetchModelCategoriesByBrand(value);
+      setModels(modelData);
+    }
+
   };
 
   return (
@@ -334,11 +442,11 @@ const JobCreate = () => {
                       {LANGUAGES.map((lang) => (
                         <label key={lang} className="flex items-center space-x-2">
                           <input
-                            type="radio"
+                            type="checkbox"
                             name="language"
                             value={lang}
-                            checked={formData.language === lang}
-                            onChange={handleChange}
+                            checked={formData.language.includes(lang)}
+                            onChange={handleLanguageChange}
                           />
                           <span>{lang}</span>
                         </label>
@@ -360,52 +468,114 @@ const JobCreate = () => {
             {
               activeTab === "specifications" && (
                 <div className="flex flex-col gap-3">
-                  <div className="flex gap-8">
-                    <div className='flex flex-col gap-1 w-full'>
-                      <label>Product</label>
-                      <select
-                        className="w-full border border-gray-400 rounded-md py-2 px-2 capitalize"
-                        name="product"
-                        value={formData.product}
-                        onChange={handleProductChange}
+                  <div className="space-y-4">
+                    {formData.items.map((item, index) => (
+                      <div key={index} className=" p-1 bg-gray-100 items-center justify-center px-2 rounded-lg relative">
+                        {formData.items.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeItem(index)}
+                            className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                          >
+                            ×
+                          </button>
+                        )}
+
+                        <div className="flex gap-8">
+                          <span className="w-6 h-6 rounded-full bg-orange-300 items-center justify-center flex text-white text-xs">{index + 1}</span>
+                          <p>{idName[item.product]}</p>
+
+
+
+                          <p>{idName[item.brand]}</p>
+
+
+                          <p>{idName[item.model]}</p>
+
+                        </div>
+
+                      </div>
+                    ))}
+                    { adding ? (
+                      <Button type="button" variant="outline"
+                      onClick={() => setAdding(prev => !prev)} 
+                      className="text-blue-500 hover:text-blue-700">add</Button>
+                    ):(
+<div className=" bg-gray-100 p-4 rounded-lg ">
+                      <div className="flex gap-8 ">
+                        <div className="flex flex-col gap-1 w-full">
+                          <label>Product</label>
+                          <select
+                            className="w-full border border-gray-400 rounded-md py-2 px-2 capitalize"
+                            name={`product`}
+                            value={newItem.product}
+                            onChange={(e) => handleItemChange(e, "product")}
+                          >
+                            <option value="">Select Product</option>
+                            {products.map((product) => (
+                              <option key={product._id} value={product._id}>
+                                {product.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Brand */}
+                        <div className="flex flex-col gap-1 w-full">
+                          <label>Brand</label>
+                          <select
+                            name={`brand`}
+                            value={newItem.brand}
+                            onChange={(e) => handleItemChange(e, "brand")}
+                            className="w-full border p-2 rounded-md capitalize"
+                            disabled={!newItem.product}
+                          >
+                            <option value="">Select Brand</option>
+                            {brands.map((brand) => (
+                              <option key={brand._id} value={brand._id}>
+                                {brand.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Model */}
+                      <div className="flex gap-8 mt-4">
+                        <div className="flex flex-col gap-1 w-full">
+                          <label>Model</label>
+                          <select
+                            name={`model`}
+                            value={newItem.model}
+                            onChange={(e) => handleItemChange(e, "model")}
+                            className="w-full border p-2 rounded-md capitalize"
+                            disabled={!newItem.brand}
+                          >
+                            <option value="">Select Model</option>
+                            {models.map((model) => (
+                              <option key={model._id} value={model._id}>
+                                {model.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={addNewItem}
+                        variant="outline"
+                        className="mt-5 "
                       >
-                        <option value="">Select Product</option>
-                        {products.map((product) => (
-                          <option key={product._id} value={product._id}>
-                            {product.name}
-                          </option>
-                        ))}
-                      </select>
+                        + Save  Item
+                      </Button>
                     </div>
-                    <div className='flex flex-col gap-1 w-full'>
-                      <label>Brand</label>
-                      <select name="brand" value={formData.brand} onChange={handleBrandChange} className="w-full border p-2 rounded-md capitalize" disabled={!formData.product}>
-                        <option value="">Select Brand</option>
-                        {brands.map((brand) => (
-                          <option key={brand._id} value={brand._id}>
-                            {brand.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
+                    )
+                      
+                    }
+                    
                   </div>
-                  <div className="flex gap-8">
 
-                    <div className='flex flex-col gap-1 w-full'>
-                      <label>Model</label>
-                      <select name="model" value={formData.model} onChange={handleChange} className="w-full border p-2 rounded-md capitalize" disabled={!formData.brand}>
-                        <option value="">Select Model</option>
-                        {models.map((model) => (
-                          <option key={model._id} value={model._id}>
-                            {model.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
 
-                    {/* <InputText label={"Offer Type"} name="offerType" value={formData.offerType} handleOnChange={handleChange} placeholder="Offer Type" /> */}
-                  </div>
                   <textarea name="offerDetails" value={formData.offerDetails} onChange={handleChange} placeholder="Offer Details" className="w-full border p-2 rounded mt-5"></textarea>
                   <div className="flex gap-5 mt-4">
                     <Button type="submit"
@@ -416,7 +586,7 @@ const JobCreate = () => {
                     <Button variant="outline">Back</Button>
                   </div>
                   <div>
-                  {!isAllComplete && (
+                    {!isAllComplete && (
                       <p className="text-xs text-red-500">
                         Please select/fill all fields to proceed.
                       </p>

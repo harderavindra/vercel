@@ -35,10 +35,18 @@ const jobSchema = new mongoose.Schema(
     offerType: { type: String, required: true },
     zone: { type: String, required: true },
     state: { type: String, required: true },
-    language: { type: String, required: true },
-    product: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductCategory', required: true },
-    brand: {type: mongoose.Schema.Types.ObjectId, ref: 'BrandCategory', required: true  },
-    model: {type: mongoose.Schema.Types.ObjectId, ref: 'ModelCategory', required: true },
+    language: [{ type: String, required: true }],
+    product: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductCategory', required: false },
+    brand: {type: mongoose.Schema.Types.ObjectId, ref: 'BrandCategory', required: false  },
+    model: {type: mongoose.Schema.Types.ObjectId, ref: 'ModelCategory', required: false },
+    items: [
+      {
+        product: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductCategory', required: true },
+        brand: { type: mongoose.Schema.Types.ObjectId, ref: 'BrandCategory', required: true },
+        model: { type: mongoose.Schema.Types.ObjectId, ref: 'ModelCategory', required: true },
+      }
+    ],
+
     attachment:{},
     offerDetails: { type: String },
     otherDetails: { type: String },

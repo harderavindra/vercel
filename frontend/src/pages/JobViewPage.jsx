@@ -188,35 +188,35 @@ const JobViewPage = () => {
             </div>
 
             <div className="flex   justify-start ">
-            <div className="hidden sm:flex  flex-row-reverse justify-end mb-5">
-                {mergedHistory.length > 0 ? (
-                    mergedHistory.map((history) => (
-                        <div key={history._id} className={`flex gap-2 items-center border  px-3 py-1  text-xs capitalize rounded-md mr-0 relative  ${history?.status.toLowerCase() === "ho approved" ? 'bg-red-500 border-red-500 text-white' : history?.status.toLowerCase() === "artwork approved" ? 'bg-orange-50 border-orange-200 text-orange-900':'border-gray-300 bg-white'}`}>
-                            <Avatar name={history?.updatedBy?.firstName} src={history?.updatedBy?.profilePic} size="xs" />
+                <div className="hidden sm:flex  flex-row-reverse justify-end mb-5">
+                    {mergedHistory.length > 0 ? (
+                        mergedHistory.map((history) => (
+                            <div key={history._id} className={`flex gap-2 items-center border  px-3 py-1  text-xs capitalize rounded-md mr-0 relative  ${history?.status.toLowerCase() === "ho approved" ? 'bg-red-500 border-red-500 text-white' : history?.status.toLowerCase() === "artwork approved" ? 'bg-orange-50 border-orange-200 text-orange-900' : 'border-gray-300 bg-white'}`}>
+                                <Avatar name={history?.updatedBy?.firstName} src={history?.updatedBy?.profilePic} size="xs" />
 
-                            {/* <StatusBubble
+                                {/* <StatusBubble
                                 size="xxs"
                                 icon={statusIcons[history?.status?.toLowerCase()] || "clock"}
                                 status={getStatusColor(history?.status)?.toLowerCase().trim() || "error"}
                                 className={'test'}
                             /> */}
-                            {history?.status}
-                                    {history?.status.toLowerCase() !== "ho approved" && (
-                            <span
-                                className="absolute -right-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-gray-300 z-10"
-                            />
-                        )}
+                                {history?.status}
+                                {history?.status.toLowerCase() !== "ho approved" && (
+                                    <span
+                                        className="absolute -right-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-gray-300 z-10"
+                                    />
+                                )}
 
-                        </div>
-                    ))
-                ) : (
-                    <p className="text-gray-500">No history available</p>
-                )}
-                <div className="flex gap-2 items-center border border-red-500 bg-red-500 text-white font-bold px-3 py-1  text-xs capitalize rounded-md mr-0 relative ">
-                    Timeline
-                    <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-red-500 z-10" />
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-gray-500">No history available</p>
+                    )}
+                    <div className="flex gap-2 items-center border border-red-500 bg-red-500 text-white font-bold px-3 py-1  text-xs capitalize rounded-md mr-0 relative ">
+                        Timeline
+                        <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-red-500 z-10" />
+                    </div>
                 </div>
-            </div>
             </div>
             <div className=' flex gap-10 flex-col sm:flex-row'>
                 <div className='flex flex-col gap-4 bg-white border border-blue-300/60 rounded-lg p-6 px-10 sm:w-3xl shadow-md'>
@@ -249,15 +249,23 @@ const JobViewPage = () => {
                             <LabelValue label="State" value={job?.state} />
                         </div>
                         <div className="flex flex-col sm:flex-row gap-4">
-                            <LabelValue label="Language" value={job?.language} />
+                            <LabelValue label="Language" value={job?.language?.join(", ")} />
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <LabelValue label="Product" value={job?.product?.name} />
-                            <LabelValue label="Brand" value={job?.brand?.name} />
+                        <div>
+                            <label className="text-gray-400">Products</label>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <LabelValue label="Model" value={job?.model?.name} />
-                        </div>
+                        {job?.items?.map((item, index) => (
+                            <div key={index} className="flex flex-col sm:flex-row  p-1 rounded-md mb-1 gap-2">
+                                <span className="w-6 h-6 rounded-full bg-orange-300 items-center justify-center flex text-white text-xs">{index + 1}</span>
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <p>{item?.product?.name || '—'} </p>
+                                    <p>{item?.brand?.name || '—'} </p>
+                                    <p>{item?.model?.name || '—'} </p>
+                                </div>
+
+                            </div>
+                        ))}
+
                     </div>
                     {job?.attachmentSignedUrl && (
                         <div className="flex gap-2 items-center justify-start">
@@ -297,7 +305,7 @@ const JobViewPage = () => {
                                 <div className="assigne-to-seaction">
                                     <h3 className="text-lg font-semibold text-gray-700">Assigned to</h3>
                                     <div className="flex gap-3 items-center">
-                                        <Avatar  name={job?.assignedTo?.firstName} src={job?.assignedTo?.profilePic} size="sm" />
+                                        <Avatar name={job?.assignedTo?.firstName} src={job?.assignedTo?.profilePic} size="sm" />
 
                                         <div>
                                             <p className="text-gray-400 text-base/tight">
