@@ -108,7 +108,7 @@ const [successMessage, setSuccessMessage] = useState('');
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pb-4 gap-3">
           <PageTitle>Brand Treasury</PageTitle>
           <StatusMessageWrapper loading={loading} success={success} error={error} />
-          {hasAccess(user?.role, ['marketing_manager', 'admin', 'zonal_marketing_manager']) && (
+          {hasAccess(user?.role, ['marketing_manager', 'admin']) && (
             <Button width="auto" onClick={() => navigate('/create-brand-treasury')}>
               Add Brand Treasury
             </Button>

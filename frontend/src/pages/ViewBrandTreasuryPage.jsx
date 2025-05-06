@@ -185,6 +185,7 @@ const ViewBrandTreasuryPage = () => {
 
   const handleApproval = async () => {
     const newStatus = !isApproved;
+    setLoading(true);
     try {
       const url = `${import.meta.env.VITE_BACKEND_BASE_URL}/api/brand-treasury/${document._id}/approval`;
       const response = await axios.post(
@@ -207,6 +208,7 @@ const ViewBrandTreasuryPage = () => {
       setError(error.response?.data?.message || "An error occurred.");
       setSuccess(null);
     } finally {
+      setLoading(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
@@ -306,6 +308,7 @@ const ViewBrandTreasuryPage = () => {
                   <ViewText>{document?.title}</ViewText>
                 )
               }
+                {!isApproved && (
               <EditButton
                 isEditing={editSections.title}
                 toggleEdit={() => toggleEditSection("title")}
@@ -316,11 +319,12 @@ const ViewBrandTreasuryPage = () => {
                   )
                 }
               />
+                )}
             </div>
 
           </div>
 
-          <ThumbnailUploader fileId={fileId} thumbnails={thumbnails} setThumbnails={setThumbnails} />
+          <ThumbnailUploader fileId={fileId} thumbnails={thumbnails} setThumbnails={setThumbnails} isApproved={isApproved} />
 
           <div className="flex justify-between">
             <p className="flex items-center gap-2">
@@ -380,6 +384,7 @@ const ViewBrandTreasuryPage = () => {
                   )
                 }
                 <div>
+                {!isApproved && (
                   <EditButton
                     isEditing={editSections.documentType}
                     toggleEdit={() => toggleEditSection("documentType")}
@@ -390,6 +395,7 @@ const ViewBrandTreasuryPage = () => {
                       )
                     }
                   />
+                )}
                 </div>
               </div>
 
@@ -415,6 +421,7 @@ const ViewBrandTreasuryPage = () => {
                   )
                 }
                 <div>
+                {!isApproved && (
                   <EditButton
                     isEditing={editSections.contentType}
                     toggleEdit={() => toggleEditSection("contentType")}
@@ -425,6 +432,7 @@ const ViewBrandTreasuryPage = () => {
                       )
                     }
                   />
+                )}
                 </div>
               </div>
             </div>
@@ -456,6 +464,7 @@ const ViewBrandTreasuryPage = () => {
                 
               </div>
               <div>
+              {!isApproved && (
                 <EditButton
                   isEditing={editSections.language}
                   toggleEdit={() => toggleEditSection("language")}
@@ -466,6 +475,7 @@ const ViewBrandTreasuryPage = () => {
                     )
                   }
                 />
+              )}
               </div>
             </div>
 
@@ -530,6 +540,7 @@ const ViewBrandTreasuryPage = () => {
                     </div>)}
                 </div>
                 <div>
+                {!isApproved && (
                   <EditButton
                     isEditing={editSections.product}
                     toggleEdit={() => toggleEditSection("product")}
@@ -540,6 +551,7 @@ const ViewBrandTreasuryPage = () => {
                       )
                     }
                   />
+                )}
                 </div>
               </div>
             </div>
@@ -559,7 +571,7 @@ const ViewBrandTreasuryPage = () => {
             )}
             </div>
 
-            
+            {!isApproved && (
             <EditButton
               isEditing={editSections.comment}
               toggleEdit={() => toggleEditSection("comment")}
@@ -569,6 +581,7 @@ const ViewBrandTreasuryPage = () => {
                   typeof value === "string" && value.trim() === ""
                 )
               } />
+            )}
           </div>
           </div>
 
@@ -609,7 +622,7 @@ const ViewBrandTreasuryPage = () => {
           {hasAccess(user?.role, ['marketing_manager']) && (
             <div className="flex gap-10 mt-6">
               <div className="w-full">
-                <Button onClick={handleApproval} color={isApproved ? "red" : "green"}>
+                <Button onClick={handleApproval} color={isApproved ? "red" : "green"} disabled={loading}>
                   {isApproved ? "Remove Approval" : "Approve"}
                 </Button>
               </div>

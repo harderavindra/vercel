@@ -156,8 +156,9 @@ export const getBrandTreasuries = async (req, res) => {
         const userRole = req.user.role;
 
         let filter = {};
-        if (userRole !== "marketing_manager") {
+        if (userRole !== "marketing_manager" ) {
             filter.contentType = "print";
+            filter.approved = true;
         }
 
         if (documentType) filter.documentType = documentType;

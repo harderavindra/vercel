@@ -5,7 +5,7 @@ import { FiChevronDown, FiChevronLeft, FiChevronRight, FiMaximize2, FiMinimize2,
 import Button from '../common/Button'
 import StatusMessageWrapper from "../common/StatusMessageWrapper";
 import ProgressBar from "../common/ProgressBar";
-const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails }) => {
+const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails, isApproved }) => {
     
     const [uploading, setUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -189,7 +189,7 @@ const ThumbnailUploader = ({ fileId, thumbnails, setThumbnails }) => {
 
 
 
-            {thumbnails.length < 4 && (
+            {!isApproved && thumbnails.length < 4 && (
                 <div >
                     <input type="file" accept="image/*" hidden onChange={handleThumbnailUpload} ref={fileInputRef} disabled={uploading} />
                     {uploadProgress > 0 && (
