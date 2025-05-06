@@ -31,8 +31,7 @@ const BrandTreasuryCreate = () => {
         title: "",
         documentType: "",
         contentType: "",
-        zone: "",
-        state: "",
+      
         language: "",
         product: "",
         brand: "",
@@ -140,7 +139,7 @@ const BrandTreasuryCreate = () => {
 
                 </div>
                 <div className="flex flex-col gap-4  bg-white border border-blue-300/60 rounded-xl p-6  shadow-md relative w-xl w-full">
-                    <div className="flex gap-6">
+                    {/* <div className="flex gap-6">
                         <div className="w-full">
 
                             <label>Zone</label>
@@ -162,7 +161,7 @@ const BrandTreasuryCreate = () => {
                                 </select>
                             </div>
                         )}
-                    </div>
+                    </div> */}
                     <div>
                         <label>Language</label>
                         <div className="grid grid-cols-4 gap-2 mt-1">

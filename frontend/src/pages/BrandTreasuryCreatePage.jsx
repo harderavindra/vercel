@@ -42,11 +42,12 @@ const BrandTreasuryCreate = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedFileUrl, setUploadedFileUrl] = useState(null);
 
-  const isLocationComplete =  formData.language;
+  const isLocationComplete = formData.language;
   const isAllComplete =
     formData.title &&
     formData.contentType &&
     formData.documentType &&
+    formData.attachment &&
 
     formData.language &&
     formData.product &&
@@ -177,7 +178,7 @@ const BrandTreasuryCreate = () => {
         title: "",
         documentType: "",
         contentType: "",
-       
+
         language: "",
         product: "",
         brand: "",
@@ -255,7 +256,7 @@ const BrandTreasuryCreate = () => {
         <div className="w-full flex flex-col">
           <div className='fle gap-4 bg-gray-50 rounded-lg items-start justify-start'>
             <div className=' bg-white rounded-t-md w-fit border border-blue-300/70 overflow-hidden  ' style={{ boxShadow: "inset 0px -6px 5px 0px rgba(0, 0, 0, 0.13)" }}>
-              <button type="button" className={`px-4 py-2 cursor-pointer ${activeTab === "location" ? 'bg-red-600/90 text-white' : ''}`} onClick={() => setActiveTab('location')} >Location</button>
+              <button type="button" className={`px-4 py-2 cursor-pointer ${activeTab === "location" ? 'bg-red-600/90 text-white' : ''}`} onClick={() => setActiveTab('location')} >Language</button>
               <button type="button" className={`px-4 py-2 transition-all duration-200 
     ${activeTab === "specifications" ? 'bg-red-600/90 text-white' : ''}
     ${!isLocationComplete ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer '}`}
@@ -271,7 +272,7 @@ const BrandTreasuryCreate = () => {
             {
               activeTab === "location" && (
                 <div>
-                  <div className="flex gap-8 mb-3">
+                  {/* <div className="flex gap-8 mb-3">
                     <div className="w-full">
 
                       <label>Zone</label>
@@ -295,7 +296,7 @@ const BrandTreasuryCreate = () => {
                         </div>
                       )}
                     </div>
-                  </div>
+                  </div> */}
                   <div>
                     <label>Language</label>
                     <div className="grid grid-cols-4 gap-2 mt-1">

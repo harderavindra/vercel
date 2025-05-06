@@ -63,7 +63,9 @@ const LoginPage = () => {
       <div className="w-full max-w-md bg-white rounded-lg p-6 flex flex-col shadow-lg ring-1  shadow-gray-200/50  ring-gray-200/70 ring-offset-0">
 
         <h2 className="text-xl  mb-4 text-center font-bold">Welcome back</h2>
-        <span className="flex gap-3 text-2xl items-end font-semibold font-base/2 py-2 justify-center"><img src={LogoImage} className="h-8" alt="Description" />Catena</span>
+        <span className="flex gap-3  items-end font-semibold font-base/2 py-2 justify-center text-red-500 uppercase text-4xl mb-5">
+        {/* <img src={LogoImage} className="h-8" alt="Description" /> */}
+        Mahindra Marcom</span>
 
         <form onSubmit={handleSubmit} autoComplete="on">
           <InputText

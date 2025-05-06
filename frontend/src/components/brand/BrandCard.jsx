@@ -43,7 +43,7 @@ const BrandCard = ({ document, loading, isEmpty }) => {
                         <p className="text-gray-500 text-center">No users found</p>
                     )
                         : (
-                            <div key={document._id} className='flex flex-col gap-5 border border-blue-300/60 rounded-xl p-6  shadow-md  '  >
+                            <div key={document._id} className='flex flex-col gap-5 border border-blue-300/60 rounded-xl p-6  shadow-md cursor-pointer  '  >
                                 <div className='flex gap-4 justify-between items-start'>
 
                                     <StatusBubble size='sm' status={isStarred ? 'warning' : 'disabled'} icon={'star'} className='cursor-pointer' onClick={handleStarToggle} />
@@ -78,9 +78,7 @@ const BrandCard = ({ document, loading, isEmpty }) => {
                                 </div>
                                 <div className='flex justify-between'>
                                     <div className='flex gap-2'><Avatar src={document.createdBy?.profilePic} size='sm' /><span>{document.createdBy?.firstName}</span></div>
-                                    <MoreOptions>
-                                        <button className="px-3 py-1 hover:bg-gray-200" >View2</button>
-                                    </MoreOptions>
+                                   
                                 </div>
                             </div>
                         )

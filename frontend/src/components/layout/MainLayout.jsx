@@ -29,7 +29,7 @@ const MainLayout = () => {
             <aside className={`bg-white transition-all duration-300 ease-in-out shadow-md h-screen sticky overflow-hidden top-0 hidden sm:block ${expanded ? 'w-56' : 'w-16'}`}>
                 <div className='py-4 px-2 flex justify-center gap-2 relative'>
                     <img src={logoImage} width='40' alt='Logo' />
-                    {expanded && <span className='text-2xl font-bold'>Catena</span>}
+                    {expanded && <span className='text-2xl font-bold'>Marcom</span>}
 
                 </div>
 
