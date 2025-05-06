@@ -90,7 +90,7 @@ const MasterDataPage = () => {
 
     setLoading(true);
     try {
-      await addNewBrand({ name: newBrand.toLowerCase(), product: selectedProduct });
+      await addNewBrand({ name: newBrand, product: selectedProduct });
       setNewBrand("");
       getBrandsById(selectedProduct); // Refresh the brands list after adding
     } catch (err) {
@@ -113,7 +113,7 @@ const MasterDataPage = () => {
 
     setLoading(true);
     try {
-      await addNewModelCategory({ name: newModel.toLowerCase(), brand: selectedBrand });
+      await addNewModelCategory({ name: newModel, brand: selectedBrand });
       console.log(selectedBrand)
       setNewModel("");
       getModelsById(selectedBrand); // Refresh the brands list after adding
