@@ -34,6 +34,7 @@ const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [selectedLanguages, setSelectedLanguages] = useState([]);
+  const [documentTypes, setDocumentTypes] = useState([]);
 
   useEffect(() => {
     if (location.state?.success) {
@@ -71,6 +72,8 @@ const [successMessage, setSuccessMessage] = useState('');
       });
       setDocuments(data?.data || []);
       setPagination(data?.pagination || { currentPage: 1, totalPages: 1 });
+      setDocumentTypes(data.usedDocumentTypes || []);
+
     } catch (error) {
       setError(error.response?.data?.message || "Failed to fetch documents.");
       console.error(" Error fetching brand treasury data:", error.response?.data || error.message);
@@ -125,7 +128,7 @@ const [successMessage, setSuccessMessage] = useState('');
             <DropdownFilter
               options={{
                 label: "Document Type",
-                items: BRAND_TREASURY_DOCUMENTS.map((doc) => ({
+                items: documentTypes.map((doc) => ({
                   value: doc.toLowerCase(),
                   label: doc
                 }))

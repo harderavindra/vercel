@@ -232,12 +232,15 @@ export const getBrandTreasuries = async (req, res) => {
             })
         );
 
+     
 
         // Count total documents
         const totalDocuments = await BrandTreasury.countDocuments(filter);
-
+        const usedDocumentTypes = await BrandTreasury.distinct("documentType", filter);
+        // console.log(usedDocumentTypes, "usedDocumentTypes")
         res.status(200).json({
             data: updatedDocuments,
+            usedDocumentTypes,
             pagination: {
                 currentPage: parseInt(page, 10),
                 totalPages: Math.ceil(totalDocuments / perPage),
