@@ -37,12 +37,12 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
                 return [
                     "under review",
                     "review rejected",
-                    "artwork approved"
+                    "ho approved"
                 ];
             }
         
-            if (normalizedStatus === "artwork approved") {
-                return ["review rejected","hold", "ho approved"];
+            if (normalizedStatus === "ho approved") {
+                return ["review rejected","hold", "artwork approved"];
             }
         
             return ["hold"];
