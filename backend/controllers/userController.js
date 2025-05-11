@@ -12,8 +12,8 @@ export const login = async (req, res) => {
     // Find the user
     const user = await User.findOne({ email });
   // Log passwords for debugging
-console.log("Entered password:", password);
-console.log("Stored hashed password:", user.password);
+// console.log("Entered password:", password);
+// console.log("Stored hashed password:", user.password);
 if (!user) {
   return res.status(400).json({ message: 'User not found' });
 }
@@ -344,7 +344,6 @@ export const deleteUser = async (req, res) => {
         // Find the target user
         const user = await User.findById(id).select("+password"); // Ensure password is accessible
         if (!user) return res.status(404).json({ message: "User not found" });
-        console.log(user)
   
       // // Validate password strength
       // if (!validatePassword(newPassword)) {

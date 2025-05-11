@@ -3,9 +3,7 @@ import { FiChevronDown, FiX } from "react-icons/fi";
 import { snakeToCapitalCase } from "../../utils/convertCase";
 
 const DropdownFilter = ({ options, value, onChange, onClear }) => {
-    console.log("Selected Value:", value);
-    console.log("Options:", options);
-    console.log("Matching Option:", options.items.find((opt) => opt.value === value));
+
     
     return (
         <div className="relative">

@@ -21,7 +21,11 @@ const BrandTreasuryList = () => {
   const navigate = useNavigate();
   const location = useLocation();
 const [successMessage, setSuccessMessage] = useState('');
-
+const fileTypeList = [
+  { label: "PDF", value: "pdf" },
+  { label: "ZIP", value: "zip" },
+  { label: "Image (JPG, PNG, JPEG)", value: "image" }
+];
   const [page, setPage] = useState(1);
   const [documentType, setDocumentType] = useState("");
   const [starred, setStarred] = useState(false);
@@ -35,6 +39,7 @@ const [successMessage, setSuccessMessage] = useState('');
   const [success, setSuccess] = useState("");
   const [selectedLanguages, setSelectedLanguages] = useState([]);
   const [documentTypes, setDocumentTypes] = useState([]);
+  const [selectedFileType, setSelectedFileType] = useState("");
 
   useEffect(() => {
     if (location.state?.success) {
@@ -61,9 +66,9 @@ const [successMessage, setSuccessMessage] = useState('');
     setError(""); // Clear previous error messages
 
     try {
-      console.log(selectedLanguages, 'selectedLanguages')
+      console.log(selectedFileType, 'selectedFileType2')
       const params = {
-        page, limit: 12, documentType, starred, myDocuments, search: debouncedSearch, languages: selectedLanguages.join(",")
+        page, limit: 12, documentType, starred,selectedFileType, myDocuments, search: debouncedSearch, languages: selectedLanguages.join(",")
       };
       const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/brand-treasury/`, {
 
@@ -80,7 +85,7 @@ const [successMessage, setSuccessMessage] = useState('');
     } finally {
       setLoading(false);
     }
-  }, [page, documentType, starred, myDocuments, debouncedSearch, selectedLanguages]);
+  }, [page, documentType, starred, myDocuments, debouncedSearch, selectedLanguages,selectedFileType]);
 
   useEffect(() => {
     if (debouncedSearch.length < 3 && debouncedSearch.length > 0) return;
@@ -90,6 +95,7 @@ const [successMessage, setSuccessMessage] = useState('');
   // Clear Filters
   const clearFilters = useCallback(() => {
     setDocumentType("");
+    setSelectedFileType("");
     setSearch("");
     setPage(1);
     setSelectedLanguages([])
@@ -137,6 +143,15 @@ const [successMessage, setSuccessMessage] = useState('');
               onChange={(e) => setDocumentType(e.target.value.toLowerCase())}
               onClear={() => setDocumentType("")}
             />
+            <DropdownFilter
+  options={{
+    label: "File Type",
+    items: fileTypeList
+  }}
+  value={selectedFileType}
+  onChange={(e) => setSelectedFileType(e.target.value)}
+  onClear={() => setSelectedFileType("")}
+/>
             <MultiSelect
               options={LANGUAGES.map(lang => ({ value: lang, label: lang }))}
               selected={selectedLanguages}

@@ -151,16 +151,25 @@ export const getBrandTreasuryById = async (req, res) => {
 
 export const getBrandTreasuries = async (req, res) => {
     try {
-        let { page = 1, limit = 10, documentType, starred, myDocuments, search, languages } = req.query;
+        let { page = 1, limit = 10, documentType, starred, myDocuments, search, languages, selectedFileType } = req.query;
         const userId = req.user.userId;
         const userRole = req.user.role;
-
         let filter = {};
         if (userRole !== "marketing_manager" ) {
             filter.contentType = "print";
             filter.approved = true;
         }
 
+        if (selectedFileType) {
+            if (selectedFileType === "image") {
+              filter.attachment = {
+                $regex: /\.(jpg|jpeg|png)$/i
+              };
+            } else {
+              const fileTypeRegex = new RegExp(`\\.${selectedFileType}$`, "i");
+              filter.attachment = { $regex: fileTypeRegex };
+            }
+          }
         if (documentType) filter.documentType = documentType;
         if (search) {
             filter.$or = [
