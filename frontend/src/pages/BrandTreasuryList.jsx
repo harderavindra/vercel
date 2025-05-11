@@ -24,7 +24,8 @@ const [successMessage, setSuccessMessage] = useState('');
 const fileTypeList = [
   { label: "PDF", value: "pdf" },
   { label: "ZIP", value: "zip" },
-  { label: "Image (JPG, PNG, JPEG)", value: "image" }
+  { label: "Image (JPG, PNG, JPEG)", value: "image" },
+  { label: "Video", value: "video" },
 ];
   const [page, setPage] = useState(1);
   const [documentType, setDocumentType] = useState("");

@@ -161,13 +161,16 @@ export const getBrandTreasuries = async (req, res) => {
         }
 
         if (selectedFileType) {
-            if (selectedFileType === "image") {
-              filter.attachment = {
-                $regex: /\.(jpg|jpeg|png)$/i
-              };
-            } else {
-              const fileTypeRegex = new RegExp(`\\.${selectedFileType}$`, "i");
-              filter.attachment = { $regex: fileTypeRegex };
+            switch (selectedFileType) {
+              case "image":
+                filter.attachment = { $regex: /\.(jpg|jpeg|png)$/i };
+                break;
+              case "video":
+                filter.attachment = { $regex: /\.(mp4|mov|avi|mkv|webm)$/i };
+                break;
+              default:
+                const fileTypeRegex = new RegExp(`\\.${selectedFileType}$`, "i");
+                filter.attachment = { $regex: fileTypeRegex };
             }
           }
         if (documentType) filter.documentType = documentType;
