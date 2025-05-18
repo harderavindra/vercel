@@ -178,7 +178,8 @@ export const getBrandTreasuries = async (req, res) => {
             filter.$or = [
                 { documentType: { $regex: search, $options: "i" } },
                 { language: { $regex: search, $options: "i" } },
-                { title: { $regex: search, $options: "i" } }
+                { title: { $regex: search, $options: "i" } },
+                { comment : { $regex: search, $options: "i" } }
             ];
         }
         if (myDocuments === "true") {
