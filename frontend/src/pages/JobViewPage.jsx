@@ -37,6 +37,9 @@ const getStatusColor = (status) => {
         inprogress: "info",
         "artwork submitted": "info",
         "ho approved": "success",
+          "review rejected": "error",
+          "review rejected": "error",
+          "publish artwork": "info",
 
     };
     return statusMap[status?.toLowerCase()] || "default";
@@ -52,6 +55,8 @@ const statusIcons = {
     inprogress: "clock",
     "artwork submitted": "pad",
     "ho approved": "shieldcheck",
+    "review rejected": "reject",
+    "publish artwork": "rocket",
 
 
 
@@ -363,6 +368,7 @@ const JobViewPage = () => {
                                                     {formatDateDistance(history.timestamp).relative}
                                                 </span>
                                                 <p className="flex gap-2 items-center capitalize text-xs font-semibold ">
+                                                    
                                                     {history.status.replace(/artwork/gi, "").trim()}
                                                     <StatusBubble
                                                         size="md"

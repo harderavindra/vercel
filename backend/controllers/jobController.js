@@ -3,8 +3,8 @@ import { bucket } from "../config/storage.js";
 import Job from "../models/JobModel.js";
 import User from "../models/User.js";
 
-const JOB_STATUS = ["inprogress", "artwork submitted"];
-const DECISION_STATUS = ["approved","under review", "review rejected", "artwork approved", "hold", "ho approved"];
+const JOB_STATUS = ["inprogress", "artwork submitted","publish artwork"];
+const DECISION_STATUS = ["approved","under review", "review rejected", "artwork approved", "hold", "ho approved", ];
 export const createJob = async (req, res) => {
   try {
     const { title, typeOfArtwork, priority, offerType, zone, state, language,items, offerDetails, otherDetails, attachment, dueDate } = req.body;

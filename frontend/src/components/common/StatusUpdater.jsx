@@ -21,17 +21,19 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
     const statuses = (() => {
 
         if (normalizedStatus === "pending" && ["admin", "marketing_manager"].includes(role)) {
-            return ["approved", "unser review","reject"];
+            return ["approved", "unser review", "reject"];
         }
         if (!assignedTo) return [];
 
         if (role === "agency") {
-            if (normalizedStatus !== "artwork approved") {
+            if (normalizedStatus === "artwork approved") {
+                return ["publish artwork"];
+            }
+
+            if (normalizedStatus !== "artwork approved" && normalizedStatus !== "ho approved") {
                 return ["inprogress", "artwork submitted"];
             }
-            if (normalizedStatus === "artwork approved") {
-                return [ "Publish Artwork"];
-            }
+
             return [];
         }
 
@@ -43,11 +45,11 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
                     "ho approved"
                 ];
             }
-        
+
             if (normalizedStatus === "ho approved") {
-                return ["review rejected","hold", "artwork approved"];
+                return ["review rejected", "hold", "artwork approved"];
             }
-        
+
             return ["hold"];
         }
 
@@ -65,24 +67,44 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
 
         return [];
     })();
-     // Set informative message based on available statuses
-  useEffect(() => {
-    if (normalizedStatus === "pending" && ["admin", "marketing_manager", "zonal_marketing_manager"].includes(role)) {
-      setMessage("You may approve the job to proceed further.");
-    } else if (!assignedTo) {
-      setMessage("Please assign this job to continue.");
-    } else if (role === "agency") {
-      setMessage("You may start working on the Artwork or submit the artwork.");
-    } else if (["marketing_manager", "admin", "zonal_marketing_manager"].includes(role)) {
-      if (normalizedStatus === "artwork submitted") {
-        setMessage("Artwork has been submitted. You can now review it or mark it as approved/rejected.");
-      } else {
-        setMessage("Artwork has not been submitted yet, so you may only put the job on hold at this stage.");
-      }
-    } else {
-      setMessage("No available actions for your role at the current status.");
-    }
-  }, [normalizedStatus, role, assignedTo]);
+    // Set informative message based on available statuses
+    useEffect(() => {
+        if (normalizedStatus === "pending") {
+            if (["admin", "marketing_manager"].includes(role)) {
+                setMessage("You may approve the job to proceed further.");
+            } else {
+
+                setMessage("Artwork created successfully. Awaiting approval.");
+            }
+        } else if (!assignedTo) {
+            setMessage("Artwork approved. Ready to be assigned.");
+        } else if (role === "agency") {
+            if (normalizedStatus !== "ho approved" && normalizedStatus !== "artwork approved") {
+                setMessage("You may start working on the artwork or submit it when ready.");
+            } else if (normalizedStatus === "artwork approved") {
+                setMessage("Artwork approved. You may now proceed to publish.");
+            } else if (normalizedStatus === "ho approved") {
+                setMessage("Artwork has received HO approval.");
+            } else {
+                setMessage("Status not recognized.");
+            }
+        } else if (["marketing_manager", "admin", "zonal_marketing_manager"].includes(role)) {
+            if (normalizedStatus === "artwork submitted") {
+                setMessage("Artwork submitted. Marketing Manager or Admin can now review and approve or reject it.");
+            } else if (normalizedStatus === "ho approved") {
+                setMessage(" Artwork has been HO approved. You may to proceed further.");
+            }else if (normalizedStatus === "artwork approved") {
+                                setMessage(" Artwork has been Artwork approved. await for the next steps.");
+
+            }
+
+            else {
+                setMessage("Artwork not submitted yet. Marketing Manager or Admin can only hold the job for now.");
+            }
+        } else {
+            setMessage("No available actions for your role at the current status.");
+        }
+    }, [normalizedStatus, role, assignedTo]);
 
     const handleFileChange = (e) => {
         setAttachment(e.target.files[0]);
@@ -211,7 +233,7 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
                 </>
             )}
             <div className="my-4">
-            <StatusMessageWrapper success={message} />
+                <StatusMessageWrapper success={message} />
             </div>
         </div>
     );

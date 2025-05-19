@@ -1,6 +1,7 @@
 import React from 'react'
 import { FaTimesCircle } from 'react-icons/fa'
 import { FiCheck, FiClipboard, FiClock, FiEye, FiEyeOff, FiRotateCcw, FiStar, FiThumbsUp, FiUser } from 'react-icons/fi'
+import { HiOutlineRocketLaunch } from 'react-icons/hi2'
 import { LuShieldCheck } from "react-icons/lu";
 
 const StatusBubble = ({status ='success',icon,  size= 'sm', className, onClick}) => {
@@ -42,6 +43,7 @@ const StatusBubble = ({status ='success',icon,  size= 'sm', className, onClick})
         user: <FiUser size={sizes[size]}/>,
         done:<FiThumbsUp size={sizes[size]} />,
         pad:<FiClipboard size={sizes[size]} />,
+        rocket:<HiOutlineRocketLaunch size={sizes[size]} />,
         
         shieldcheck:<LuShieldCheck size={sizes[size]} />
     }
