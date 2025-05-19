@@ -26,7 +26,7 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
         if (!assignedTo) return [];
 
         if (role === "agency") {
-            if (normalizedStatus !== "ho approved") {
+            if (normalizedStatus !== "artwork approved") {
             return ["inprogress", "artwork submitted"];
         }
         return [];
@@ -49,7 +49,7 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
         }
 
         if (["zonal_marketing_manager"].includes(role)) {
-            if (normalizedStatus === "artwork submitted") {
+            if (normalizedStatus === "ho approved") {
                 return [
                     "under review",
                     "review rejected",
