@@ -27,9 +27,12 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
 
         if (role === "agency") {
             if (normalizedStatus !== "artwork approved") {
-            return ["inprogress", "artwork submitted"];
-        }
-        return [];
+                return ["inprogress", "artwork submitted"];
+            }
+            if (normalizedStatus === "artwork approved") {
+                return [ "Publish Artwork"];
+            }
+            return [];
         }
 
         if (["marketing_manager", "admin"].includes(role)) {
