@@ -5,7 +5,8 @@ import {
     FiChevronLeft, FiGrid, FiUser, FiLogOut,
     FiSliders, FiFolder, FiPaperclip
 } from "react-icons/fi";
-import logoImage from '../../assets/m-logo.svg';
+import LogoImage from '../../assets/m-logo.svg';
+import LogoImagePro from '../../assets/marcom.svg'
 import Avatar from '../common/Avatar';
 import { snakeToCapitalCase } from '../../utils/convertCase';
 
@@ -27,9 +28,11 @@ const MainLayout = () => {
         <div className='flex bg-gray-50 max-w-screen  transition-transform'>
             {/* Sidebar */}
             <aside className={`bg-white transition-all duration-300 ease-in-out shadow-md h-screen sticky overflow-hidden top-0 hidden sm:block ${expanded ? 'w-56' : 'w-16'}`}>
-                <div className='py-4 px-2 flex justify-center gap-2 relative'>
-                    <img src={logoImage} width='40' alt='Logo' />
-                    {expanded && <span className='text-2xl font-bold'>Marcom</span>}
+                <div className='py-4 px-2 flex items-center justify-center gap-2 relative'>
+                    <img src={LogoImage} width='40' alt='Logo' />
+                    {expanded && <span>
+                        <img src={LogoImagePro} width='160' alt='Logo' className=' bg-cover' />
+                        </span>}
 
                 </div>
 
@@ -86,7 +89,7 @@ const MainLayout = () => {
             <main className='border border-gray-200 w-full h-auto transition-transform '>
             <div className={`bg-white transition-all duration-300 ease-in-out shadow-md py-2 sticky z-10 overflow-hidden top-0 justify-between border-b border-gray-300 flex sm:hidden `}>
                 <div className='py-0 px-2 flex justify-center gap-2 relative'>
-                    <img src={logoImage} width='40' alt='Logo' />
+                    <img src={LogoImage} width='40' alt='Logo' />
 
                 </div>
 

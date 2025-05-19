@@ -193,7 +193,7 @@ const JobViewPage = () => {
             </div>
 
             <div className="flex   justify-start ">
-                <div className="hidden sm:flex  flex-row-reverse justify-end mb-5">
+                <div className="hidden sm:flex  flex-wrap-reverse  flex-row-reverse gap-2 flex-wrap justify-end mb-5">
                     {mergedHistory.length > 0 ? (
                         mergedHistory.map((history) => (
                             <div key={history._id} className={`flex gap-2 items-center border  px-3 py-1  text-xs capitalize rounded-md mr-0 relative  ${history?.status.toLowerCase() === "ho approved" ? 'bg-red-500 border-red-500 text-white' : history?.status.toLowerCase() === "artwork approved" ? 'bg-orange-50 border-orange-200 text-orange-900' : 'border-gray-300 bg-white'}`}>
@@ -217,7 +217,7 @@ const JobViewPage = () => {
                     ) : (
                         <p className="text-gray-500">No history available</p>
                     )}
-                    <div className="flex gap-2 items-center border border-red-500 bg-red-500 text-white font-bold px-3 py-1  text-xs capitalize rounded-md mr-0 relative ">
+                    <div className="flex gap-2 items-center flex-wrap border border-red-500 bg-red-500 text-white font-bold px-3 py-1  text-xs capitalize rounded-md mr-0 relative ">
                         Timeline
                         <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-red-500 z-10" />
                     </div>

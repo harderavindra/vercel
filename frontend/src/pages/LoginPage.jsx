@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, Links, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/auth-context'; // Assuming you have this for context
-import LogoImage from '../assets/m-logo.svg'
+import LogoImage from '../assets/Mahindra_Tractors_logo-02.svg'
+import LogoImagePro from '../assets/marcom.svg'
 import InputText from '../components/common/InputText';
 import { validateEmail, validatePassword } from "../utils/validation";
 import Button from '../components/common/Button';
@@ -62,10 +63,10 @@ const LoginPage = () => {
     <div className="bg-gray-50 w-screen h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-lg p-6 flex flex-col shadow-lg ring-1  shadow-gray-200/50  ring-gray-200/70 ring-offset-0">
 
-        <h2 className="text-xl  mb-4 text-center font-bold">Welcome back</h2>
-        <span className="flex gap-3  items-end font-semibold font-base/2 py-2 justify-center text-red-500 uppercase text-4xl mb-5">
-        {/* <img src={LogoImage} className="h-8" alt="Description" /> */}
-        Mahindra Marcom</span>
+        <span className="flex flex-col gap-0  items-center font-semibold font-base/2 py-0 justify-center text-red-500 uppercase text-4xl mb-5">
+        <img src={LogoImage} className="h-20" alt="Description" />
+        <img src={LogoImagePro} className="h-6 w-46 bg-cover" alt="Description" />
+         </span>
 
         <form onSubmit={handleSubmit} autoComplete="on">
           <InputText
