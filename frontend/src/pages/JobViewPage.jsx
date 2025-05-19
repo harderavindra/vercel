@@ -387,7 +387,8 @@ const JobViewPage = () => {
                                             <div className="w-full">
                                                 <p>by: {history?.updatedBy?.firstName} {history?.updatedBy?.lastName}</p>
                                                 <p className=" text-gray-600 text-base/tight mb-2 ">{history.comment}</p>
-                                                {history.attachmentSignedUrl && (
+                                                {currentStatus}
+                                                {history.attachmentSignedUrl  && currentStatus ==="ho approved" (
                                                     <a
                                                         href={history.attachmentSignedUrl}
                                                         target="_blank"
