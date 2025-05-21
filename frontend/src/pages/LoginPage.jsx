@@ -49,7 +49,7 @@ const LoginPage = () => {
       await login(email, password);
 
       setSuccess("Login successful! Redirecting...");
-      setTimeout(() => navigate("/"), 1500);
+     navigate("/")
     } catch (error) {
       setError("Invalid email or password. Please try again.");
     } finally {

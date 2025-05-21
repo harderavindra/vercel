@@ -37,9 +37,8 @@ const getStatusColor = (status) => {
         inprogress: "info",
         "artwork submitted": "info",
         "ho approved": "success",
-          "review rejected": "error",
-          "review rejected": "error",
-          "publish artwork": "info",
+        "review rejected": "error",
+        "publish artwork": "info", 
 
     };
     return statusMap[status?.toLowerCase()] || "default";
@@ -104,6 +103,25 @@ const JobViewPage = () => {
         const ext = url.split("?")[0].split(".").pop().toLowerCase();
         return mimeTypes[ext] || "application/octet-stream"; // Fallback to unknown
     };
+
+    const isZonal = ['zonal_marketing_manager'].includes(user?.role);
+
+    // Find index of last "ho approved"
+    // const lastHoApprovedIndex = mergedHistory
+    //     .map((h) => h.status.toLowerCase())
+    //     .lastIndexOf("ho approved");
+    const firstHoApprovedIndex = mergedHistory
+        .map((h) => h.status.toLowerCase())
+        .findIndex((status) => status === "ho approved");
+
+    const nextArtworkSubmittedIndex = mergedHistory.findIndex((item, index) =>
+        index > firstHoApprovedIndex && item.status === "artwork submitted"
+    );
+
+    const nextArtworkSubmittedItem = mergedHistory[nextArtworkSubmittedIndex];
+
+
+    const showAttachmentForId = nextArtworkSubmittedItem?._id;
 
     useEffect(() => {
         const fetchJob = async () => {
@@ -368,7 +386,7 @@ const JobViewPage = () => {
                                                     {formatDateDistance(history.timestamp).relative}
                                                 </span>
                                                 <p className="flex gap-2 items-center capitalize text-xs font-semibold ">
-                                                    
+
                                                     {history.status.replace(/artwork/gi, "").trim()}
                                                     <StatusBubble
                                                         size="md"
@@ -387,16 +405,17 @@ const JobViewPage = () => {
                                             <div className="w-full">
                                                 <p>by: {history?.updatedBy?.firstName} {history?.updatedBy?.lastName}</p>
                                                 <p className=" text-gray-600 text-base/tight mb-2 ">{history.comment}</p>
-                                                {history.attachmentSignedUrl  &&  (
-                                                    <a
-                                                        href={history.attachmentSignedUrl}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="font-semibold text-gray-600 hover:underline flex items-center "
-                                                    >
-                                                        <FiPaperclip size={14} /> Attachment
-                                                    </a>
-                                                )}
+                                                {history.attachmentSignedUrl && (
+                                                    (!isZonal || history._id === showAttachmentForId) && (
+                                                        <a
+                                                            href={history.attachmentSignedUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="font-semibold text-gray-600 hover:underline flex items-center "
+                                                        >
+                                                            <FiPaperclip size={14} /> Attachment
+                                                        </a>
+                                                    ))}
                                             </div>
                                         </div>
                                     </div>

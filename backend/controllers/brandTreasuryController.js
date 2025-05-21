@@ -496,7 +496,8 @@ const attachmentSignedUrl = async (url) => {
         // Generate a signed URL
         const [signedUrl] = await file.getSignedUrl({
             action: 'read',
-            expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
+            // expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
+expires: Date.now() + 2 * 24 * 60 * 60 * 1000,
         });
 
         // Get metadata

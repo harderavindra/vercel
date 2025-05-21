@@ -14,19 +14,20 @@ import PageTitle from "../components/common/PageTitle";
 import StatusMessageWrapper from "../components/common/StatusMessageWrapper";
 import { hasAccess } from "../utils/permissions";
 import { useAuth } from "../context/auth-context";
+import { useSticky } from "../hooks/useSticky";
 
 const BrandTreasuryList = () => {
   const { user } = useAuth();
-
+const { ref, isSticky } = useSticky();
   const navigate = useNavigate();
   const location = useLocation();
-const [successMessage, setSuccessMessage] = useState('');
-const fileTypeList = [
-  { label: "PDF", value: "pdf" },
-  { label: "ZIP", value: "zip" },
-  { label: "Image (JPG, PNG, JPEG)", value: "image" },
-  { label: "Video", value: "video" },
-];
+  const [successMessage, setSuccessMessage] = useState('');
+  const fileTypeList = [
+    { label: "PDF", value: "pdf" },
+    { label: "ZIP", value: "zip" },
+    { label: "Image (JPG, PNG, JPEG)", value: "image" },
+    { label: "Video", value: "video" },
+  ];
   const [page, setPage] = useState(1);
   const [documentType, setDocumentType] = useState("");
   const [starred, setStarred] = useState(false);
@@ -45,12 +46,12 @@ const fileTypeList = [
   useEffect(() => {
     if (location.state?.success) {
       setSuccess(location.state.success);
-  
+
       // Clear the message after a delay (optional)
       const timer = setTimeout(() => {
         setSuccess('');
       }, 3000);
-  
+
       return () => clearTimeout(timer);
     }
   }, [location.state]);
@@ -69,7 +70,7 @@ const fileTypeList = [
     try {
       console.log(selectedFileType, 'selectedFileType2')
       const params = {
-        page, limit: 12, documentType, starred,selectedFileType, myDocuments, search: debouncedSearch, languages: selectedLanguages.join(",")
+        page, limit: 12, documentType, starred, selectedFileType, myDocuments, search: debouncedSearch, languages: selectedLanguages.join(",")
       };
       const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/brand-treasury/`, {
 
@@ -86,7 +87,7 @@ const fileTypeList = [
     } finally {
       setLoading(false);
     }
-  }, [page, documentType, starred, myDocuments, debouncedSearch, selectedLanguages,selectedFileType]);
+  }, [page, documentType, starred, myDocuments, debouncedSearch, selectedLanguages, selectedFileType]);
 
   useEffect(() => {
     if (debouncedSearch.length < 3 && debouncedSearch.length > 0) return;
@@ -123,9 +124,14 @@ const fileTypeList = [
         </div>
 
         {/* Filters */}
+         <div  ref={ref} 
+             className={`flex items-start justify-between py-2 px-4 mb-8 rounded-lg border border-gray-200 sticky top-0 bg-white z-10 transition-shadow duration-300 ease-in-out ${
+        isSticky ? 'shadow-lg' : 'shadow-none'
+      }`}
+            >
         <div className={`flex  justify-between ${selectedLanguages.length > 0
           ? 'pb-10' : 'pb-0'}`}>
-          <div className={`flex flex-col sm:flex-row gap-4 mb-5 ${error ? "hidden" : ""}`}>
+          <div className={`flex flex-col sm:flex-row gap-4  ${error ? "hidden" : ""}`}>
             <SearchInput
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -145,14 +151,14 @@ const fileTypeList = [
               onClear={() => setDocumentType("")}
             />
             <DropdownFilter
-  options={{
-    label: "File Type",
-    items: fileTypeList
-  }}
-  value={selectedFileType}
-  onChange={(e) => setSelectedFileType(e.target.value)}
-  onClear={() => setSelectedFileType("")}
-/>
+              options={{
+                label: "File Type",
+                items: fileTypeList
+              }}
+              value={selectedFileType}
+              onChange={(e) => setSelectedFileType(e.target.value)}
+              onClear={() => setSelectedFileType("")}
+            />
             <MultiSelect
               options={LANGUAGES.map(lang => ({ value: lang, label: lang }))}
               selected={selectedLanguages}
@@ -165,9 +171,9 @@ const fileTypeList = [
               Clear All
             </button>
           </div>
-       
-        </div>
 
+        </div>
+</div>
 
         {/* Status Messages */}
         <div className="flex flex-col items-center">
@@ -195,7 +201,7 @@ const fileTypeList = [
             </div>
           )}
         </div>
-      
+
 
         {/* Pagination */}
         <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} onPageChange={setPage} />
@@ -203,8 +209,8 @@ const fileTypeList = [
 
       {/* Sidebar Filters */}
       <div className="bg-white shadow-md min-w-[40px] px-2 py-3 hidden sm:block">
-      <button
-          className={`flex flex-col gap-1 items-center py-2 px-3 text-xs w-full cursor-pointer ${!myDocuments &&  !starred ? "text-red-500" : ""}`}
+        <button
+          className={`flex flex-col gap-1 items-center py-2 px-3 text-xs w-full cursor-pointer ${!myDocuments && !starred ? "text-red-500" : ""}`}
           onClick={() => { setMyDocuments(false); setStarred(false); setPage(1); }}
         >
           <FiGrid size={18} /> All
@@ -221,7 +227,7 @@ const fileTypeList = [
         >
           <FiUserPlus size={18} /> My
         </button>
-       
+
       </div>
     </div>
   );

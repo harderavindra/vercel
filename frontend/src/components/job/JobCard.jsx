@@ -27,10 +27,12 @@ const getStatusColor = (status) => {
         hold: "warning",
         "under review": "error",
         "artwork rejected": "error",
+        "review rejected": "error",
         "artwork approved": "success",
         inprogress: "info",
         "artwork submitted": "info",
         "ho approved": "success",
+    "publish artwork": "success",
 
     };
     return statusMap[status?.toLowerCase()] || "default";
@@ -43,11 +45,12 @@ const statusIcons = {
     hold: "eye",
     "under review": "eye",
     "artwork rejected": "reject",
+    "review rejected": "reject",
     "artwork approved": "done",
     inprogress: "clock",
     "artwork submitted": "pad",
     "ho approved": "shieldcheck",
-
+    "publish artwork": "rocket",
 
 
 };
@@ -87,7 +90,7 @@ const JobCard = ({ job }) => {
                     {job?.assignedTo.firstName}
                     </div>
                 ) : (<span></span>)}
-                <div className="flex items-center gap-2 text-gray-700">
+                <div className="flex items-center gap-2 text-gray-700 capitalize">
                     <StatusBubble icon={statusIcons[job.finalStatus.toLowerCase()] || "clock"} status={getStatusColor(job.finalStatus)} />
                     {job.finalStatus}
                 </div>

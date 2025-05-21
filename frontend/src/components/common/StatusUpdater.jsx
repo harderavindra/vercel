@@ -29,6 +29,9 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
             if (normalizedStatus === "artwork approved") {
                 return ["publish artwork"];
             }
+             if (normalizedStatus === "publish artwork") {
+                return [];
+            }
 
             if (normalizedStatus !== "artwork approved" && normalizedStatus !== "ho approved") {
                 return ["inprogress", "artwork submitted"];
@@ -49,11 +52,17 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
             if (normalizedStatus === "ho approved") {
                 return ["review rejected", "hold", "artwork approved"];
             }
+              if (normalizedStatus === "publish artwork") {
+                return [];
+            }
 
             return ["hold"];
         }
 
         if (["zonal_marketing_manager"].includes(role)) {
+              if (normalizedStatus === "publish artwork") {
+                return [];
+            }
             if (normalizedStatus === "ho approved") {
                 return [
                     "under review",
@@ -85,6 +94,9 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
                 setMessage("Artwork approved. You may now proceed to publish.");
             } else if (normalizedStatus === "ho approved") {
                 setMessage("Artwork has received HO approval.");
+            }
+             else if (normalizedStatus === "publish artwork") {
+                setMessage("Artwork has been successfully published.");
             } else {
                 setMessage("Status not recognized.");
             }
@@ -97,6 +109,9 @@ const StatusUpdater = ({ jobId, currentStatus, assignedTo, onUpdate }) => {
                                 setMessage(" Artwork has been Artwork approved. await for the next steps.");
 
             }
+            else if (normalizedStatus === "publish artwork") {
+                setMessage("Artwork has been successfully published.");
+            } 
 
             else {
                 setMessage("Artwork not submitted yet. Marketing Manager or Admin can only hold the job for now.");
