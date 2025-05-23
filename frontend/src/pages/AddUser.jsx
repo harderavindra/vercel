@@ -139,13 +139,15 @@ const AddUser = () => {
 
             setDataFields({
                 firstName: "",
-                lastName: "",
-                email: "",
-                contactNumber: "",
-                password: "",
-                userType: "",
-                designation: "",
-                location: { city: "", state: "", country: "" },
+        lastName: "",
+        email: "",
+        contactNumber: "",
+        password: "",
+        userType: "",
+        role: "",
+        designation: "",
+        gender: "",
+        location: { city: "", state: "", country: "" }
             });
         } catch (err) {
             console.error("Error response:", err.response?.data);
@@ -162,7 +164,7 @@ const AddUser = () => {
     return (
         <div className=' p-10'>
             <div className="flex justify-between items-center pb-4">
-                <PageTitle>Artwork Requests</PageTitle>
+                <PageTitle>Add New User</PageTitle>
                 <StatusMessageWrapper loading={loading} success={success} error={error} />
              
             </div>
@@ -265,6 +267,8 @@ const AddUser = () => {
                                 <div className='w-full'>
                                     <label>Role</label>
                                     <select  className={`${commonSelectStyles} w-full `} name='role' value={dataFields.role} onChange={handleOnChange} >
+                                <option value="">Select Role</option>
+
                                         {Object.values(ROLES).map((role) => (
                                             <option key={role} value={role}>{snakeToCapitalCase(role)}</option>
                                         ))}
