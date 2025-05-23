@@ -58,8 +58,7 @@ const AddUser = () => {
     const handleOnChange = (e) => {
         const { name, value } = e.target;
         if (name === "role" || name === "gender") {
-            setDataFields((prev) => ({ ...prev, role: value.toLowerCase() }))
-            console.log(value)
+            setDataFields((prev) => ({ ...prev, [name]: value.toLowerCase() }))
         }
         if (name === "state") {
             setDataFields((prev) => ({
@@ -100,7 +99,7 @@ const AddUser = () => {
             };
 
 
-
+          
             let uploadedUrl = "";
 
             // If a profile picture is selected, upload it first
@@ -150,7 +149,11 @@ const AddUser = () => {
             });
         } catch (err) {
             console.error("Error response:", err.response?.data);
-            setError(err.response?.data?.message || "Registration failed. Please try again.");
+            if (err.response?.data?.code === 11000 && err.response?.data?.keyPattern?.email) {
+        setError("This email is already registered. Please use a different email.");
+    } else {
+        setError(err.response?.data?.message || "Registration failed. Please try again.");
+    }
         } finally {
             setLoading(false);
         }
@@ -161,9 +164,7 @@ const AddUser = () => {
             <div className="flex justify-between items-center pb-4">
                 <PageTitle>Artwork Requests</PageTitle>
                 <StatusMessageWrapper loading={loading} success={success} error={error} />
-                <Button width="auto" onClick={() => navigate('/create-artwork')}>
-                    Add Artwork
-                </Button>
+             
             </div>
 
             <form onSubmit={handleSubmit}>
