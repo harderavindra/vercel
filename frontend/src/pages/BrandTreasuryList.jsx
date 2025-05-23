@@ -125,7 +125,7 @@ const { ref, isSticky } = useSticky();
 
         {/* Filters */}
          <div  ref={ref} 
-             className={`flex items-start justify-between py-2 px-4 mb-8 rounded-lg border border-gray-200 sticky top-0 bg-white z-10 transition-shadow duration-300 ease-in-out ${
+             className={`flex items-start justify-between py-2 px-4 mb-8 rounded-lg border border-gray-200 sm:sticky top-0 bg-white z-10 transition-shadow duration-300 ease-in-out ${
         isSticky ? 'shadow-lg' : 'shadow-none'
       }`}
             >

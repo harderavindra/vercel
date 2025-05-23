@@ -81,6 +81,6 @@ export const OFFER_TYPES = [
   'fix price offer',
   'combo offer',
   'feature promotion',
-  'subcidy',
+  'subsidy',
   'other',
 ];

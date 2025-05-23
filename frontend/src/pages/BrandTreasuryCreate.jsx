@@ -60,7 +60,7 @@ const BrandTreasuryCreate = () => {
 
 
     return (
-        <div className="p-10">
+        <div className="p-5 sm:p-5">
             {/* Header Section */}
             <div className="flex justify-between items-center pb-4">
                 <PageTitle>Brand Treasury Add</PageTitle>

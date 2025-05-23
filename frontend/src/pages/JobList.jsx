@@ -45,6 +45,24 @@ const JobList = () => {
         const handler = setTimeout(() => setDebouncedSearch(search), 500);
         return () => clearTimeout(handler);
     }, [search]);
+    useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setCurrentView("grid"); // mobile
+      } else {
+        setCurrentView("table"); // desktop
+      }
+    };
+
+    // Set initial view
+    handleResize();
+
+    // Listen to window resize events
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup listener on unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
     // Reset page when search or filter changes
     useEffect(() => {
@@ -130,7 +148,7 @@ const JobList = () => {
 
             {/* Filters */}
             <div  ref={ref} 
-             className={`flex items-start justify-between py-2 px-4 mb-8 rounded-lg border border-gray-200 sticky top-0 bg-white z-10 transition-shadow duration-300 ease-in-out ${
+             className={`flex items-start justify-between py-2 px-4 mb-8 rounded-lg border border-gray-200 sm:sticky top-0 bg-white z-10 transition-shadow duration-300 ease-in-out ${
         isSticky ? 'shadow-lg' : 'shadow-none'
       }`}
             >
@@ -157,7 +175,7 @@ const JobList = () => {
                     </button>
 
                 </div>
-                <div className={`flex  items-center border border-gray-400 rounded-lg px-0 overflow-hidden`}>
+                <div className={`sm:flex  items-center border border-gray-400 rounded-lg px-0 overflow-hidden hidden `}>
                     <button
                         className={`px-4 py-2 border-r border-gray-400 cursor-pointer ${currentView === 'table' ? 'bg-white' : 'bg-gray-50 opacity-30'}`}
                         onClick={() => {

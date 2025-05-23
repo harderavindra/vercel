@@ -202,7 +202,7 @@ const BrandTreasuryCreate = () => {
   };
 
   return (
-    <div className="p-10">
+    <div className="p-5 sm:p-10">
       {/* Header Section */}
       <div className="flex justify-between items-center pb-4">
         <PageTitle>Create Brand Treasury</PageTitle>
@@ -214,14 +214,14 @@ const BrandTreasuryCreate = () => {
         } />
         <Button variant="outline" width="auto" onClick={() => navigate('/brand-treasury')}>Back</Button>
       </div>
-      <form onSubmit={handleSubmit} className="flex gap-12" >
-        <div className="flex flex-col gap-3 bg-white border border-blue-300/60 rounded-lg p-10 w-xl">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-12" >
+        <div className="flex flex-col gap-3 bg-white border border-blue-300/60 rounded-lg p-10 w-auto sm:w-xl">
 
           <div className="flex gap-8">
             <InputText name={'title'} label={'Title'} value={formData.title} handleOnChange={handleChange} placeholder={'Job Title'} />
 
           </div>
-          <div className="flex gap-8 capitalize">
+          <div className="flex flex-col sm:flex-row gap-8 capitalize">
             <SelectField
               label="Content Type"
               name="contentType"
