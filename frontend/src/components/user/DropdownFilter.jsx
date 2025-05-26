@@ -12,7 +12,7 @@ const DropdownFilter = ({ options, value, onChange, onClear }) => {
                 value={value}
                 onChange={onChange}
             >
-                <option value="">All {options.label}</option>
+                <option value="">Select {options.label}</option>
                 {options.items.map((item) => (
                     <option key={item.value} value={item.value}>
                         {  item.label}
