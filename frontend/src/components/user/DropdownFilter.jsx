@@ -15,7 +15,7 @@ const DropdownFilter = ({ options, value, onChange, onClear }) => {
                 <option value="">All {options.label}</option>
                 {options.items.map((item) => (
                     <option key={item.value} value={item.value}>
-                        { snakeToCapitalCase( item.label)}
+                        {  item.label}
                     </option>
                 ))}
             </select>

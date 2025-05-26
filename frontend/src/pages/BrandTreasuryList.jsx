@@ -43,7 +43,7 @@ const BrandTreasuryList = () => {
   const [documentTypes, setDocumentTypes] = useState([]);
   const [selectedFileType, setSelectedFileType] = useState("");
   const [brandCategories, setBrandCategories] = useState([]);
-  const [brandType, setBrandType] = useState([]);
+  const [brandType, setBrandType] = useState('');
 
   const fetchBrandCategories = async () => {
     try {
@@ -173,7 +173,7 @@ const BrandTreasuryList = () => {
                 }}
                 value={brandType}
                  onChange={(e) => setBrandType(e.target.value)}
-                onClear={() => setBrandType("")}
+                onClear={() => setBrandType('')}
               />
               <DropdownFilter
                 options={{
