@@ -9,6 +9,8 @@ export const USER_TYPES = {
     BRAND_MANAGER: "brand_manager",
     ZONAL_MARKETING_MANAGER: "zonal_marketing_manager",
     AGENCY: "agency",
+    BRAND_MANAGER: "brand_manager",
+    MODERATOR: "moderator",
   };
   
   export const DESIGNATIONS = {

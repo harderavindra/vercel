@@ -7,7 +7,7 @@ import User from "../models/User.js";
 
 export const createBrandTreasury = async (req, res) => {
     try {
-        const { title, documentType, contentType,  language, product, brand, model, comment, attachment } = req.body;
+        const { title, documentType, contentType, language, product, brand, model, comment, attachment } = req.body;
         console.log(req.user, documentType)
 
         const newBrandTreasury = new BrandTreasury({
@@ -151,35 +151,38 @@ export const getBrandTreasuryById = async (req, res) => {
 
 export const getBrandTreasuries = async (req, res) => {
     try {
-        let { page = 1, limit = 10, documentType, starred, myDocuments, search, languages, selectedFileType } = req.query;
+        let { page = 1, limit = 10, documentType, starred, myDocuments,brandType, search, languages, selectedFileType } = req.query;
         const userId = req.user.userId;
         const userRole = req.user.role;
+        console.log( req.query, "brandType")
         let filter = {};
-        if (userRole !== "marketing_manager" ) {
+        if (userRole !== "marketing_manager") {
             filter.contentType = "print";
             filter.approved = true;
         }
 
         if (selectedFileType) {
             switch (selectedFileType) {
-              case "image":
-                filter.attachment = { $regex: /\.(jpg|jpeg|png)$/i };
-                break;
-              case "video":
-                filter.attachment = { $regex: /\.(mp4|mov|avi|mkv|webm)$/i };
-                break;
-              default:
-                const fileTypeRegex = new RegExp(`\\.${selectedFileType}$`, "i");
-                filter.attachment = { $regex: fileTypeRegex };
+                case "image":
+                    filter.attachment = { $regex: /\.(jpg|jpeg|png)$/i };
+                    break;
+                case "video":
+                    filter.attachment = { $regex: /\.(mp4|mov|avi|mkv|webm)$/i };
+                    break;
+                default:
+                    const fileTypeRegex = new RegExp(`\\.${selectedFileType}$`, "i");
+                    filter.attachment = { $regex: fileTypeRegex };
             }
-          }
+        }
         if (documentType) filter.documentType = documentType;
+        if (brandType) filter.brand = brandType;
         if (search) {
             filter.$or = [
                 { documentType: { $regex: search, $options: "i" } },
+                { brand: { $regex: search, $options: "i" } },
                 { language: { $regex: search, $options: "i" } },
                 { title: { $regex: search, $options: "i" } },
-                { comment : { $regex: search, $options: "i" } }
+                { comment: { $regex: search, $options: "i" } }
             ];
         }
         if (myDocuments === "true") {
@@ -246,7 +249,7 @@ export const getBrandTreasuries = async (req, res) => {
             })
         );
 
-     
+
 
         // Count total documents
         const totalDocuments = await BrandTreasury.countDocuments(filter);
@@ -321,12 +324,12 @@ export const updateApproval = async (req, res) => {
             return res.status(404).json({ error: "Document not found." });
         }
         // Get all admin emails
-    const admins = await User.find({ role: 'admin' }).select('email');
-    const adminEmails = admins.map((user) => user.email).filter(Boolean);
+        const admins = await User.find({ role: 'admin' }).select('email');
+        const adminEmails = admins.map((user) => user.email).filter(Boolean);
 
-    // Send email notification
-    const subject = `Document ${approved ? 'Approved' : 'Unapproved'} - ${document.title}`;
-    const html = `
+        // Send email notification
+        const subject = `Document ${approved ? 'Approved' : 'Unapproved'} - ${document.title}`;
+        const html = `
      <div style="font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9;">
     <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
       
@@ -358,7 +361,7 @@ export const updateApproval = async (req, res) => {
   </div>
     `;
 
-    await sendEmail({ to: adminEmails, subject, html });
+        await sendEmail({ to: adminEmails, subject, html });
 
         res.json({ success: true, document });
     } catch (error) {
@@ -497,7 +500,7 @@ const attachmentSignedUrl = async (url) => {
         const [signedUrl] = await file.getSignedUrl({
             action: 'read',
             // expires: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
-expires: Date.now() + 15 * 24 * 60 * 60 * 1000, 
+            expires: Date.now() + 15 * 24 * 60 * 60 * 1000,
         });
 
         // Get metadata
@@ -510,40 +513,40 @@ expires: Date.now() + 15 * 24 * 60 * 60 * 1000,
     }
 };
 
-export  const updateBrandTreasury = async (req, res) => {
+export const updateBrandTreasury = async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
-  
+
     try {
-      const brandDoc = await BrandTreasury.findById(id);
-  
-      if (!brandDoc) {
-        return res.status(404).json({ success: false, message: "Document not found" });
-      }
-  
-      // Optional: Add permission logic here
-      // Example: if (req.user.role !== 'admin') { ... }
-  
-      // Update fields
-      Object.keys(updates).forEach((key) => {
-        if (updates[key] !== undefined) {
-          brandDoc[key] = updates[key];
+        const brandDoc = await BrandTreasury.findById(id);
+
+        if (!brandDoc) {
+            return res.status(404).json({ success: false, message: "Document not found" });
         }
-      });
-  
-      const updatedDoc = await brandDoc.save();
-  
-      res.status(200).json({
-        success: true,
-        message: "Document updated successfully",
-        data: updatedDoc,
-      });
+
+        // Optional: Add permission logic here
+        // Example: if (req.user.role !== 'admin') { ... }
+
+        // Update fields
+        Object.keys(updates).forEach((key) => {
+            if (updates[key] !== undefined) {
+                brandDoc[key] = updates[key];
+            }
+        });
+
+        const updatedDoc = await brandDoc.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Document updated successfully",
+            data: updatedDoc,
+        });
     } catch (error) {
-      console.error("Update error:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to update document",
-        error: error.message,
-      });
+        console.error("Update error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to update document",
+            error: error.message,
+        });
     }
-  };
+};

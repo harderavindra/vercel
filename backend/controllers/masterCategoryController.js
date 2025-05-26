@@ -38,7 +38,21 @@ export const createBrandCategory = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
+export const getTractorBrandCategories = async (req, res) => {
+    try {
+      const  productId = '67ed5c719ade4698cfd9684d';
+  
+      // Find all BrandCategories with the given product ID
+      const brandCategories = await BrandCategory.find({ product: productId }).populate('name');
+      if (brandCategories.length === 0) {
+        return res.status(404).json({ message: 'No BrandCategories found for the given Product ID' });
+      }
+  
+      res.status(200).json({ data: brandCategories });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  };
 export const getBrandCategoriesByProductId = async (req, res) => {
     try {
       const { productId } = req.params;

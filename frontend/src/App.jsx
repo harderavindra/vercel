@@ -37,6 +37,11 @@ const App = () => {
 
                     <Route element={<MainLayout />}>
                     
+                        <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin','zonal_marketing_manager', 'moderator', 'agency']} />}>
+                            <Route path="/artworks" element={<JobList />} />
+                            <Route path="/artwork/:fileId" element={<JobViewPage />} />
+
+                        </Route>
                         <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin','zonal_marketing_manager']} />}>
                             <Route path="/create-artwork" element={<JobCreate />} />
                         </Route>
@@ -52,11 +57,9 @@ const App = () => {
                             <Route path="/create-brand-treasury" element={<BrandTreasuryCreatePage />} />
                             <Route path="/view-brandtreasury/:fileId" element={<ViewBrandTreasuryPage />} />
 
-                            <Route path="/artworks" element={<JobList />} />
                             <Route path="/about" element={<About />} />
                             <Route path="/profile" element={<ProfilePage />} />
                             <Route path="/masterdata" element={<MasterDataPage />} />
-                            <Route path="/artwork/:fileId" element={<JobViewPage />} />
                            
                             <Route path="/user/:id" element={<UserDetailPage />} />
                             

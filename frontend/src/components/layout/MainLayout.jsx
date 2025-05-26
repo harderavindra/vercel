@@ -11,8 +11,8 @@ import Avatar from '../common/Avatar';
 import { snakeToCapitalCase } from '../../utils/convertCase';
 
 const menuItems = [
-    { to: '/brand-treasury', icon: <FiFolder size={24} />, label: 'Brand Treasury' },
-    { to: '/artworks', icon: <FiPaperclip size={24} />, label: 'Artworks' },
+    { to: '/brand-treasury', icon: <FiFolder size={24} />, label: 'Brand Treasury',  },
+    { to: '/artworks', icon: <FiPaperclip size={24} />, label: 'Artworks',  roles: ['admin', 'marketing_manager', 'zonal_marketing_manager', 'agency', 'moderator'] },
     { to: '/', icon: <FiGrid size={24} />, label: 'Dashboard' },
     { to: '/users', icon: <FiUser size={24} />, label: 'Users', roles: ['admin', 'marketing_manager'] },
     { to: '/masterdata', icon: <FiSliders size={24} />, label: 'Master Data', roles: ['admin', 'marketing_manager'] }
@@ -70,6 +70,7 @@ const MainLayout = () => {
                                 <div className={`flex flex-col leading-none font-semibold transition-opacity duration-300 ${expanded ? 'opacity-100 delay-300 visible' : 'opacity-0 delay-0 invisible'}`}>
                                     {user.firstName}
                                     <p className='capitalize text-gray-400 line-clamp-1'>{snakeToCapitalCase(user?.role)}</p>
+                                    
                                 </div>
 
                             </NavLink>

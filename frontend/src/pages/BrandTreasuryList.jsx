@@ -18,7 +18,7 @@ import { useSticky } from "../hooks/useSticky";
 
 const BrandTreasuryList = () => {
   const { user } = useAuth();
-const { ref, isSticky } = useSticky();
+  const { ref, isSticky } = useSticky();
   const navigate = useNavigate();
   const location = useLocation();
   const [successMessage, setSuccessMessage] = useState('');
@@ -42,7 +42,19 @@ const { ref, isSticky } = useSticky();
   const [selectedLanguages, setSelectedLanguages] = useState([]);
   const [documentTypes, setDocumentTypes] = useState([]);
   const [selectedFileType, setSelectedFileType] = useState("");
+  const [brandCategories, setBrandCategories] = useState([]);
+  const [brandType, setBrandType] = useState([]);
 
+  const fetchBrandCategories = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/master/brand-categories/product`);
+      console.log("Brand Categories:", response.data);
+      setBrandCategories(response.data.data || []); // Fallback to empty array if data is null
+    } catch (error) {
+      console.error("Error fetching brand categories:", error);
+      setBrandCategories([]); // Handle error state gracefully
+    }
+  };
   useEffect(() => {
     if (location.state?.success) {
       setSuccess(location.state.success);
@@ -68,9 +80,9 @@ const { ref, isSticky } = useSticky();
     setError(""); // Clear previous error messages
 
     try {
-      console.log(selectedFileType, 'selectedFileType2')
+      console.log(brandType, 'brandType--')
       const params = {
-        page, limit: 12, documentType, starred, selectedFileType, myDocuments, search: debouncedSearch, languages: selectedLanguages.join(",")
+        page, limit: 12, documentType, starred, selectedFileType, myDocuments, search: debouncedSearch,brandType, languages: selectedLanguages.join(",")
       };
       const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/brand-treasury/`, {
 
@@ -87,12 +99,14 @@ const { ref, isSticky } = useSticky();
     } finally {
       setLoading(false);
     }
-  }, [page, documentType, starred, myDocuments, debouncedSearch, selectedLanguages, selectedFileType]);
+  }, [page, documentType, starred, myDocuments, debouncedSearch, selectedLanguages, selectedFileType,brandType]);
 
   useEffect(() => {
     if (debouncedSearch.length < 3 && debouncedSearch.length > 0) return;
     fetchTreasuries();
-  }, [fetchTreasuries]);
+    fetchBrandCategories();
+
+  }, [fetchTreasuries, debouncedSearch]);
 
   // Clear Filters
   const clearFilters = useCallback(() => {
@@ -116,7 +130,7 @@ const { ref, isSticky } = useSticky();
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pb-4 gap-3">
           <PageTitle>Brand Treasury</PageTitle>
           <StatusMessageWrapper loading={loading} success={success} error={error} />
-          {hasAccess(user?.role, ['marketing_manager', 'admin']) && (
+          {hasAccess(user?.role, ['marketing_manager', 'admin', 'agency']) && (
             <Button width="auto" onClick={() => navigate('/create-brand-treasury')}>
               Add Brand Treasury
             </Button>
@@ -124,56 +138,67 @@ const { ref, isSticky } = useSticky();
         </div>
 
         {/* Filters */}
-         <div  ref={ref} 
-             className={`flex items-start justify-between py-2 px-4 mb-8 rounded-lg border border-gray-200 sm:sticky top-0 bg-white z-10 transition-shadow duration-300 ease-in-out ${
-        isSticky ? 'shadow-lg' : 'shadow-none'
-      }`}
-            >
-        <div className={`flex  justify-between ${selectedLanguages.length > 0
-          ? 'pb-10' : 'pb-0'}`}>
-          <div className={`flex flex-col sm:flex-row gap-4  ${error ? "hidden" : ""}`}>
-            <SearchInput
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onClear={() => setSearch("")}
-              placeholder="Search by name (min 3 chars)"
-            />
-            <DropdownFilter
-              options={{
-                label: "Document Type",
-                items: documentTypes.map((doc) => ({
-                  value: doc.toLowerCase(),
-                  label: doc
-                }))
-              }}
-              value={documentType}
-              onChange={(e) => setDocumentType(e.target.value.toLowerCase())}
-              onClear={() => setDocumentType("")}
-            />
-            <DropdownFilter
-              options={{
-                label: "File Type",
-                items: fileTypeList
-              }}
-              value={selectedFileType}
-              onChange={(e) => setSelectedFileType(e.target.value)}
-              onClear={() => setSelectedFileType("")}
-            />
-            <MultiSelect
-              options={LANGUAGES.map(lang => ({ value: lang, label: lang }))}
-              selected={selectedLanguages}
-              onChange={setSelectedLanguages}
-            />
-            <button
-              className="border border-blue-300 bg-blue-50 rounded-md px-3 text-blue-600"
-              onClick={clearFilters}
-            >
-              Clear All
-            </button>
-          </div>
+        <div ref={ref}
+          className={`flex items-start justify-between py-2 px-4 mb-8 rounded-lg border border-gray-200 sticky top-0 bg-white z-10 transition-shadow duration-300 ease-in-out ${isSticky ? 'shadow-lg' : 'shadow-none'
+            }`}
+        >
+          <div className={`flex  justify-between ${selectedLanguages.length > 0
+            ? 'pb-10' : 'pb-0'}`}>
+            <div className={`flex flex-col sm:flex-row gap-4  ${error ? "hidden" : ""}`}>
+              <SearchInput
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onClear={() => setSearch("")}
+                placeholder="Search by name (min 3 chars)"
+              />
+              <DropdownFilter
+                options={{
+                  label: "Document Type",
+                  items: documentTypes.map((doc) => ({
+                    value: doc.toLowerCase(),
+                    label: doc
+                  }))
+                }}
+                value={documentType}
+                onChange={(e) => setDocumentType(e.target.value.toLowerCase())}
+                onClear={() => setDocumentType("")}
+              />
+              <DropdownFilter
+                options={{
+                  label: "Brand",
+                  items: brandCategories.map((doc) => ({
+                    value: doc._id, // e.g., "mahindra oja"
+                    label: doc.name               // e.g., "Mahindra OJA"
+                  }))
+                }}
+                value={brandType}
+                 onChange={(e) => setBrandType(e.target.value)}
+                onClear={() => setBrandType("")}
+              />
+              <DropdownFilter
+                options={{
+                  label: "File Type",
+                  items: fileTypeList
+                }}
+                value={selectedFileType}
+                onChange={(e) => setSelectedFileType(e.target.value)}
+                onClear={() => setSelectedFileType("")}
+              />
+              <MultiSelect
+                options={LANGUAGES.map(lang => ({ value: lang, label: lang }))}
+                selected={selectedLanguages}
+                onChange={setSelectedLanguages}
+              />
+              <button
+                className="border border-blue-300 bg-blue-50 rounded-md px-3 text-blue-600"
+                onClick={clearFilters}
+              >
+                Clear All
+              </button>
+            </div>
 
+          </div>
         </div>
-</div>
 
         {/* Status Messages */}
         <div className="flex flex-col items-center">

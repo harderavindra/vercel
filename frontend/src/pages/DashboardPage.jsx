@@ -3,6 +3,7 @@ import Avatar from '../components/common/Avatar'
 import { useAuth } from '../context/auth-context';
 import { FiFileMinus, FiFolder, FiFolderMinus, FiPaperclip } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import { hasAccess } from '../utils/permissions';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
@@ -19,6 +20,8 @@ const DashboardPage = () => {
             <p className='capitalize text-2xl'>{user?.firstName} {user?.lastName}</p>
           </div>
         </div>
+        { hasAccess(user?.role, ['marketing_manager','admin', 'zonal_marketing_manager', 'agency', 'moderator']) &&
+      
         <div className='w-full bg-white  rounded-2xl shadow-lg p-4 flex justify-center items-center cursor-pointer'
           onClick={() => navigate('/artworks')}>
           <div className='flex flex-col gap-3 justify-center items-center'>
@@ -26,6 +29,7 @@ const DashboardPage = () => {
             <p className='text-3xl text-center'>Artwork</p>
           </div>
         </div>
+          }
         <div className='w-full bg-white  rounded-2xl shadow-lg p-4 flex justify-center items-center cursor-pointer'
           onClick={() => navigate('/brand-treasury')}>
           <div className='flex flex-col gap-3 justify-center items-center'>
