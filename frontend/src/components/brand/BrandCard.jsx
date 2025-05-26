@@ -68,7 +68,7 @@ const BrandCard = ({ document, loading, isEmpty }) => {
                                     <div className='flex gap-3 items-start' onClick={() => navigate(`/view-brandtreasury/${document._id}`)}>
                                         {document?.contentType ==='print' ? (<FiPrinter size={24} />):(<FiFileText size={24} />)}
                                         <p className='font-semibold text-lg capitalize line-clamp-1' >
-                                            {document.title?.toLowerCase()}
+                                            {document.title}
                                             </p></div>
                                     <div className='flex gap-3 justify-start items-start'>
                                         <div className='flex gap-3 items-center'><FiFileText size={14} /><p className=' text-sm capitalize line-clamp-1'>{document?.documentType} </p></div>
