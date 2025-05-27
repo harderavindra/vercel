@@ -19,7 +19,7 @@ import JobTableRow from "../components/job/JobTableRow";
 import { useSticky } from "../hooks/useSticky";
 
 const JobList = () => {
-      const { ref, isSticky } = useSticky();
+    const { ref, isSticky } = useSticky();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -46,23 +46,23 @@ const JobList = () => {
         return () => clearTimeout(handler);
     }, [search]);
     useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth <= 768) {
-        setCurrentView("grid"); // mobile
-      } else {
-        setCurrentView("table"); // desktop
-      }
-    };
+        const handleResize = () => {
+            if (window.innerWidth <= 768) {
+                setCurrentView("grid"); // mobile
+            } else {
+                setCurrentView("table"); // desktop
+            }
+        };
 
-    // Set initial view
-    handleResize();
+        // Set initial view
+        handleResize();
 
-    // Listen to window resize events
-    window.addEventListener("resize", handleResize);
+        // Listen to window resize events
+        window.addEventListener("resize", handleResize);
 
-    // Cleanup listener on unmount
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+        // Cleanup listener on unmount
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     // Reset page when search or filter changes
     useEffect(() => {
@@ -147,10 +147,9 @@ const JobList = () => {
             </div>
 
             {/* Filters */}
-            <div  ref={ref} 
-             className={`flex items-start justify-between py-2 px-4 mb-8 rounded-lg border border-gray-200 sm:sticky top-0 bg-white z-10 transition-shadow duration-300 ease-in-out ${
-        isSticky ? 'shadow-lg' : 'shadow-none'
-      }`}
+            <div ref={ref}
+                className={`flex items-start justify-between py-2 px-4 mb-8 rounded-lg border border-gray-200 sm:sticky top-0 bg-white z-10 transition-shadow duration-300 ease-in-out ${isSticky ? 'shadow-lg' : 'shadow-none'
+                    }`}
             >
                 <div className={`flex flex-col sm:flex-row gap-4 mb-0 ${error ? "hidden" : ""}`}>
                     <SearchInput
@@ -192,50 +191,50 @@ const JobList = () => {
                     ><FiGrid size={18} /></button>
                 </div>
             </div>
-{ currentView   === 'grid' && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-                {loading
-                    ? Array.from({ length: 6 }, (_, index) => <LoadingCard key={index} />)
-                    : error ? (
-                        <p className="text-center col-span-3 p-4 text-red-500">{error}</p>
-                    ) : jobs.length > 0
-                        ? jobs.map((job) => <JobCard key={job._id} job={job} />)
-                        : <p className="text-center col-span-3 p-4">No Artwork found</p>}
-            </div>
-            )}
-{
-                currentView === 'table' && (
-               
-            <div className="flex justify-center ">
-                <div className="overflow-x-auto w-full bg-white shadow-md rounded-lg overflow-hiddenx">
-                    <table className="w-full text-left border border-gray-200">
-                        <thead className="bg-blue-100 border-b border-blue-400 text-blue-500">
-                            <tr>
-                                <th className="p-3 ">Title</th>
-                                <th className="p-3 ">Created By</th>
-                                <th className="p-3 ">Priority</th>
-                                <th className="p-3 ">Type</th>
-                                <th className="p-3 ">Location</th>
-                                <th className="p-3 ">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading
-                    ? Array.from({ length: 6 }, (_, index) => <LoadingCard key={index} type={"table"} />)
-                    : error ? (
-                        <p className="text-center col-span-3 p-4 text-red-500">{error}</p>
-                    ) : jobs.length > 0
-                        ?
-                            jobs.map((job) => (
-                                <JobTableRow key={job._id} job={job} />
-                            )):(<p>No Artwork found</p>)
-                            }
-                        </tbody>
-                    </table>
+            {currentView === 'grid' && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                    {loading
+                        ? Array.from({ length: 6 }, (_, index) => <LoadingCard key={index} />)
+                        : error ? (
+                            <p className="text-center col-span-3 p-4 text-red-500">{error}</p>
+                        ) : jobs.length > 0
+                            ? jobs.map((job) => <JobCard key={job._id} job={job} />)
+                            : <p className="text-center col-span-3 p-4">No Artwork found</p>}
                 </div>
-            </div>
-             )
-}
+            )}
+            {
+                currentView === 'table' && (
+
+                    <div className="flex justify-center ">
+                        <div className="overflow-x-auto w-full bg-white shadow-md rounded-lg overflow-hiddenx">
+                            <table className="w-full text-left border border-gray-200">
+                                <thead className="bg-blue-100 border-b border-blue-400 text-blue-500">
+                                    <tr>
+                                        <th className="p-3 ">Title</th>
+                                        <th className="p-3 ">Created By</th>
+                                        <th className="p-3 ">Priority</th>
+                                        <th className="p-3 ">Type</th>
+                                        <th className="p-3 ">Location</th>
+                                        <th className="p-3 ">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loading
+                                        ? Array.from({ length: 6 }, (_, index) => <LoadingCard key={index} type={"table"} />)
+                                        : error ? (
+                                            <p className="text-center col-span-3 p-4 text-red-500">{error}</p>
+                                        ) : jobs.length > 0
+                                            ?
+                                            jobs.map((job) => (
+                                                <JobTableRow key={job._id} job={job} />
+                                            )) : (<p>No Artwork found</p>)
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )
+            }
 
             {/* Pagination */}
             <Pagination

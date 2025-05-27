@@ -3,11 +3,11 @@ import { bucket } from "../config/storage.js";
 import Job from "../models/JobModel.js";
 import User from "../models/User.js";
 
-const JOB_STATUS = ["inprogress", "artwork submitted","publish artwork"];
-const DECISION_STATUS = ["approved","under review", "review rejected", "artwork approved", "hold", "ho approved", ];
+const JOB_STATUS = ["inprogress", "artwork submitted", "publish artwork"];
+const DECISION_STATUS = ["approved", "under review", "review rejected", "artwork approved", "hold", "ho approved",];
 export const createJob = async (req, res) => {
   try {
-    const { title, typeOfArtwork, priority, offerType, zone, state, language,items, offerDetails, otherDetails, attachment, dueDate } = req.body;
+    const { title, typeOfArtwork, priority, offerType, zone, state, language, items, offerDetails, otherDetails, attachment, dueDate } = req.body;
     console.log(req.user)
 
     const newJob = new Job({
@@ -44,11 +44,11 @@ export const getAllJobs = async (req, res) => {
     let filter = {};
     if (req?.user?.role === "agency") {
       filter.assignedTo = req.user.userId;
-    
+
     }
-    if ( req?.user?.role === "zonal_marketing_manager") {
+    if (req?.user?.role === "zonal_marketing_manager") {
       filter.createdBy = req.user.userId;
-    
+
     }
     if (search) {
       filter.$or = [
@@ -132,11 +132,11 @@ export const getJobById = async (req, res) => {
     const { id } = req.params;
 
     const job = await Job.findById(id)
-    .populate('items.product', 'name')
-    .populate('items.model', 'name')
-    .populate('items.brand', 'name')
+      .populate('items.product', 'name')
+      .populate('items.model', 'name')
+      .populate('items.brand', 'name')
 
-    .populate('decisionHistory.updatedBy', 'firstName lastName email profilePic')
+      .populate('decisionHistory.updatedBy', 'firstName lastName email profilePic')
       .populate('statusHistory.updatedBy', 'firstName lastName email profilePic')
       .populate('createdBy', 'firstName lastName email profilePic role')
       .populate('assignedTo', 'firstName lastName email profilePic');
@@ -349,23 +349,33 @@ export const jobassignedTo = async (req, res) => {
 
   try {
     // Find and update the job with the new assignedTo
-    const job = await Job.findByIdAndUpdate(jobId, { assignedTo }, { new: true });
+   
+     const job = await Job.findById(jobId);
 
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
     }
 
-    // Push a new entry into the decisionHistory array
-    job.decisionHistory.push({
-      status: 'Assigned',
-      comment: comment || '', // Use the provided comment or an empty string if no comment is provided
-      updatedBy: adminId,
-      date: new Date(), // Set the current date and time
-    });
-    job.finalStatus = 'Assigned';
+    // Update the assignedTo field
+    job.assignedTo = assignedTo;
+    
+    const alreadyAssigned = job.decisionHistory.some(
+      entry => entry.status === 'Assigned'
+    );
+    if (!alreadyAssigned) {
 
-    // Save the updated job document
-    await job.save();
+      // Push a new entry into the decisionHistory array
+      job.decisionHistory.push({
+        status: 'Assigned',
+        comment: comment || '', // Use the provided comment or an empty string if no comment is provided
+        updatedBy: adminId,
+        date: new Date(), // Set the current date and time
+      });
+      job.finalStatus = 'Assigned';
+
+      // Save the updated job document
+      await job.save();
+    }
 
     res.status(200).json({ message: "User assigned successfully", job });
   } catch (error) {

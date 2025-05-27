@@ -163,6 +163,7 @@ const JobViewPage = () => {
         }
     };
     const assignUserToJob = async (jobId) => {
+        setLoading(true);
         if (!assigUser) {
             setError("Please select a user to assign.");
             return;
