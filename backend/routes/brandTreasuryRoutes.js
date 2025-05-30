@@ -1,9 +1,10 @@
 import express from "express";
 import { authenticate} from "../controllers/userController.js";
-import { createBrandTreasury, deleteBrandTreasuryDocument, deleteThumbnail, getBrandTreasuries, getBrandTreasuryById, toggleStarred , updateApproval, updateBrandTreasury, uploadThumbnail} from "../controllers/brandTreasuryController.js";
+import { createBrandTreasury, deleteBrandTreasuryDocument, deleteThumbnail, getBrandTreasuries, getBrandTreasuryById, toggleStarred , updateApproval, updateBrandTreasury, uploaderBrandTreasury, uploadThumbnail} from "../controllers/brandTreasuryController.js";
 
 const router = express.Router();
 
+router.post("/uploader", authenticate,uploaderBrandTreasury);
 router.get("/", authenticate, getBrandTreasuries);
 router.get("/get-brandtreasury/:fileId", authenticate, getBrandTreasuryById);
 router.put('/update-thumbnail/:fileId', authenticate, uploadThumbnail);

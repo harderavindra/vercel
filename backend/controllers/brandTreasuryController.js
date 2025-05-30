@@ -4,7 +4,23 @@ import StarredDocument from "../models/StarredDocument.js";
 import { bucket } from "../config/storage.js";
 import { sendEmail } from '../utils/emailService.js';
 import User from "../models/User.js";
+export const uploaderBrandTreasury = async (req, res) => {
+    try {
+        const data = req.body;
+        console.log("data-------",data)
 
+        const newEntry = new BrandTreasury({
+            ...data,
+            createdBy: req.user.userId,
+            decisionHistory: [{ status: "Created", updatedBy: req.user.userId }] // Auto-add initial status
+        });
+        const saved = await newEntry.save();
+        res.status(201).json(saved);
+    } catch (error) {
+        console.error("Error saving Brand Treasury:", error);
+        res.status(500).json({ message: "Server Error", error });
+    }
+}
 export const createBrandTreasury = async (req, res) => {
     try {
         const { title, documentType, contentType, language, product, brand, model, comment, attachment } = req.body;
@@ -151,10 +167,10 @@ export const getBrandTreasuryById = async (req, res) => {
 
 export const getBrandTreasuries = async (req, res) => {
     try {
-        let { page = 1, limit = 10, documentType, starred, myDocuments,brandType, search, languages, selectedFileType } = req.query;
+        let { page = 1, limit = 10, documentType, starred, myDocuments, brandType, search, languages, selectedFileType } = req.query;
         const userId = req.user.userId;
         const userRole = req.user.role;
-        console.log( req.query, "brandType")
+        console.log(req.query, "brandType")
         let filter = {};
         if (userRole !== "marketing_manager") {
             filter.contentType = "print";
