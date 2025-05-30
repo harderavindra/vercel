@@ -39,7 +39,7 @@ const App = () => {
                     <Route element={<MainLayout />}>
                     
                         <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin','zonal_marketing_manager', 'moderator', 'agency']} />}>
-                        <Route path="/bulk" element={<BrandTreasuryUploader/>} />
+                        <Route path="/uploader" element={<BrandTreasuryUploader/>} />
                             <Route path="/artworks" element={<JobList />} />
                             <Route path="/artwork/:fileId" element={<JobViewPage />} />
 
