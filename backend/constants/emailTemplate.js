@@ -4,7 +4,7 @@ export const generateApprovalEmailHTML = ({ approved, documentTitle, adminPanelL
     <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
       
       <div style="text-align: center; padding: 20px; background-color: #f5f5f5;">
-        <img src="https://www.adbee.in/assets/Mahindra_Tractors_logo-02-CjDBIq4d.svg" alt="Mahindra Logo" style="max-width: 150px;" />
+        <img src="https://www.adbee.in/mahindra-logo.png" alt="Mahindra Logo" style="max-width: 150px;" />
       </div>
 
       <div style="padding: 20px;">
