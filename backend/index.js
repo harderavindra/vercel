@@ -21,7 +21,9 @@ app.use(cookieParser());
 
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://vercel-frontend-henna.vercel.app'],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://vercel-frontend-henna.vercel.app',
+    'https://www.adbee.in', 'https://adbee.in'
+  ],
   methods: ['GET', 'POST', 'PUT', 'PATCH','DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,  // Allows sending cookies with requests
