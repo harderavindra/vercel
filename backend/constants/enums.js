@@ -6,6 +6,7 @@ export const USER_TYPES = {
   export const ROLES = {
     MARKETING_MANAGER: "marketing_manager",
     ADMIN: "admin",
+    MASTER_ADMIN: "master_admin",
     BRAND_MANAGER: "brand_manager",
     ZONAL_MARKETING_MANAGER: "zonal_marketing_manager",
     AGENCY: "agency",

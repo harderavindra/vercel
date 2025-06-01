@@ -2,13 +2,14 @@ import mongoose from "mongoose";
 import { bucket } from "../config/storage.js";
 import Job from "../models/JobModel.js";
 import User from "../models/User.js";
+import { generateJobCreateEmailHTML } from "../constants/emailTemplate.js";
+import { sendEmail } from "../utils/emailService.js";
 
 const JOB_STATUS = ["inprogress", "artwork submitted", "publish artwork"];
 const DECISION_STATUS = ["approved", "under review", "review rejected", "artwork approved", "hold", "ho approved",];
 export const createJob = async (req, res) => {
   try {
     const { title, typeOfArtwork, priority, offerType, zone, state, language, items, offerDetails, otherDetails, attachment, dueDate } = req.body;
-    console.log(req.user)
 
     const newJob = new Job({
       title,
@@ -28,6 +29,18 @@ export const createJob = async (req, res) => {
     });
 
     await newJob.save();
+    const html = generateJobCreateEmailHTML(newJob, req.user.name);
+
+    // Send Email to all (admin, marketing_manager, zonal_marketing_manager) excluding createdByUser
+    const otherUsers = await User.find({
+      role: { $in: ['admin', 'zonal_marketing_manager', 'marketing_manager'] },
+      _id: { $ne: req.user.userId }
+    }).select('email');
+
+    const emails = otherUsers.map(u => u.email).filter(Boolean);
+    await sendEmail({ to: emails, subject: `New Job Created: ${newJob.title}`, html });
+    console.log(emails)
+
     res.status(201).json({ success: true, job: newJob });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

@@ -4,10 +4,11 @@ import StarredDocument from "../models/StarredDocument.js";
 import { bucket } from "../config/storage.js";
 import { sendEmail } from '../utils/emailService.js';
 import User from "../models/User.js";
+import { generateApprovalEmailHTML } from '../constants/emailTemplate.js'
 export const uploaderBrandTreasury = async (req, res) => {
     try {
         const data = req.body;
-        console.log("data-------",data)
+        console.log("data-------", data)
 
         const newEntry = new BrandTreasury({
             ...data,
@@ -344,37 +345,11 @@ export const updateApproval = async (req, res) => {
 
         // Send email notification
         const subject = `Document ${approved ? 'Approved' : 'Unapproved'} - ${document.title}`;
-        const html = `
-     <div style="font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9;">
-    <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-      
-      <div style="text-align: center; padding: 20px; background-color: #f5f5f5;">
-        <img src="https://adbee.in/wp-content/uploads/2024/01/mahindra-tractor-logo.png" alt="Mahindra Logo" style="max-width: 150px;" />
-      </div>
-
-      <div style="padding: 20px;">
-        <h2 style="color: #333333;">Approval Status Updated</h2>
-        <p style="color: #555555;">Dear Admin,</p>
-        <p>
-          The status of a document in the Brand Treasury system has been <strong>updated</strong> by a team member.
-        </p>
-        <p>
-          Please log in to your admin panel to view the changes and take any necessary action.
-        </p>
-        <div style="text-align: center; margin-top: 25px;">
-          <a href="https://yourdomain.com/admin-panel" style="background-color: #d1001c; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-            View in Admin Panel
-          </a>
-        </div>
-      </div>
-
-      <div style="text-align: center; font-size: 12px; color: #888888; padding: 20px;">
-        © ${new Date().getFullYear()} Mahindra Brand Treasury. All rights reserved.
-      </div>
-
-    </div>
-  </div>
-    `;
+        const html = generateApprovalEmailHTML({
+            approved,
+            documentTitle: document.title,
+            adminPanelLink: `https://www.adbee.in/view-brandtreasury/${id}`,
+        });
 
         await sendEmail({ to: adminEmails, subject, html });
 
