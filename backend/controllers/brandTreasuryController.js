@@ -348,7 +348,7 @@ export const updateApproval = async (req, res) => {
         const html = generateApprovalEmailHTML({
             approved,
             documentTitle: document.title,
-            adminPanelLink: `https://www.adbee.in/view-brandtreasury/${id}`,
+            adminPanelLink: `https://www.adbee.in/view-brandtreasury/${id}`
         });
 
         await sendEmail({ to: adminEmails, subject, html });

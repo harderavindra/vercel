@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { bucket } from "../config/storage.js";
 import Job from "../models/JobModel.js";
 import User from "../models/User.js";
-import { generateJobCreateEmailHTML } from "../constants/emailTemplate.js";
+import { assignedJobEmailHTML, generateJobCreateEmailHTML, statusChangedJobEmailHTML } from "../constants/emailTemplate.js";
 import { sendEmail } from "../utils/emailService.js";
 
 const JOB_STATUS = ["inprogress", "artwork submitted", "publish artwork"];
@@ -10,6 +10,7 @@ const DECISION_STATUS = ["approved", "under review", "review rejected", "artwork
 export const createJob = async (req, res) => {
   try {
     const { title, typeOfArtwork, priority, offerType, zone, state, language, items, offerDetails, otherDetails, attachment, dueDate } = req.body;
+    console.log(dueDate)
 
     const newJob = new Job({
       title,
@@ -29,7 +30,13 @@ export const createJob = async (req, res) => {
     });
 
     await newJob.save();
-    const html = generateJobCreateEmailHTML(newJob, req.user.name);
+
+    const html = generateJobCreateEmailHTML({
+      job: newJob,
+      created: req.user.name,
+      adminPanelLink: `https://www.adbee.in/view-brandtreasury/${newJob._id}`
+
+    });
 
     // Send Email to all (admin, marketing_manager, zonal_marketing_manager) excluding createdByUser
     const otherUsers = await User.find({
@@ -39,7 +46,7 @@ export const createJob = async (req, res) => {
 
     const emails = otherUsers.map(u => u.email).filter(Boolean);
     await sendEmail({ to: emails, subject: `New Job Created: ${newJob.title}`, html });
-    console.log(emails)
+
 
     res.status(201).json({ success: true, job: newJob });
   } catch (error) {
@@ -279,6 +286,7 @@ const generateSignedUrl = async (url) => {
 export const approveJob = async (req, res) => {
 
   try {
+
     const { jobId } = req.params;
     const adminId = req.user._id; // Assuming user is authenticated
 
@@ -298,6 +306,23 @@ export const approveJob = async (req, res) => {
 
 
     await job.save();
+
+    const html = firstJobApprovedEmailHTML({
+      job,
+      created: req.user.name,
+      adminPanelLink: `https://www.adbee.in/view-brandtreasury/${jobId}`
+
+    });
+
+    // Send Email to all (admin, marketing_manager, zonal_marketing_manager) excluding createdByUser
+    const otherUsers = await User.find({
+      role: { $in: ['admin', 'zonal_marketing_manager', 'marketing_manager'] },
+      _id: { $ne: req.user.userId }
+    }).select('email');
+
+    const emails = otherUsers.map(u => u.email).filter(Boolean);
+    await sendEmail({ to: emails, subject: `New Job Created: ${newJob.title}`, html });
+
     res.status(200).json({ message: "Job approved successfully", job });
   } catch (error) {
     console.error("Error approving job:", error);
@@ -337,6 +362,26 @@ export const updateJobStatus = async (req, res) => {
     }
     job.finalStatus = status;
 
+    const html = statusChangedJobEmailHTML({
+        job,
+        statusChangedBy: req.user.name,
+        adminPanelLink: `https://www.adbee.in/artwork/${jobId}`
+
+      });
+      console.log(html)
+
+      // Send Email to all (admin, marketing_manager, zonal_marketing_manager) excluding createdByUser
+      const otherUsers = await User.find({
+        role: { $in: ['admin', 'zonal_marketing_manager', 'marketing_manager'] },
+        _id: { $ne: req.user.userId }
+      }).select('email');
+
+      const emails = otherUsers.map(u => u.email).filter(Boolean);
+      
+      await sendEmail({ to: emails, subject: `Job Status updated of : ${job.title}`, html });
+
+
+
     await job.save();
     res.status(200).json({ message: `Job status updated to ${status}`, job });
 
@@ -362,8 +407,8 @@ export const jobassignedTo = async (req, res) => {
 
   try {
     // Find and update the job with the new assignedTo
-   
-     const job = await Job.findById(jobId);
+
+    const job = await Job.findById(jobId).populate('assignedTo');
 
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
@@ -371,7 +416,7 @@ export const jobassignedTo = async (req, res) => {
 
     // Update the assignedTo field
     job.assignedTo = assignedTo;
-    
+
     const alreadyAssigned = job.decisionHistory.some(
       entry => entry.status === 'Assigned'
     );
@@ -385,6 +430,26 @@ export const jobassignedTo = async (req, res) => {
         date: new Date(), // Set the current date and time
       });
       job.finalStatus = 'Assigned';
+
+      const assignedUser = await User.findById(assignedTo).select('firstName lastName');
+
+
+      const html = assignedJobEmailHTML({
+        job,
+        assigned: {by:req.user.name, to:assignedUser},
+        adminPanelLink: `https://www.adbee.in/artwork/${jobId}`
+
+      });
+
+      // Send Email to all (admin, marketing_manager, zonal_marketing_manager) excluding createdByUser
+      const otherUsers = await User.find({
+        role: { $in: ['admin', 'zonal_marketing_manager', 'marketing_manager'] },
+        _id: { $ne: req.user.userId }
+      }).select('email');
+
+      const emails = otherUsers.map(u => u.email).filter(Boolean);
+      
+      await sendEmail({ to: emails, subject: `New Job Created: ${job.title}`, html });
 
       // Save the updated job document
       await job.save();
