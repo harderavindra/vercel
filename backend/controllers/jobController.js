@@ -44,8 +44,8 @@ export const createJob = async (req, res) => {
       _id: { $ne: req.user.userId },
     }).select('email');
 
-    const createdByUser = await User.findById(job.createdBy).select('email');
-    const assignedToUser = await User.findById(job.assignedTo).select('email');
+    const createdByUser = await User.findById(newJob.createdBy).select('email');
+    const assignedToUser = await User.findById(newJob.assignedTo).select('email');
 
     // Combine emails into a Set, filter undefined/null/empty later
     const emailSet = new Set([
