@@ -488,9 +488,10 @@ export const jobassignedTo = async (req, res) => {
 
     // Convert to Array and remove falsy values
     const emails = Array.from(emailSet).filter(Boolean);
+    console.log(emails,"emails")
 
 
-      await sendEmail({ to: emails, subject: `New Job Created: ${job.title}`, html });
+      await sendEmail({ to: emails, subject: `Artwork Assigned: ${job.title}`, html });
 
       // Save the updated job document
       await job.save();
