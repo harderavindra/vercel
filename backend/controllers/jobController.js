@@ -471,13 +471,24 @@ export const jobassignedTo = async (req, res) => {
 
       });
 
-      // Send Email to all (admin, marketing_manager, zonal_marketing_manager) excluding createdByUser
       const otherUsers = await User.find({
-        role: { $in: ['admin', 'zonal_marketing_manager', 'marketing_manager'] },
-        _id: { $ne: req.user.userId }
-      }).select('email');
+      role: { $in: ['admin', 'marketing_manager'] },
+      _id: { $ne: req.user.userId },
+    }).select('email');
 
-      const emails = otherUsers.map(u => u.email).filter(Boolean);
+    const createdByUser = await User.findById(job.createdBy).select('email');
+    const assignedToUser = await User.findById(job.assignedTo).select('email');
+
+    // Combine emails into a Set, filter undefined/null/empty later
+    const emailSet = new Set([
+      ...otherUsers.map(u => u.email).filter(Boolean),
+      createdByUser?.email,
+      assignedToUser?.email,
+    ]);
+
+    // Convert to Array and remove falsy values
+    const emails = Array.from(emailSet).filter(Boolean);
+
 
       await sendEmail({ to: emails, subject: `New Job Created: ${job.title}`, html });
 
