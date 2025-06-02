@@ -40,11 +40,22 @@ export const createJob = async (req, res) => {
 
     // Send Email to all (admin, marketing_manager, zonal_marketing_manager) excluding createdByUser
     const otherUsers = await User.find({
-      role: { $in: ['admin', 'zonal_marketing_manager', 'marketing_manager'] },
-      _id: { $ne: req.user.userId }
+      role: { $in: ['admin', 'marketing_manager'] },
+      _id: { $ne: req.user.userId },
     }).select('email');
 
-    const emails = otherUsers.map(u => u.email).filter(Boolean);
+    const createdByUser = await User.findById(job.createdBy).select('email');
+    const assignedToUser = await User.findById(job.assignedTo).select('email');
+
+    // Combine emails into a Set, filter undefined/null/empty later
+    const emailSet = new Set([
+      ...otherUsers.map(u => u.email).filter(Boolean),
+      createdByUser?.email,
+      assignedToUser?.email,
+    ]);
+
+    // Convert to Array and remove falsy values
+    const emails = Array.from(emailSet).filter(Boolean);
     await sendEmail({ to: emails, subject: `New Job Created: ${newJob.title}`, html });
 
 
@@ -292,7 +303,6 @@ export const approveJob = async (req, res) => {
 
 
     const job = await Job.findById(jobId);
-    console.log(req.params, job);
 
     if (!job) return res.status(404).json({ error: "Job not found" });
 
@@ -314,13 +324,23 @@ export const approveJob = async (req, res) => {
 
     });
 
-    // Send Email to all (admin, marketing_manager, zonal_marketing_manager) excluding createdByUser
     const otherUsers = await User.find({
-      role: { $in: ['admin', 'zonal_marketing_manager', 'marketing_manager'] },
-      _id: { $ne: req.user.userId }
+      role: { $in: ['admin', 'marketing_manager'] },
+      _id: { $ne: req.user.userId },
     }).select('email');
 
-    const emails = otherUsers.map(u => u.email).filter(Boolean);
+    const createdByUser = await User.findById(job.createdBy).select('email');
+    const assignedToUser = await User.findById(job.assignedTo).select('email');
+
+    // Combine emails into a Set, filter undefined/null/empty later
+    const emailSet = new Set([
+      ...otherUsers.map(u => u.email).filter(Boolean),
+      createdByUser?.email,
+      assignedToUser?.email,
+    ]);
+
+    // Convert to Array and remove falsy values
+    const emails = Array.from(emailSet).filter(Boolean);
     await sendEmail({ to: emails, subject: `New Job Created: ${newJob.title}`, html });
 
     res.status(200).json({ message: "Job approved successfully", job });
@@ -363,22 +383,32 @@ export const updateJobStatus = async (req, res) => {
     job.finalStatus = status;
 
     const html = statusChangedJobEmailHTML({
-        job,
-        statusChangedBy: req.user.name,
-        adminPanelLink: `https://www.adbee.in/artwork/${jobId}`
+      job,
+      statusChangedBy: req.user.name,
+      adminPanelLink: `https://www.adbee.in/artwork/${jobId}`
 
-      });
-      console.log(html)
+    });
 
-      // Send Email to all (admin, marketing_manager, zonal_marketing_manager) excluding createdByUser
-      const otherUsers = await User.find({
-        role: { $in: ['admin', 'zonal_marketing_manager', 'marketing_manager'] },
-        _id: { $ne: req.user.userId }
-      }).select('email');
+    const otherUsers = await User.find({
+      role: { $in: ['admin', 'marketing_manager'] },
+      _id: { $ne: req.user.userId },
+    }).select('email');
 
-      const emails = otherUsers.map(u => u.email).filter(Boolean);
-      
-      await sendEmail({ to: emails, subject: `Job Status updated of : ${job.title}`, html });
+    const createdByUser = await User.findById(job.createdBy).select('email');
+    const assignedToUser = await User.findById(job.assignedTo).select('email');
+
+    // Combine emails into a Set, filter undefined/null/empty later
+    const emailSet = new Set([
+      ...otherUsers.map(u => u.email).filter(Boolean),
+      createdByUser?.email,
+      assignedToUser?.email,
+    ]);
+
+    // Convert to Array and remove falsy values
+    const emails = Array.from(emailSet).filter(Boolean);
+
+
+    await sendEmail({ to: emails, subject: `Job Status updated of : ${job.title}`, html });
 
 
 
@@ -436,7 +466,7 @@ export const jobassignedTo = async (req, res) => {
 
       const html = assignedJobEmailHTML({
         job,
-        assigned: {by:req.user.name, to:assignedUser},
+        assigned: { by: req.user.name, to: assignedUser },
         adminPanelLink: `https://www.adbee.in/artwork/${jobId}`
 
       });
@@ -448,7 +478,7 @@ export const jobassignedTo = async (req, res) => {
       }).select('email');
 
       const emails = otherUsers.map(u => u.email).filter(Boolean);
-      
+
       await sendEmail({ to: emails, subject: `New Job Created: ${job.title}`, html });
 
       // Save the updated job document
