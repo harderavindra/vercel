@@ -15,6 +15,27 @@ const bottomContent = `
 </div>
 `;
 
+export const createdBrandEmailHTML = ({  newBrandTreasury, adminPanelLink }) => {
+  return `
+  ${topContent}
+    <div style="padding: 20px;">
+      <h2 style="color: #333333;">Approval Status Updated</h2>
+      <p style="color: #555555;">Dear Admin,</p>
+      <p>
+        New Brand Document created successfully - <strong>${newBrandTreasury.title}</strong> by a ${createdByUser.email}.
+      </p>
+      <p>
+        Please log in to your admin panel to view the changes and take any necessary action.
+      </p>
+      <div style="text-align: center; margin-top: 25px;">
+        <a href="${adminPanelLink}" style="background-color: #d1001c; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+          View in Admin Panel
+        </a>
+      </div>
+    </div>
+  ${bottomContent}
+  `;
+};
 export const generateApprovalEmailHTML = ({ approved, documentTitle, adminPanelLink }) => {
   return `
   ${topContent}

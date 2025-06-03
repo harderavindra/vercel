@@ -56,7 +56,7 @@ export const createJob = async (req, res) => {
 
     // Convert to Array and remove falsy values
     const emails = Array.from(emailSet).filter(Boolean);
-    await sendEmail({ to: emails, subject: `New Job Created: ${newJob.title}`, html });
+    await sendEmail({ to: emails, subject: `New Artwork Created: ${newJob.title}`, html });
 
 
     res.status(201).json({ success: true, job: newJob });
@@ -341,9 +341,9 @@ export const approveJob = async (req, res) => {
 
     // Convert to Array and remove falsy values
     const emails = Array.from(emailSet).filter(Boolean);
-    await sendEmail({ to: emails, subject: `New Job Created: ${newJob.title}`, html });
+    await sendEmail({ to: emails, subject: `New Artwork Created: ${newJob.title}`, html });
 
-    res.status(200).json({ message: "Job approved successfully", job });
+    res.status(200).json({ message: "Artwork approved successfully", job });
   } catch (error) {
     console.error("Error approving job:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -408,12 +408,12 @@ export const updateJobStatus = async (req, res) => {
     const emails = Array.from(emailSet).filter(Boolean);
 
 
-    await sendEmail({ to: emails, subject: `Job Status updated of : ${job.title}`, html });
+    await sendEmail({ to: emails, subject: `Artwork Status updated of : ${job.title}`, html });
 
 
 
     await job.save();
-    res.status(200).json({ message: `Job status updated to ${status}`, job });
+    res.status(200).json({ message: `Artwork status updated to ${status}`, job });
 
   } catch (error) {
     console.error("Error updating job status:", error);
@@ -441,7 +441,7 @@ export const jobassignedTo = async (req, res) => {
     const job = await Job.findById(jobId).populate('assignedTo');
 
     if (!job) {
-      return res.status(404).json({ message: "Job not found" });
+      return res.status(404).json({ message: "Artwork not found" });
     }
 
     // Update the assignedTo field
@@ -488,7 +488,6 @@ export const jobassignedTo = async (req, res) => {
 
     // Convert to Array and remove falsy values
     const emails = Array.from(emailSet).filter(Boolean);
-    console.log(emails,"emails")
 
 
       await sendEmail({ to: emails, subject: `Artwork Assigned: ${job.title}`, html });
