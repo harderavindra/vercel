@@ -57,9 +57,8 @@ const UserDetails = () => {
         status: false,
     });
     const [updatedFields, setUpdatedFields] = useState({});
-
-    useEffect(() => {
-        const getUserDetails = async () => {
+ const getUserDetails = async () => {
+    console.log("uploaded refresh")
             try {
                 const data = await fetchUserById(id);
                 setViewUser(data);
@@ -71,6 +70,8 @@ const UserDetails = () => {
 
             }
         };
+    useEffect(() => {
+       
 
         getUserDetails();
     }, [id]);
@@ -124,7 +125,7 @@ const UserDetails = () => {
 
     return (
         <div className='flex flex-col sm:flex-row gap-20 p-4 sm:p-10'>
-            <UserProfileCard user={viewUser} />
+            <UserProfileCard user={viewUser}  refreshUser={getUserDetails}  />
             <div className='flex flex-col min-h-full w-full bg-white'>
                 <div className='fle gap-4 bg-gray-50 rounded-lg items-start justify-start'>
                     <div className=' bg-white rounded-t-md w-fit border border-blue-300/70 overflow-hidden  ' style={{ boxShadow: "inset 0px -6px 5px 0px rgba(0, 0, 0, 0.13)" }}>

@@ -161,7 +161,7 @@ export const getUserProfile = async (req, res) => {
             return res.status(401).json({ message: 'Unauthorized: No user found in request' });
         }
 
-        const user = await User.findById(req.user.userId);
+        const user = await User.findById(req.user.userId).select('-password');
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -184,10 +184,10 @@ export const getUserProfile = async (req, res) => {
 
                 // Update the user's profilePic field with the signed URL
                 user.profilePic = signedUrl;
-            } catch (err) {
+              } catch (err) {
                 console.error(`Error generating signed URL for user ${user._id}:`, err);
+              }
             }
-        }
 
         // Check if the user has a profile picture URL stored
        
@@ -224,7 +224,7 @@ export const logout = async (req, res) => {
 
 export const getUserById = async (req, res) => {
     try {
-      const user = await User.findById(req.params.id);
+      const user = await User.findById(req.params.id).select('-password');
       if (!user) return res.status(404).json({ message: "User not found" });
       if (user.profilePic) {
         try {
@@ -270,7 +270,7 @@ export const deleteUser = async (req, res) => {
   
     try {
       const userId = req.params.id;
-      const { firstName, lastName, contactNumber, userType, designation, role, status, location } = req.body;
+      const { firstName, lastName, contactNumber, userType, designation, role, status, location,profilePic } = req.body;
   
       const updateData = {};
       if (firstName) updateData.firstName = firstName;
@@ -311,6 +311,11 @@ export const deleteUser = async (req, res) => {
         if (location.state) updateData.location.state = location.state;
         if (location.country) updateData.location.country = location.country;
       }
+
+       if (profilePic) {
+      updateData.profilePic = profilePic;
+    }
+
   
       updateData.lastUpdatedAt = new Date();
   
@@ -436,3 +441,55 @@ export const deleteUser = async (req, res) => {
       return res.status(500).json({ message: 'Internal server error' });
     }
   };
+
+export const deleteProfilePic = async (req, res) => {
+  try {
+    const {  currentProfilePic } = req.body;
+      const userId = req.user.userId; // Admin ID from token
+      console.log(currentProfilePic) 
+
+    if (!userId || !currentProfilePic) {
+      return res.status(400).json({
+        success: false,
+        message: "userId and profilePic are required",
+      });
+    }
+
+    // Decode and strip the profilePic URL
+    const decodedUrl = decodeURIComponent(currentProfilePic);
+    const baseUrl = "https://storage.googleapis.com/mahindra_adbee_strg/";
+    const filePath = decodedUrl.replace(baseUrl, "").split("?")[0];
+
+    // Attempt to delete from GCS
+    const file = bucket.file(filePath);
+    await file.delete().catch((err) => {
+      console.warn(`Error deleting file from GCS: ${filePath}`, err.message);
+    });
+
+    // Update user profilePic field to empty string
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profilePic: "" },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Profile picture deleted successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error deleting user profile pic:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};

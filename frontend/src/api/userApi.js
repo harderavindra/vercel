@@ -95,3 +95,22 @@ export const uploadProfilePic = async (userId, file, onUploadProgress) => {
     }
 
 };
+
+export const deleteProfilePic = async (currentProfilePic) => {
+  try {
+   const response = await axios.post(
+      `${API_baseURL}/deleteProfilePic`,
+      { currentProfilePic }, // This is the request body
+      {
+        withCredentials: true, // This must go in the config
+      }
+    );  
+    return response.data; // Expected format: { success: true, message: "Profile picture deleted" }
+  } catch (error) {
+    console.error("Delete Error:", error);
+    return {
+      success: false,
+      message: error.response?.data?.message || "Delete failed",
+    };
+  }
+}; 

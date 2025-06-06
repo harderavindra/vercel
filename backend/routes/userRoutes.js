@@ -1,5 +1,5 @@
 import express from "express";
-import { authenticate, deleteUser, forgotPassword, getAllusers, getUserById, getUserProfile, login, logout, registerUser, resetPassword, resetUserPassword, updateUser } from "../controllers/userController.js";
+import { authenticate, deleteProfilePic, deleteUser, forgotPassword, getAllusers, getUserById, getUserProfile, login, logout, registerUser, resetPassword, resetUserPassword, updateUser } from "../controllers/userController.js";
 
 const router = express.Router();
 
@@ -10,6 +10,7 @@ router.post("/", authenticate, registerUser);
 router.post("/login", login);                           // 1. Specific: Login
 router.post("/logout", logout);                         // 2. Specific: Logout
 router.get("/profile", authenticate, getUserProfile);    // 3. Specific: Profile
+router.post("/deleteProfilePic", authenticate, deleteProfilePic);    // 3. Specific: Profile
 router.get("/", authenticate, getAllusers);                           // 4. Generic: Get All Users
 
 router.get("/:id", getUserById);                         // 5. Generic: Get User by ID

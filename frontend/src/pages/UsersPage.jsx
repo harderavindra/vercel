@@ -20,7 +20,7 @@ const UsersPage = () => {
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   const [searchLoading, setSearchLoading] = useState(false);
   const navigate = useNavigate()
-  const { users, loading, error, success, pagination } = useFetchUsers(page, 4, role, designation, debouncedSearch);
+  const { users, loading, error, success, pagination } = useFetchUsers(page, 12, role, designation, debouncedSearch);
 
   const location = useLocation();
   const successMessage = location.state?.success;

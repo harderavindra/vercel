@@ -24,7 +24,7 @@ const UserList = () => {
 
     return (
         <div className="p-4 bg-white shadow-md rounded-lg">
-            <h2 className="text-xl font-bold mb-2">User List2</h2>
+            <h2 className="text-xl font-bold mb-2">User List</h2>
             {users.length === 0 ? (
                 <p className="text-red-500">No users found.</p>
             ) : (
