@@ -34,14 +34,14 @@ console.log("Stored hashed isMatch:", isMatch);
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }); // Token expires in 1 hour
 
-    // Set JWT token in a cookie
-    res.cookie('authToken', token, {
-        httpOnly: true,  // Prevents JavaScript access
-        secure: process.env.NODE_ENV === 'production',  // Only send over HTTPS in production
-        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-        maxAge: 60 * 60 * 1000, // 1 hour
-        path: '/',
-    });
+      // Set JWT token in a cookie
+      res.cookie('authToken', token, {
+          httpOnly: true,  // Prevents JavaScript access
+          secure:true,  // Only send over HTTPS in production
+          sameSite:'None',
+          maxAge: 60 * 60 * 1000, // 1 hour
+          path: '/',
+      });
 
     res.status(200).json({ message: 'Logged in successfully' });
 };
@@ -50,7 +50,6 @@ export const getAllusers = async (req, res) => {
     
   try {
     const { page = 1, limit = 10, role, designation, search } = req.query;
-    console.log('page', page)
 
     let filter = {};
 
