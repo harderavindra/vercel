@@ -37,8 +37,8 @@ console.log("Stored hashed isMatch:", isMatch);
       // Set JWT token in a cookie
       res.cookie('authToken', token, {
           httpOnly: true,  // Prevents JavaScript access
-          secure:true,  // Only send over HTTPS in production
-          sameSite:'None',
+          secure: process.env.NODE_ENV === 'production',  // Only send over HTTPS in production
+          sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
           maxAge: 60 * 60 * 1000, // 1 hour
           path: '/',
       });
