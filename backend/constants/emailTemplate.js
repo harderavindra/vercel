@@ -163,7 +163,7 @@ export const statusChangedJobEmailHTML = ({job, statusChangedBy, adminPanelLink}
   return `
   ${topContent}
     <div style="padding: 20px;">
-      <h2 style="color: #333333;">Artwork Assigned</h2>
+      <h2 style="color: #333333;">Artwork Status</h2>
       <p style="color: #555555;">A Artwork's status has been updatedto . Here are the details:</p>
 
       <ul style="color: #555555;">
