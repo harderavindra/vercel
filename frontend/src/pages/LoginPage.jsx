@@ -51,7 +51,11 @@ const LoginPage = () => {
       setSuccess("Login successful! Redirecting...");
      navigate("/")
     } catch (error) {
-      setError("Invalid email or password. Please try again.");
+      console.error(err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.',
+    });
     } finally {
       setIsSubmitting(false);
       setLoading(false)
