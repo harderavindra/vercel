@@ -407,7 +407,7 @@ const JobViewPage = () => {
                                                 <p>by: {history?.updatedBy?.firstName} {history?.updatedBy?.lastName}</p>
                                                 <p className=" text-gray-600 text-base/tight mb-2 ">{history.comment}</p>
                                                 {history.attachmentSignedUrl && (
-                                                    (!isZonal || history._id === showAttachmentForId) && (
+                                                    (isZonal || history._id === showAttachmentForId) && (
                                                         <a
                                                             href={history.attachmentSignedUrl}
                                                             target="_blank"

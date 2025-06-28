@@ -49,13 +49,13 @@ const LoginPage = () => {
       await login(email, password);
 
       setSuccess("Login successful! Redirecting...");
-     navigate("/")
+      navigate("/")
     } catch (error) {
-      console.error(err);
-    res.status(500).json({
-      success: false,
-      message: 'Server error. Please try again later.',
-    });
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error. Please try again later.',
+      });
     } finally {
       setIsSubmitting(false);
       setLoading(false)
@@ -68,9 +68,9 @@ const LoginPage = () => {
       <div className="w-full max-w-md bg-white rounded-lg p-6 flex flex-col shadow-lg ring-1  shadow-gray-200/50  ring-gray-200/70 ring-offset-0">
 
         <span className="flex flex-col gap-0  items-center font-semibold font-base/2 py-0 justify-center text-red-500 uppercase text-4xl mb-5">
-        <img src={LogoImage} className="h-20" alt="Description" />
-        <img src={LogoImagePro} className="h-6 w-46 bg-cover" alt="Description" />
-         </span>
+          <img src={LogoImage} className="h-20" alt="Description" />
+          <img src={LogoImagePro} className="h-6 w-46 bg-cover" alt="Description" />
+        </span>
 
         <form onSubmit={handleSubmit} autoComplete="on">
           <InputText
