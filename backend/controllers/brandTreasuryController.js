@@ -4,7 +4,7 @@ import StarredDocument from "../models/StarredDocument.js";
 import { bucket } from "../config/storage.js";
 import { sendEmail } from '../utils/emailService.js';
 import User from "../models/User.js";
-import { generateApprovalEmailHTML } from '../constants/emailTemplate.js'
+import { createdBrandEmailHTML, generateApprovalEmailHTML } from '../constants/emailTemplate.js'
 export const uploaderBrandTreasury = async (req, res) => {
     try {
         const data = req.body;
@@ -25,8 +25,7 @@ export const uploaderBrandTreasury = async (req, res) => {
 export const createBrandTreasury = async (req, res) => {
     try {
         const { title, documentType, contentType, language, product, brand, model, comment, attachment } = req.body;
-        
-        console.log('test')
+
         const newBrandTreasury = new BrandTreasury({
             title,
             documentType,
@@ -43,29 +42,29 @@ export const createBrandTreasury = async (req, res) => {
         });
 
         const createdByUser = await User.findById(newBrandTreasury.createdBy).select('email');
-        // const html = createdBrandEmailHTML({
-        //     newBrandTreasury,
-        //     createdByUser,
-        //     adminPanelLink: `https://www.adbee.in/view-brandtreasury/${newBrandTreasury._id}`
+        const html = createdBrandEmailHTML({
+            newBrandTreasury,
+            createdByUser,
+            adminPanelLink: `https://www.adbee.in/view-brandtreasury/${newBrandTreasury._id}`
 
-        // });
-        // const otherUsers = await User.find({
-        //     role: { $in: ['admin', 'marketing_manager'] },
-        //     _id: { $ne: req.user.userId },
-        // }).select('email');
-
-
-        // // Combine emails into a Set, filter undefined/null/empty later
-        // const emailSet = new Set([
-        //     ...otherUsers.map(u => u.email).filter(Boolean),
-        //     createdByUser?.email
-        // ]);
-
-        // // Convert to Array and remove falsy values
-        // const emails = Array.from(emailSet).filter(Boolean);
+        });
+        const otherUsers = await User.find({
+            role: { $in: ['admin', 'marketing_manager'] },
+            _id: { $ne: req.user.userId },
+        }).select('email');
 
 
-        // await sendEmail({ to: emails, subject: `New Brand Document created successfully : ${newBrandTreasury.title}`, html });
+        // Combine emails into a Set, filter undefined/null/empty later
+        const emailSet = new Set([
+            ...otherUsers.map(u => u.email).filter(Boolean),
+            createdByUser?.email
+        ]);
+
+        // Convert to Array and remove falsy values
+        const emails = Array.from(emailSet).filter(Boolean);
+
+
+        await sendEmail({ to: emails, subject: `New Brand Document created successfully : ${newBrandTreasury.title}`, html });
 
         await newBrandTreasury.save();
         res.status(201).json({ success: true, brandTreasury: newBrandTreasury });
