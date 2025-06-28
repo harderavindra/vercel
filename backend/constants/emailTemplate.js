@@ -19,10 +19,10 @@ export const createdBrandEmailHTML = ({  newBrandTreasury,createdByUser, adminPa
   return `
   ${topContent}
     <div style="padding: 20px;">
-      <h2 style="color: #333333;">Approval Status Updated</h2>
+      <h2 style="color: #333333;">New Brand Document created successfully</h2>
       <p style="color: #555555;">Dear Admin,</p>
       <p>
-        New Brand Document created successfully - <strong>${newBrandTreasury.title}</strong> by a ${createdByUser.email}.
+         <strong>${newBrandTreasury.title}</strong> by a ${createdByUser.email}.
       </p>
       <p>
         Please log in to your admin panel to view the changes and take any necessary action.
