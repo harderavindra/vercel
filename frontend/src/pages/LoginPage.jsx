@@ -52,10 +52,8 @@ const LoginPage = () => {
       navigate("/")
     } catch (error) {
       console.error(error);
-      res.status(500).json({
-        success: false,
-        message: 'Server error. Please try again later.',
-      });
+          setError("Server error. Please try again later.");
+
     } finally {
       setIsSubmitting(false);
       setLoading(false)

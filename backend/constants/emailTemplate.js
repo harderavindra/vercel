@@ -15,7 +15,7 @@ const bottomContent = `
 </div>
 `;
 
-export const createdBrandEmailHTML = ({  newBrandTreasury, adminPanelLink }) => {
+export const createdBrandEmailHTML = ({  newBrandTreasury,createdByUser, adminPanelLink }) => {
   return `
   ${topContent}
     <div style="padding: 20px;">

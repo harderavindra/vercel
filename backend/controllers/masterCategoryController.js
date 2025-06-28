@@ -100,7 +100,6 @@ export const createModelCategory = async (req, res) => {
 };
 
 export const getModelCategoriesByBrand = async (req, res) => {
-  console.log('Model Controllers')
   try {
     const { brandId } = req.params;
     const modelCategories = await ModelCategory.find({ brand: brandId });
