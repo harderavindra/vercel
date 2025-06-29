@@ -135,6 +135,7 @@ const JobViewPage = () => {
                     (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
                 );
                 setMergedHistory(combinedHistory);
+                console.log(combinedHistory)
             } catch (err) {
                 console.error("Error fetching job:", err);
                 setError(err.response?.data?.message || "Failed to fetch job details");
@@ -375,6 +376,7 @@ const JobViewPage = () => {
                         <div className=" bg-gray-50 w-full h-full ">
                             <h2 className="px-4 py-2 border-b border-gray-300 text-xl font-bold">History</h2>
                             {mergedHistory.length > 0 ? (
+                                
                                 mergedHistory.map((history) => (
                                     <div key={history._id} className="border-b px-8 py-4 border-gray-300 flex flex-col gap-2">
                                         <div className="flex items-center justify-between ">
@@ -407,7 +409,7 @@ const JobViewPage = () => {
                                                 <p>by: {history?.updatedBy?.firstName} {history?.updatedBy?.lastName}</p>
                                                 <p className=" text-gray-600 text-base/tight mb-2 ">{history.comment}</p>
                                                 {history.attachmentSignedUrl && (
-                                                    (!isZonal || history._id === showAttachmentForId) && (
+    (!isZonal || history._id === showAttachmentForId || mergedHistory.some(h => h.status.toLowerCase() === "ho approved")) && (
                                                         <a
                                                             href={history.attachmentSignedUrl}
                                                             target="_blank"

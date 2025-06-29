@@ -4,7 +4,7 @@ import StarredDocument from "../models/StarredDocument.js";
 import { bucket } from "../config/storage.js";
 import { sendEmail } from '../utils/emailService.js';
 import User from "../models/User.js";
-import { createdBrandEmailHTML, generateApprovalEmailHTML } from '../constants/emailTemplate.js'
+import { generateApprovalEmailHTML } from '../constants/emailTemplate.js'
 export const uploaderBrandTreasury = async (req, res) => {
     try {
         const data = req.body;
