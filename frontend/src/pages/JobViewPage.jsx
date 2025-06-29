@@ -38,7 +38,7 @@ const getStatusColor = (status) => {
         "artwork submitted": "info",
         "ho approved": "success",
         "review rejected": "error",
-        "publish artwork": "info", 
+        "publish artwork": "info",
 
     };
     return statusMap[status?.toLowerCase()] || "default";
@@ -156,7 +156,6 @@ const JobViewPage = () => {
             await axios.delete(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/jobs/${jobId}`, { withCredentials: true });
 
 
-            setSuccess("Job deleted successfully!");
             navigate("/artworks", { state: { successMessage: "Job deleted successfully!" } }); // Redirect after deletion
         } catch (error) {
             console.error("Error deleting job:", error.response?.data);
@@ -376,7 +375,7 @@ const JobViewPage = () => {
                         <div className=" bg-gray-50 w-full h-full ">
                             <h2 className="px-4 py-2 border-b border-gray-300 text-xl font-bold">History</h2>
                             {mergedHistory.length > 0 ? (
-                                
+
                                 mergedHistory.map((history) => (
                                     <div key={history._id} className="border-b px-8 py-4 border-gray-300 flex flex-col gap-2">
                                         <div className="flex items-center justify-between ">
@@ -409,7 +408,7 @@ const JobViewPage = () => {
                                                 <p>by: {history?.updatedBy?.firstName} {history?.updatedBy?.lastName}</p>
                                                 <p className=" text-gray-600 text-base/tight mb-2 ">{history.comment}</p>
                                                 {history.attachmentSignedUrl && (
-    (!isZonal || history._id === showAttachmentForId || mergedHistory.some(h => h.status.toLowerCase() === "ho approved")) && (
+                                                    (!isZonal || history._id === showAttachmentForId || mergedHistory.some(h => h.status.toLowerCase() === "ho approved")) && (
                                                         <a
                                                             href={history.attachmentSignedUrl}
                                                             target="_blank"
