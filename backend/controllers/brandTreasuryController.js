@@ -194,11 +194,18 @@ export const getBrandTreasuries = async (req, res) => {
         let { page = 1, limit = 10, documentType, starred, myDocuments, brandType, search, languages, selectedFileType } = req.query;
         const userId = req.user.userId;
         const userRole = req.user.role;
-        console.log(req.query, "brandType")
         let filter = {};
+
         if (userRole !== "marketing_manager") {
-            filter.contentType = "print";
-            filter.approved = true;
+            filter.$or = [
+                {
+                    contentType: "print",
+                    approved: true
+                },
+                {
+                    createdBy: userId // allow access to user's own documents
+                }
+            ];
         }
 
         if (selectedFileType) {
