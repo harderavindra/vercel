@@ -195,18 +195,18 @@ export const getBrandTreasuries = async (req, res) => {
         const userId = req.user.userId;
         const userRole = req.user.role;
         let filter = {};
-
-        if (userRole !== "marketing_manager") {
-            filter.$or = [
-                {
-                    contentType: "print",
-                    approved: true
-                },
-                {
-                    createdBy: userId // allow access to user's own documents
-                }
-            ];
+        // Allow full access only to 'marketing_manager' and 'agency'
+if (!["marketing_manager", "agency"].includes(userRole)) {
+    filter.$or = [
+        {
+            contentType: "print",
+            approved: true
+        },
+        {
+            createdBy: userId // allow access to user's own documents
         }
+    ];
+}
 
         if (selectedFileType) {
             switch (selectedFileType) {
