@@ -97,14 +97,14 @@ const CampaignCreatePage = () => {
   return (
     <div className="p-5 sm:p-10">
       <div className="flex justify-between items-center pb-4">
-        <PageTitle>Create Artwork Request</PageTitle>
+        <PageTitle>Create Campaign</PageTitle>
 
         <StatusMessageWrapper loading={loading} success={success} error={
           error || Object.keys(errors).length > 0
             ? "Please fill all required fields"
             : ''
         } />
-        <Button variant="outline" width="auto" onClick={() => navigate('/artworks')}>Back</Button>
+        <Button variant="outline" width="auto" onClick={() => navigate('/campaigns')}>Back</Button>
       </div>
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-12 justify-between">
         <div className="flex flex-col gap-3 bg-white border border-blue-300/60 rounded-lg p-10  w-full">

@@ -272,11 +272,13 @@ export const assignCampaign = async (req, res) => {
 
 export const deleteCampaign = async (req, res) => {
   try {
-    const campaign = await campaign.findByIdAndDelete(req.params.id);
-    if (!campaign) {
-      return res.status(404).json({ success: false, message: "campaign not found" });
+    const deletedCampaign = await Campaign.findByIdAndDelete(req.params.id);
+
+    if (!deletedCampaign) {
+      return res.status(404).json({ success: false, message: "Campaign not found" });
     }
-    res.status(200).json({ success: true, message: "campaign deleted" });
+
+    res.status(200).json({ success: true, message: "Campaign deleted" });
   } catch (error) {
     console.error("Error deleting campaign:", error);
     res.status(500).json({ success: false, message: error.message });

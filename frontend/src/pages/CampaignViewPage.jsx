@@ -92,8 +92,17 @@ const CampaignViewPage = () => {
             }
         };
         fetchCampaign();
-    }, [id]);
-
+    }, [id,statusUpdated]);
+const handleStatusUpdate = (data) => {
+        if (data.error) {
+            setError(`Error: ${data.error}`);
+            setSuccess(""); // Clear success message
+        } else {
+            setSuccess(`Status updated successfully: ${data.status || ""}`);
+            setError(""); // Clear error
+        }
+        setStatusUpdated((prev) => !prev); // Ensure state updates correctly
+    };
      const handleDelete = async (campaignId) => {
             if (!window.confirm("Are you sure you want to delete this Campaign?")) return;
     
@@ -250,7 +259,7 @@ const CampaignViewPage = () => {
                                 Delete Campaign
                             </Button>
                         )}
-                        <Button type="button" variant="outline" onClick={() => navigate('/campaigns')}>Back to Campaign</Button>
+                        <Button type="button" variant="outline" onClick={() => navigate('/campaigns')}>Back to Campaigns</Button>
                     </div>
                 </div>
 
@@ -258,7 +267,7 @@ const CampaignViewPage = () => {
                     <div className='flex  justify-between p-0 h-full '>
                         <div className=" sm:w-[70%] p-6">
 
-                            <CampaignStatusUpdater campaignId={campaign._id} currentStatus={campaign.finalStatus} />
+                            <CampaignStatusUpdater campaignId={campaign._id} currentStatus={campaign.finalStatus} onUpdate={handleStatusUpdate}  />
                             <div>
                                 {campaign?.designAssignedTo ? (
                                     <div className="assigne-to-seaction">
@@ -378,14 +387,6 @@ const CampaignViewPage = () => {
                 </div>
             </div>
 
-            <div className="mt-6">
-                <button
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    onClick={() => navigate("/campaigns")}
-                >
-                    Back to Campaigns
-                </button>
-            </div>
         </div>
     );
 };

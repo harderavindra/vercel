@@ -57,7 +57,8 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
   })();
 
   useEffect(() => {
-    if (normalizedStatus === "created") {
+    console.log(normalizedStatus)
+    if (normalizedStatus === "created" || normalizedStatus === "pending") {
       if (["marketing_manager", "admin"].includes(role)) {
         setMessage("You may approve or reject the campaign.");
       } else {
@@ -69,8 +70,8 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
       } else {
         setMessage("Campaign is approved and awaiting assignment.");
       }
-    } else if (normalizedStatus === "assigned") {
-      if (["agency", "designer"].includes(role)) {
+    } else if (normalizedStatus === "design-assignedto") {
+      if (["marketing_manager", "agency", "designer"].includes(role)) {
         setMessage("Campaign assigned to you. You may now submit your work.");
       } else {
         setMessage("Campaign has been assigned.");
@@ -83,7 +84,10 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
       }
     } else if (normalizedStatus === "rejected") {
       setMessage("Campaign was rejected. Please review comments.");
-    } else {
+    }else if (normalizedStatus === "designapproved") {
+      setMessage("Campaign design was Approved. Please review comments.");
+    }  
+    else {
       setMessage("No available actions for your role at the current status.");
     }
   }, [normalizedStatus, role, assignedTo]);

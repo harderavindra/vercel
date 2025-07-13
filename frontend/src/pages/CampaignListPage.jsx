@@ -57,7 +57,7 @@ const CampaignListPage = () => {
                           loading={loading}
                           error={error}
                       />
-                      <Button width="auto" type="button" onClick={() => navigate('/create-campaign')} >Back</Button>
+                      <Button width="auto" type="button" onClick={() => navigate('/create-campaign')} >Create Campaign</Button>
                   </div>
 
       <div className="mb-4">
