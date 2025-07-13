@@ -12,46 +12,49 @@ import StatusMessageWrapper from "../components/common/StatusMessageWrapper";
 import Button from "../components/common/Button";
 import CampaignStatusUpdater from "../components/common/CampaignStatusUpdater";
 import AssignToDropdown from "../components/common/AssignToDropdown";
+import { useAuth } from "../context/auth-context";
 
 const getStatusColor = (status) => {
-  const statusMap = {
-    created: "success",
-    approved: "success",
-    hold: "warning",
-    "underreview": "warning",
-    "reviewrejected": "error",
-    designassigned: "info",
-    designapproved: "success",
-    designrejected: "error",
-    publishassigned: "info",
-    publishapproved: "success",
-    publishrejected: "error",
-    completed: "success",
-    "design-assignedto": "success", // ✅ corrected
-    "publish-assignedto": "success", // ✅ corrected
-  };
+    const statusMap = {
+        created: "success",
+        approved: "success",
+        hold: "warning",
+        "underreview": "warning",
+        "reviewrejected": "error",
+        designassigned: "info",
+        designapproved: "success",
+        designrejected: "error",
+        publishassigned: "info",
+        publishapproved: "success",
+        publishrejected: "error",
+        completed: "success",
+        "design-assignedto": "success", // ✅ corrected
+        "publish-assignedto": "success", // ✅ corrected
+    };
 
-  return statusMap[status?.toLowerCase()] || "default";
+    return statusMap[status?.toLowerCase()] || "default";
 };
 
 const statusIcons = {
-  created: "clock",
-  approved: "check",
-  hold: "eye",
-  "underreview": "eye",
-  "reviewrejected": "reject",
-  designassigned: "user",
-  designapproved: "done",
-  designrejected: "reject",
-  publishassigned: "rocket",
-  publishapproved: "check",
-  publishrejected: "reject",
-  completed: "star",
-  "design-assignedto": "star", // ✅ corrected
-  "publish-assignedto": "star", // ✅ corrected
+    created: "clock",
+    approved: "check",
+    hold: "eye",
+    "underreview": "eye",
+    "reviewrejected": "reject",
+    designassigned: "user",
+    designapproved: "done",
+    designrejected: "reject",
+    publishassigned: "rocket",
+    publishapproved: "check",
+    publishrejected: "reject",
+    completed: "star",
+    "design-assignedto": "star", // ✅ corrected
+    "publish-assignedto": "star", // ✅ corrected
 };
 const CampaignViewPage = () => {
     const { id } = useParams();
+        const { user } = useAuth();
+    
     const navigate = useNavigate();
     const [campaign, setCampaign] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -91,7 +94,19 @@ const CampaignViewPage = () => {
         fetchCampaign();
     }, [id]);
 
-
+     const handleDelete = async (campaignId) => {
+            if (!window.confirm("Are you sure you want to delete this Campaign?")) return;
+    
+            try {
+                await axios.delete(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/campaigns/${campaignId}`, { withCredentials: true });
+    
+    
+                navigate("/campaigns", { state: { successMessage: "Campaign deleted successfully!" } }); // Redirect after deletion
+            } catch (error) {
+                console.error("Error deleting Campaign:", error.response?.data);
+                setError("Error deleting Campaign: " + (error.response?.data?.message || error.message));
+            }
+        };
 
     const getMimeTypeFromUrl = (url) => {
         if (!url) return "application/octet-stream";
@@ -148,7 +163,7 @@ const CampaignViewPage = () => {
                     loading={loading}
                     error={error}
                 />
-                <Button width="auto" type="button" onClick={() => navigate('/artworks')} >Back</Button>
+                <Button width="auto" type="button" onClick={() => navigate('/campaigns')} >Back</Button>
             </div>
             <div className="flex   justify-start ">
                 <div className="hidden sm:flex  flex-wrap-reverse  flex-row-reverse gap-2 flex-wrap justify-end mb-5">
@@ -229,6 +244,14 @@ const CampaignViewPage = () => {
                             </a>
                         </div>
                     )}
+                    <div className="flex flex-col sm:flex-row  gap-5">
+                        {['admin', 'marketing_manager'].includes(user?.role) && (
+                            <Button type="button" onClick={() => handleDelete(campaign?._id)}>
+                                Delete Campaign
+                            </Button>
+                        )}
+                        <Button type="button" variant="outline" onClick={() => navigate('/campaigns')}>Back to Campaign</Button>
+                    </div>
                 </div>
 
                 <div className=' bg-white border border-blue-300/60 rounded-lg  w-full shadow-md overflow-hidden '>
@@ -282,73 +305,73 @@ const CampaignViewPage = () => {
                         <div className=" bg-gray-50 w-full h-full ">
                             <h2 className="px-4 py-2 border-b border-gray-300 text-xl font-bold">History</h2>
                             <div className="">
-  {[...(campaign.statusHistory || []), ...(campaign.decisionHistory || [])]
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-    .map((entry) => {
-      const normalizedKey = entry?.status?.toLowerCase().replace(/\s+/g, "").replace("for", "").trim();
+                                {[...(campaign.statusHistory || []), ...(campaign.decisionHistory || [])]
+                                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                                    .map((entry) => {
+                                        const normalizedKey = entry?.status?.toLowerCase().replace(/\s+/g, "").replace("for", "").trim();
 
-      return (
-        <div
-          key={entry._id}
-          className="border-b px-8 py-4 border-gray-300 flex flex-col gap-2"
-        >
-          <div className="flex justify-between items-center text-sm text-gray-600">
-            <div className="flex items-center gap-2">
-              <FiClock />
-              {formatShortDateTime(entry.timestamp)}
-            </div>
+                                        return (
+                                            <div
+                                                key={entry._id}
+                                                className="border-b px-8 py-4 border-gray-300 flex flex-col gap-2"
+                                            >
+                                                <div className="flex justify-between items-center text-sm text-gray-600">
+                                                    <div className="flex items-center gap-2">
+                                                        <FiClock />
+                                                        {formatShortDateTime(entry.timestamp)}
+                                                    </div>
 
-            <div className="flex gap-2 items-center">
-              <span className="text-xs text-gray-400 font-semibold opacity-60">
-                {formatDateDistance(entry.timestamp).relative}
-              </span>
+                                                    <div className="flex gap-2 items-center">
+                                                        <span className="text-xs text-gray-400 font-semibold opacity-60">
+                                                            {formatDateDistance(entry.timestamp).relative}
+                                                        </span>
 
-              <p className="flex gap-2 items-center capitalize text-xs font-semibold">
-                {entry.status.replace(/artwork/gi, "").trim()}
-                <StatusBubble
-                  size="md"
-                  icon={statusIcons[normalizedKey] || "clock"}
-                  status={getStatusColor(normalizedKey) || "default"}
-                  className="test"
-                />
-                {/* Optionally show raw status for debugging */}
-                {/* {normalizedKey} */}
-              </p>
-            </div>
-          </div>
+                                                        <p className="flex gap-2 items-center capitalize text-xs font-semibold">
+                                                            {entry.status.replace(/artwork/gi, "").trim()}
+                                                            <StatusBubble
+                                                                size="md"
+                                                                icon={statusIcons[normalizedKey] || "clock"}
+                                                                status={getStatusColor(normalizedKey) || "default"}
+                                                                className="test"
+                                                            />
+                                                            {/* Optionally show raw status for debugging */}
+                                                            {/* {normalizedKey} */}
+                                                        </p>
+                                                    </div>
+                                                </div>
 
-          <div className="flex gap-4">
-            <div className="min-w-8">
-              <Avatar
-                name={entry?.updatedBy?.firstName}
-                src={entry?.updatedBy?.profilePic}
-                size="sm"
-              />
-            </div>
+                                                <div className="flex gap-4">
+                                                    <div className="min-w-8">
+                                                        <Avatar
+                                                            name={entry?.updatedBy?.firstName}
+                                                            src={entry?.updatedBy?.profilePic}
+                                                            size="sm"
+                                                        />
+                                                    </div>
 
-            <div>
-              <p className="text-gray-800 text-sm font-medium">
-                {entry?.updatedBy?.firstName || "N/A"}{" "}
-                {entry?.updatedBy?.lastName || "N/A"}
-              </p>
-              <p className="text-gray-600 text-sm w-full">{entry.comment}</p>
-            </div>
+                                                    <div>
+                                                        <p className="text-gray-800 text-sm font-medium">
+                                                            {entry?.updatedBy?.firstName || "N/A"}{" "}
+                                                            {entry?.updatedBy?.lastName || "N/A"}
+                                                        </p>
+                                                        <p className="text-gray-600 text-sm w-full">{entry.comment}</p>
+                                                    </div>
 
-            {entry.attachment && (
-              <a
-                href={entry.attachment}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-blue-600 flex items-center gap-1 mt-2 hover:underline"
-              >
-                <FiPaperclip /> Attachment
-              </a>
-            )}
-          </div>
-        </div>
-      );
-    })}
-</div>
+                                                    {entry.attachment && (
+                                                        <a
+                                                            href={entry.attachment}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-sm text-blue-600 flex items-center gap-1 mt-2 hover:underline"
+                                                        >
+                                                            <FiPaperclip /> Attachment
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                            </div>
 
                         </div>
                     </div>
