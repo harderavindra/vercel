@@ -7,6 +7,7 @@ import signedUrlRoutes from "./routes/signedUrlRoutes.js";
 import masterDataRoutes from "./routes/masterDataRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import brandTreasuryRoutes from "./routes/brandTreasuryRoutes.js";
+import campaignRoutes from "./routes/campaignRoutes.js"
 import cookieParser from 'cookie-parser';
 import { bucket, uuidv4 } from './config/storage.js';
 
@@ -40,6 +41,7 @@ app.use('/api/files', signedUrlRoutes);
 app.use("/api/master", masterDataRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/brand-treasury", brandTreasuryRoutes);
+app.use('/api/campaigns', campaignRoutes);
 
 
 app.get('/', (req, res) => {

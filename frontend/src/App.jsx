@@ -26,6 +26,9 @@ import ViewBrandTreasuryPage from "./pages/ViewBrandTreasuryPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import BrandTreasuryUploader from "./pages/BrandTreasuryUploader";
+import ChampaignCreatePage from "./pages/ChampaignCreatePage";
+import CampaignListPage from "./pages/CampaignListPage";
+import CampaignViewPage from "./pages/CampaignViewPage";
 
 const App = () => {
     return (
@@ -37,15 +40,19 @@ const App = () => {
                     <Route path="/reset-password/:token" element={<ResetPassword />} />
 
                     <Route element={<MainLayout />}>
-                    
-                        <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin','zonal_marketing_manager', 'moderator', 'agency']} />}>
-                        <Route path="/uploader" element={<BrandTreasuryUploader/>} />
+
+                        <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin', 'zonal_marketing_manager', 'moderator', 'agency']} />}>
+                            <Route path="/uploader" element={<BrandTreasuryUploader />} />
                             <Route path="/artworks" element={<JobList />} />
+                            <Route path="/campaigns" element={<CampaignListPage />} />
+                            <Route path="/campaigns/:id" element={<CampaignViewPage />} />
+
                             <Route path="/artwork/:fileId" element={<JobViewPage />} />
 
                         </Route>
-                        <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin','zonal_marketing_manager']} />}>
+                        <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin', 'zonal_marketing_manager']} />}>
                             <Route path="/create-artwork" element={<JobCreate />} />
+                            <Route path="/create-campaign" element={<ChampaignCreatePage />} />
                         </Route>
                         <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin']} />}>
                             <Route path="/users" element={<UsersPage />} />
@@ -62,9 +69,9 @@ const App = () => {
                             <Route path="/about" element={<About />} />
                             <Route path="/profile" element={<ProfilePage />} />
                             <Route path="/masterdata" element={<MasterDataPage />} />
-                           
+
                             <Route path="/user/:id" element={<UserDetailPage />} />
-                            
+
                         </Route>
                         <Route path="*" element={<NotFoundPage />} />
                         <Route path="/unauthorized" element={<UnauthorizedPage />} />
