@@ -24,7 +24,7 @@ const campaignSchema = new mongoose.Schema(
     title: { type: String, required: true },
 
 
-    typeOfCampaign: { type: String, required: true }, // Replaces 'typeOfArtwork'
+    // typeOfCampaign: { type: String, required: true }, // Replaces 'typeOfArtwork'
     campaignDetails: { type: String }, // Replaces 'otherDetails'
 
     attachment: {}, // You can define this explicitly if needed

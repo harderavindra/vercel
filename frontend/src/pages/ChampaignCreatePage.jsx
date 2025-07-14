@@ -16,7 +16,7 @@ const CampaignCreatePage = () => {
   const [formData, setFormData] = useState({
     title: "",
     zone: "",
-    typeOfCampaign: "",
+    // typeOfCampaign: "",
     campaignDetails: "",
     dueDate: "",
     attachment: null
@@ -69,7 +69,7 @@ const CampaignCreatePage = () => {
       const payload = {
         title: formData.title,
         zone: formData.zone,
-        typeOfCampaign: formData.typeOfCampaign,
+        // typeOfCampaign: formData.typeOfCampaign,
         campaignDetails: formData.campaignDetails,
         dueDate: formData.dueDate,
         attachment: fileUrl
@@ -117,13 +117,13 @@ const CampaignCreatePage = () => {
             onChange={handleChange}
             options={Object.keys(ZONES)}
           />
-          <SelectField
+          {/* <SelectField
             label="Type of Campaign"
             name="typeOfCampaign"
             value={formData.typeOfCampaign}
             onChange={handleChange}
             options={["Awareness", "Promotional", "Launch", "Reminder"]}
-          />
+          /> */}
           {/* <SelectField label="Priority" name="priority" value={formData.priority} onChange={handleChange} options={PRIORITY} /> */}
 
           <label>Due Date</label>

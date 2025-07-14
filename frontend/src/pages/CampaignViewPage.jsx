@@ -264,29 +264,45 @@ const CampaignViewPage = () => {
                 </div>
 
                 <div className=' bg-white border border-blue-300/60 rounded-lg  w-full shadow-md overflow-hidden '>
-                    <div className='flex  justify-between p-0 h-full '>
+                    <div className='flex  gap-5 justify-between p-0 h-full '>
                         <div className=" sm:w-[70%] p-6">
 
                             <CampaignStatusUpdater campaignId={campaign._id} currentStatus={campaign.finalStatus} onUpdate={handleStatusUpdate} />
                             <div>
                                 {typeof campaign?.designAssignedTo === "object" && campaign?.designAssignedTo && (
-                                    <div className="assigne-to-seaction">
-                                        <h3 className="text-lg font-semibold text-gray-700">Assigned Designs to</h3>
+                                    <div className="assigne-to-seaction mb-5">
+                                        <h3 className="text-lg font-semibold text-gray-700">Assigned to</h3>
                                         <div className="flex gap-3 items-center">
                                             <Avatar name={campaign?.designAssignedTo?.firstName} src={campaign?.designAssignedTo?.profilePic} size="sm" />
                                             <div>
                                                 <p className="text-gray-400 text-base/tight">
-                                                    Assigned to{" "}
-                                                    <span className="text-gray-700 font-bold">
-                                                        {campaign?.designAssignedTo?.firstName || "N/A"} {campaign?.designAssignedTo?.lastName || ""}
-                                                    </span>
+                                                    Design
+                                                </p>
+                                                <span className="text-gray-700 font-bold">
+                                                    {campaign?.designAssignedTo?.firstName || "N/A"} {campaign?.designAssignedTo?.lastName || ""}
+                                                </span>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="mb-4 pb-5">
+                                {typeof campaign?.publishAssignedTo === "object" && campaign?.publishAssignedTo && (
+                                    <div className="assigne-to-seaction ">
+                                        <div className="flex gap-3 items-center">
+                                            <Avatar name={campaign?.publishAssignedTo?.firstName} src={campaign?.publishAssignedTo?.profilePic} size="sm" />
+                                            <div>
+                                                <p className="text-gray-400 text-base/tight">
+                                                    Publish
                                                 </p>
                                                 <p className="text-gray-400 text-base/tight">
-                                                    Due Date{" "}
+
                                                     <span className="text-gray-700 font-bold">
-                                                        {campaign?.dueDate ? formatDateTime(campaign?.dueDate) : "No due date"}
+                                                        {campaign?.publishAssignedTo?.firstName || "N/A"} {campaign?.publishAssignedTo?.lastName || ""}
                                                     </span>
                                                 </p>
+
                                             </div>
                                         </div>
                                     </div>
