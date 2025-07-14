@@ -269,6 +269,7 @@ const handleStatusUpdate = (data) => {
 
                             <CampaignStatusUpdater campaignId={campaign._id} currentStatus={campaign.finalStatus} onUpdate={handleStatusUpdate}  />
                             <div>
+                                {campaign?.designAssignedTo}
                                 {campaign?.designAssignedTo ? (
                                     <div className="assigne-to-seaction">
                                         <h3 className="text-lg font-semibold text-gray-700">Assigned Designs to</h3>
@@ -310,6 +311,7 @@ const handleStatusUpdate = (data) => {
                                     </>
                                 )}
                             </div>
+                            
                         </div>
                         <div className=" bg-gray-50 w-full h-full ">
                             <h2 className="px-4 py-2 border-b border-gray-300 text-xl font-bold">History</h2>

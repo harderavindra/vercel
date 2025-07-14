@@ -29,7 +29,7 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
     }
 
     // Publish assignment stage
-    if (normalizedStatus === "publishAssignedTo") {
+    if (normalizedStatus === "publish-assignedto") {
       if (["admin", "marketing_manager"].includes(role)) {
         return ["publishApproved"];
       }
@@ -57,7 +57,7 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
   })();
 
   useEffect(() => {
-    console.log(normalizedStatus)
+    // console.log(normalizedStatus)
     if (normalizedStatus === "created" || normalizedStatus === "pending") {
       if (["marketing_manager", "admin"].includes(role)) {
         setMessage("You may approve or reject the campaign.");

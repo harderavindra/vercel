@@ -8,6 +8,8 @@ import CampaignTableRow from "../components/common/CampaignTableRow";
 import StatusMessageWrapper from "../components/common/StatusMessageWrapper";
 import Button from "../components/common/Button";
 import { useNavigate } from "react-router-dom";
+import { ZONES } from "../utils/constants";
+import DropdownFilter from "../components/user/DropdownFilter";
 
 const CampaignListPage = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -17,6 +19,14 @@ const CampaignListPage = () => {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1 });
   const navigate = useNavigate()
+  const [zone, setZone] = useState("");
+  const clearFilters = () => {
+    setSearch("");
+    setZone("");
+    setPriority("");
+    setPage(1);
+  };
+
 
   useEffect(() => {
     const fetchCampaigns = async () => {
@@ -28,6 +38,7 @@ const CampaignListPage = () => {
           params: {
             page,
             search: search.length >= 3 ? search : "",
+            zone
           },
           withCredentials: true,
         });
@@ -47,26 +58,41 @@ const CampaignListPage = () => {
     };
 
     fetchCampaigns();
-  }, [search, page]);
+  }, [search, page,zone]);
 
   return (
     <div className="p-6 sm:p-10">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pb-4 gap-4">
-                      <PageTitle>Campaigns</PageTitle>
-                      <StatusMessageWrapper
-                          loading={loading}
-                          error={error}
-                      />
-                      <Button width="auto" type="button" onClick={() => navigate('/create-campaign')} >Create Campaign</Button>
-                  </div>
+        <PageTitle>Campaigns</PageTitle>
+        <StatusMessageWrapper
+          loading={loading}
+          error={error}
+        />
+        <Button width="auto" type="button" onClick={() => navigate('/create-campaign')} >Create Campaign</Button>
+      </div>
 
-      <div className="mb-4">
+      <div className={`flex flex-col sm:flex-row gap-4 mb-3  ${error ? "hidden" : ""}`}>
         <SearchInput
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onClear={() => setSearch("")}
           placeholder="Search by name (min 3 chars)"
         />
+        <DropdownFilter
+          options={{
+            label: "Zone",
+            items: Object.entries(ZONES).map(([key, states]) => ({
+              value: key,      // "Zone1"
+              label: key       // or use a more readable label if needed
+            }))
+          }}
+          value={zone}
+          onChange={(e) => setZone(e.target.value)}
+          onClear={() => setZone("")}
+        />
+        <button className="border border-blue-300 bg-blue-50 rounded-md px-3 text-blue-600 cursor-pointer" onClick={clearFilters}>
+          Clear All
+        </button>
       </div>
 
       <div className="flex justify-center">

@@ -10,6 +10,7 @@ import {
   firstJobApprovedEmailHTML
 } from "../constants/emailTemplate.js";
 import { sendEmail } from "../utils/emailService.js";
+import { ZONES } from "../../frontend/src/utils/constants.js";
 
 const JOB_STATUS = ["inprogress", "artwork submitted", "publish artwork"];
 const DECISION_STATUS = ["approved", "under review", "review rejected", "artwork approved", "hold", "ho approved"];
@@ -66,13 +67,16 @@ export const createCampaign = async (req, res) => {
 
 export const getAllCampaigns = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search = "" } = req.query;
+    const { page = 1, limit = 10, search = "",zone } = req.query;
 
     const query = {};
 
     if (search.trim().length >= 3) {
       query.title = { $regex: search.trim(), $options: "i" };
     }
+  if (zone) {
+  query.zone = zone;
+}
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
