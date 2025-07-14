@@ -29,7 +29,8 @@ export const createCampaign = async (req, res) => {
       attachment,
       dueDate,
       createdBy: req.user.userId,
-      decisionHistory: [{ status: "Created", updatedBy: req.user.userId }]
+      finalStatus:"campaign-created",
+      decisionHistory: [{ status: "campaign-created", updatedBy: req.user.userId }]
     });
 
     await newCampaign.save();
@@ -199,8 +200,8 @@ export const updateCampaignStatus = async (req, res) => {
 };
 
 export const assignCampaign = async (req, res) => {
-  const { campaignId } = req.params;
-  const { assignedTo, role, comment } = req.body; // role = "design" or "publish"
+    const { campaignId } = req.params;
+  const { assignedTo, role, comment } = req.body;
   const adminId = req.user.userId;
 
   if (!["design", "publish"].includes(role)) {
@@ -209,41 +210,38 @@ export const assignCampaign = async (req, res) => {
 
   try {
     const campaign = await Campaign.findById(campaignId);
+    if (!campaign) return res.status(404).json({ message: "Campaign not found" });
 
-    if (!campaign) {
-      return res.status(404).json({ message: "Campaign not found" });
-    }
+    const currentAssignedId = role === "design" ? campaign.designAssignedTo : campaign.publishAssignedTo;
 
-
-    
-   const alreadyAssigned =
+    const alreadyAssigned =
       campaign.decisionHistory.some(
         (entry) =>
-          entry.status === `${role}-assignedTo` &&
-          String(
-            role === "design"
-              ? campaign.designAssignedTo
-              : campaign.publishAssignedTo
-          ) === assignedTo
+          entry.status === (role === "design" ? "assigned-content" : "assigned-publishing") &&
+          String(currentAssignedId) === assignedTo
       );
 
-     if (!alreadyAssigned) {
+    if (!alreadyAssigned) {
       const now = new Date();
 
+      // ✅ Assign user
       if (role === "design") {
         campaign.designAssignedTo = assignedTo;
-      } else if (role === "publish") {
+      } else {
         campaign.publishAssignedTo = assignedTo;
       }
 
+      // ✅ Push history with correct status
+      const statusLabel = role === "design" ? "assigned-content" : "assigned-publishing";
       campaign.decisionHistory.push({
-        status: `${role}-assignedTo`,
+        status: statusLabel,
         comment: comment || "",
         updatedBy: adminId,
         timestamp: now
       });
 
-      campaign.finalStatus = `${role}-assignedTo`;
+      // ✅ Update final status
+      campaign.finalStatus = statusLabel;
 
       // // Notify by email
       // const assignedUser = await User.findById(assignedTo).select("firstName lastName email");

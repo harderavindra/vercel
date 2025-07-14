@@ -64,8 +64,8 @@ const CampaignViewPage = () => {
     const [success, setSuccess] = useState('')
     const [statusUpdated, setStatusUpdated] = useState('')
     const getAssignmentRole = (status) => {
-        if (status === "approved") return "design";
-        if (status === "designApproved") return "publish";
+        if (status === "offers-approved") return "design";
+        if (status === "content-approved") return "publish";
         return null;
     };
     useEffect(() => {
@@ -276,7 +276,7 @@ const CampaignViewPage = () => {
                                             <Avatar name={campaign?.designAssignedTo?.firstName} src={campaign?.designAssignedTo?.profilePic} size="sm" />
                                             <div>
                                                 <p className="text-gray-400 text-base/tight">
-                                                    Design
+                                                    Content
                                                 </p>
                                                 <span className="text-gray-700 font-bold">
                                                     {campaign?.designAssignedTo?.firstName || "N/A"} {campaign?.designAssignedTo?.lastName || ""}
@@ -309,7 +309,7 @@ const CampaignViewPage = () => {
                                 )}
                             </div>
                             <div>
-                                {(campaign?.finalStatus === 'approved' || campaign?.finalStatus === "designApproved") && (
+                                {(campaign?.finalStatus === 'offers-approved' || campaign?.finalStatus === "content-approved") && (
                                     <>
                                         <h2 className=" pb-2 border-b border-gray-300 text-xl font-bold">Assign to</h2>
                                         <div className="flex flex-col gap-3">

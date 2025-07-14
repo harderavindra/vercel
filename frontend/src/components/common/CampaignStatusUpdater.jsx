@@ -21,37 +21,48 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
 
   const statuses = (() => {
     // Design assignment stage
-    console.log(normalizedStatus)
-    if (normalizedStatus === "design-assignedto") {
-      if (["admin", "marketing_manager"].includes(role)) {
-        return ["designApproved", "designRejected"];
-      }
-    }
-
-    // Publish assignment stage
-    if (normalizedStatus === "publish-assignedto") {
-      if (["admin", "marketing_manager"].includes(role)) {
-        return ["publishApproved"];
-      }
-    }
-
-    // Initial pending approval
-    if (normalizedStatus === "pending") {
-      if (["marketing_manager", "admin"].includes(role)) {
-        return ["approved", "rejected"];
-      }
-    }
 
     // Artwork submitted phase (likely after design approval)
-    if (normalizedStatus === "submitted") {
-      if (role === "designer") {
-        return ["designApproved"];
-      }
-
+    if (normalizedStatus === "campaign-created") {
       if (["admin", "marketing_manager"].includes(role)) {
-        return ["designApproved", "designRejected"];
+        return ["offers-approved"];
       }
     }
+
+    //   if (normalizedStatus === "offers-approved") {
+    //   if (["admin", "marketing_manager"].includes(role)) {
+    //     return ["assigned-content-creat"];
+    //   }
+    // }
+
+    if (normalizedStatus === "assigned-content") {
+    
+
+      if (["admin", "marketing_manager"].includes(role)) {
+        return ["content-submitted"];
+      }
+    }
+
+    if (normalizedStatus === "content-submitted") {
+      if (["admin", "marketing_manager"].includes(role)) {
+        return ["content-approved", "content-rejected"];
+      }
+    }
+    // if (normalizedStatus === "content-approved") {
+    //   if (["admin", "marketing_manager"].includes(role)) {
+    //     return ["assigned-publishing"];
+    //   }
+    // }
+
+    if (normalizedStatus === "assigned-publishing") {
+      if (["admin", "marketing_manager"].includes(role)) {
+        return ["published"];
+      }
+    }
+
+
+
+
 
     return [];
   })();
@@ -84,9 +95,9 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
       }
     } else if (normalizedStatus === "rejected") {
       setMessage("Campaign was rejected. Please review comments.");
-    }else if (normalizedStatus === "designapproved") {
+    } else if (normalizedStatus === "designapproved") {
       setMessage("Campaign design was Approved. Please review comments.");
-    }  
+    }
     else {
       setMessage("No available actions for your role at the current status.");
     }
