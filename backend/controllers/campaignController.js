@@ -113,8 +113,8 @@ export const getCampaignById = async (req, res) => {
   try {
     const campaign = await Campaign.findById(req.params.id)
       .populate("createdBy", "name email")
-      .populate("designAssignedTo", "firstName lastName email")
-      .populate("publishAssignedTo", "name email")
+.populate("designAssignedTo", "firstName lastName email profilePic")
+.populate("publishAssignedTo", "firstName lastName email profilePic")
       .populate("statusHistory.updatedBy", "firstName lastName email profilePic")
       .populate("decisionHistory.updatedBy", "firstName lastName email profilePic");
 
@@ -209,31 +209,40 @@ export const assignCampaign = async (req, res) => {
 
   try {
     const campaign = await Campaign.findById(campaignId);
-    console.log(campaign,campaignId )
 
     if (!campaign) {
       return res.status(404).json({ message: "Campaign not found" });
     }
 
-    const alreadyAssigned = campaign.decisionHistory.some(
-      (entry) =>
-        entry.status === `Assigned for ${role}` &&
-        String(campaign[`${role}-assignedTo`]) === assignedTo
-    );
 
-    if (!alreadyAssigned) {
-      // Assign user to correct field
-      campaign[`${role}-assignedTo`] = assignedTo;
+    
+   const alreadyAssigned =
+      campaign.decisionHistory.some(
+        (entry) =>
+          entry.status === `${role}-assignedTo` &&
+          String(
+            role === "design"
+              ? campaign.designAssignedTo
+              : campaign.publishAssignedTo
+          ) === assignedTo
+      );
 
-      // Update history
+     if (!alreadyAssigned) {
+      const now = new Date();
+
+      if (role === "design") {
+        campaign.designAssignedTo = assignedTo;
+      } else if (role === "publish") {
+        campaign.publishAssignedTo = assignedTo;
+      }
+
       campaign.decisionHistory.push({
         status: `${role}-assignedTo`,
         comment: comment || "",
         updatedBy: adminId,
-        timestamp: new Date()
+        timestamp: now
       });
 
-      // Update final status if needed
       campaign.finalStatus = `${role}-assignedTo`;
 
       // // Notify by email

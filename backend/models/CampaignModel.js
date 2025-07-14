@@ -34,7 +34,8 @@ const campaignSchema = new mongoose.Schema(
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     designAssignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
     publishAssignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
-
+designAssignedAt: Date,
+  publishAssignedAt: Date,
     statusHistory: [StatusHistorySchema],
     decisionHistory: [DecisionHistorySchema],
 

@@ -63,7 +63,7 @@ const CampaignListPage = () => {
   return (
     <div className="p-6 sm:p-10">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pb-4 gap-4">
-        <PageTitle>Campaigns</PageTitle>
+        <PageTitle>Lead Gen Campaigns</PageTitle>
         <StatusMessageWrapper
           loading={loading}
           error={error}

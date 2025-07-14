@@ -53,8 +53,8 @@ const statusIcons = {
 };
 const CampaignViewPage = () => {
     const { id } = useParams();
-        const { user } = useAuth();
-    
+    const { user } = useAuth();
+
     const navigate = useNavigate();
     const [campaign, setCampaign] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -92,8 +92,8 @@ const CampaignViewPage = () => {
             }
         };
         fetchCampaign();
-    }, [id,statusUpdated]);
-const handleStatusUpdate = (data) => {
+    }, [id, statusUpdated]);
+    const handleStatusUpdate = (data) => {
         if (data.error) {
             setError(`Error: ${data.error}`);
             setSuccess(""); // Clear success message
@@ -103,19 +103,19 @@ const handleStatusUpdate = (data) => {
         }
         setStatusUpdated((prev) => !prev); // Ensure state updates correctly
     };
-     const handleDelete = async (campaignId) => {
-            if (!window.confirm("Are you sure you want to delete this Campaign?")) return;
-    
-            try {
-                await axios.delete(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/campaigns/${campaignId}`, { withCredentials: true });
-    
-    
-                navigate("/campaigns", { state: { successMessage: "Campaign deleted successfully!" } }); // Redirect after deletion
-            } catch (error) {
-                console.error("Error deleting Campaign:", error.response?.data);
-                setError("Error deleting Campaign: " + (error.response?.data?.message || error.message));
-            }
-        };
+    const handleDelete = async (campaignId) => {
+        if (!window.confirm("Are you sure you want to delete this Campaign?")) return;
+
+        try {
+            await axios.delete(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/campaigns/${campaignId}`, { withCredentials: true });
+
+
+            navigate("/campaigns", { state: { successMessage: "Campaign deleted successfully!" } }); // Redirect after deletion
+        } catch (error) {
+            console.error("Error deleting Campaign:", error.response?.data);
+            setError("Error deleting Campaign: " + (error.response?.data?.message || error.message));
+        }
+    };
 
     const getMimeTypeFromUrl = (url) => {
         if (!url) return "application/octet-stream";
@@ -167,7 +167,7 @@ const handleStatusUpdate = (data) => {
     return (
         <div className="p-5 sm:p-10">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pb-4 gap-4">
-                <PageTitle>Campaign</PageTitle>
+                <PageTitle>Lead Gen Campaign</PageTitle>
                 <StatusMessageWrapper
                     loading={loading}
                     error={error}
@@ -267,15 +267,13 @@ const handleStatusUpdate = (data) => {
                     <div className='flex  justify-between p-0 h-full '>
                         <div className=" sm:w-[70%] p-6">
 
-                            <CampaignStatusUpdater campaignId={campaign._id} currentStatus={campaign.finalStatus} onUpdate={handleStatusUpdate}  />
+                            <CampaignStatusUpdater campaignId={campaign._id} currentStatus={campaign.finalStatus} onUpdate={handleStatusUpdate} />
                             <div>
-                                {campaign?.designAssignedTo}
-                                {campaign?.designAssignedTo ? (
+                                {typeof campaign?.designAssignedTo === "object" && campaign?.designAssignedTo && (
                                     <div className="assigne-to-seaction">
                                         <h3 className="text-lg font-semibold text-gray-700">Assigned Designs to</h3>
                                         <div className="flex gap-3 items-center">
                                             <Avatar name={campaign?.designAssignedTo?.firstName} src={campaign?.designAssignedTo?.profilePic} size="sm" />
-
                                             <div>
                                                 <p className="text-gray-400 text-base/tight">
                                                     Assigned to{" "}
@@ -292,7 +290,7 @@ const handleStatusUpdate = (data) => {
                                             </div>
                                         </div>
                                     </div>
-                                ) : ('')}
+                                )}
                             </div>
                             <div>
                                 {(campaign?.finalStatus === 'approved' || campaign?.finalStatus === "designApproved") && (
@@ -311,7 +309,7 @@ const handleStatusUpdate = (data) => {
                                     </>
                                 )}
                             </div>
-                            
+
                         </div>
                         <div className=" bg-gray-50 w-full h-full ">
                             <h2 className="px-4 py-2 border-b border-gray-300 text-xl font-bold">History</h2>
