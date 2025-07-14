@@ -16,40 +16,26 @@ import { useAuth } from "../context/auth-context";
 
 const getStatusColor = (status) => {
     const statusMap = {
-        created: "success",
-        approved: "success",
-        hold: "warning",
-        "underreview": "warning",
-        "reviewrejected": "error",
-        designassigned: "info",
-        designapproved: "success",
-        designrejected: "error",
-        publishassigned: "info",
-        publishapproved: "success",
-        publishrejected: "error",
-        completed: "success",
-        "design-assignedto": "success", // ✅ corrected
-        "publish-assignedto": "success", // ✅ corrected
+        "campaign-created": "info",
+        "offers-approved": "success",
+        "assigned-content": "info",
+        "content-submitted": "warning",
+        "content-approved": "success",
+        "assigned-publishing": "info",
+        "published": "success",
     };
 
     return statusMap[status?.toLowerCase()] || "default";
 };
 
 const statusIcons = {
-    created: "clock",
-    approved: "check",
-    hold: "eye",
-    "underreview": "eye",
-    "reviewrejected": "reject",
-    designassigned: "user",
-    designapproved: "done",
-    designrejected: "reject",
-    publishassigned: "rocket",
-    publishapproved: "check",
-    publishrejected: "reject",
-    completed: "star",
-    "design-assignedto": "star", // ✅ corrected
-    "publish-assignedto": "star", // ✅ corrected
+    "campaign-created": "clock",
+    "offers-approved": "check",
+    "assigned-content": "user",
+    "content-submitted": "check",
+    "content-approved": "check",
+    "assigned-publishing": "rocket",
+    "published": "star",
 };
 const CampaignViewPage = () => {
     const { id } = useParams();
