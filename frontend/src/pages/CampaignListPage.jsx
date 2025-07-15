@@ -58,7 +58,7 @@ const CampaignListPage = () => {
     };
 
     fetchCampaigns();
-  }, [search, page,zone]);
+  }, [search, page, zone]);
 
   return (
     <div className="p-6 sm:p-10">

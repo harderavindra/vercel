@@ -4,22 +4,28 @@ import StatusBubble from '../common/StatusBubble';
 import { useNavigate } from 'react-router-dom';
 import { formatDateTime } from '../../utils/formatDateTime';
 
+const getStatusColor = (status) => {
+    const statusMap = {
+        "campaign-created": "info",
+        "offers-approved": "success",
+        "assigned-content": "info",
+        "content-submitted": "warning",
+        "content-approved": "success",
+        "assigned-publishing": "info",
+        "published": "success",
+    };
+
+    return statusMap[status?.toLowerCase()] || "default";
+};
+
 const statusIcons = {
-  pending: "clock",
-  created: "clock",
-  assigned: "user",
-  approved: "check",
-  hold: "eye",
-  "under review": "eye",
-  "artwork rejected": "reject",
-  "review rejected": "reject",
-  "artwork approved": "done",
-  inprogress: "clock",
-  "artwork submitted": "pad",
-  "ho approved": "shieldcheck",
-  "publish artwork": "rocket",
-    "design-assignedto": "star", // ✅ corrected
-  "publish-assignedto": "star", // ✅ corrected
+    "campaign-created": "clock",
+    "offers-approved": "check",
+    "assigned-content": "user",
+    "content-submitted": "clock",
+    "content-approved": "check",
+    "assigned-publishing": "user",
+    "published": "rocket",
 };
 
 const getPriorityStatus = (priority) => {
@@ -36,26 +42,7 @@ const getPriorityStatus = (priority) => {
   }
 };
 
-const getStatusColor = (status) => {
-  const statusMap = {
-    created: "info",
-    pending: "warning",
-    assigned: "info",
-    approved: "success",
-    hold: "warning",
-    "under review": "error",
-    "artwork rejected": "error",
-    "review rejected": "error",
-    "artwork approved": "success",
-    inprogress: "info",
-    "artwork submitted": "info",
-    "ho approved": "success",
-    "publish artwork": "success",
-     "design-assignedto": "warning", // ✅ corrected
-    "publish-assignedto": "success", // ✅ corrected
-  };
-  return statusMap[status?.toLowerCase()] || "default";
-};
+
 
 const CampaignTableRow = ({ campaign }) => {
   const navigate = useNavigate();

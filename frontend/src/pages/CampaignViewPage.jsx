@@ -32,10 +32,10 @@ const statusIcons = {
     "campaign-created": "clock",
     "offers-approved": "check",
     "assigned-content": "user",
-    "content-submitted": "check",
+    "content-submitted": "clock",
     "content-approved": "check",
-    "assigned-publishing": "rocket",
-    "published": "star",
+    "assigned-publishing": "user",
+    "published": "rocket",
 };
 const CampaignViewPage = () => {
     const { id } = useParams();
@@ -164,7 +164,7 @@ const CampaignViewPage = () => {
                 <div className="hidden sm:flex  flex-wrap-reverse  flex-row-reverse gap-2 flex-wrap justify-end mb-5">
                     {mergedHistory.length > 0 ? (
                         mergedHistory.map((history) => (
-                            <div key={history._id} className={`flex gap-2 items-center border  px-3 py-1  text-xs capitalize rounded-md mr-0 relative  ${history?.status.toLowerCase() === "ho approved" ? 'bg-red-500 border-red-500 text-white' : history?.status.toLowerCase() === "artwork approved" ? 'bg-orange-50 border-orange-200 text-orange-900' : 'border-gray-300 bg-white'}`}>
+                            <div key={history._id} className={`flex gap-2 items-center border  px-3 py-1  text-xs capitalize rounded-md mr-0 relative  ${history?.status.toLowerCase() === "content-approved" ? 'bg-red-500 border-red-500 text-white' : history?.status.toLowerCase() === "published" ? 'bg-orange-50 border-orange-200 text-orange-900' : 'border-gray-300 bg-white'}`}>
                                 <Avatar name={history?.updatedBy?.firstName} src={history?.updatedBy?.profilePic} size="xs" />
 
                                 {/* <StatusBubble
@@ -245,7 +245,7 @@ const CampaignViewPage = () => {
                                 Delete Campaign
                             </Button>
                         )}
-                        <Button type="button" variant="outline" onClick={() => navigate('/campaigns')}>Back to Campaigns</Button>
+                        <Button type="button" variant="outline" onClick={() => navigate('/campaigns')}>Back</Button>
                     </div>
                 </div>
 
@@ -283,12 +283,10 @@ const CampaignViewPage = () => {
                                                     Publish
                                                 </p>
                                                 <p className="text-gray-400 text-base/tight">
-
                                                     <span className="text-gray-700 font-bold">
                                                         {campaign?.publishAssignedTo?.firstName || "N/A"} {campaign?.publishAssignedTo?.lastName || ""}
                                                     </span>
                                                 </p>
-
                                             </div>
                                         </div>
                                     </div>
@@ -351,46 +349,47 @@ const CampaignViewPage = () => {
                                                     </div>
                                                 </div>
 
-                                                <div className="flex gap-4">
-                                                    <div className="min-w-8">
+                                                <div className="flex flex-col gap-4">
+                                                    <div className="flex gap-3 min-w-8">
                                                         <Avatar
                                                             name={entry?.updatedBy?.firstName}
                                                             src={entry?.updatedBy?.profilePic}
                                                             size="sm"
                                                         />
-                                                    </div>
 
-                                                    <div>
-                                                        <p className="text-gray-800 text-sm font-medium">
-                                                            {entry?.updatedBy?.firstName || "N/A"}{" "}
-                                                            {entry?.updatedBy?.lastName || "N/A"}
-                                                        </p>
-                                                        <p className="text-gray-600 text-sm w-full">{entry.comment}</p>
-                                                    </div>
+                                                        <div>
+                                                            <p className="text-gray-800 text-sm font-medium">
+                                                                {entry?.updatedBy?.firstName || "N/A"}{" "}
+                                                                {entry?.updatedBy?.lastName || "N/A"}
+                                                            </p>
+                                                            <p className="text-gray-600 text-sm w-full">{entry.comment}</p>
+                                                             {entry.attachment && (
+                                                            <a
+                                                                href={entry.attachment}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-sm text-blue-600 flex items-center gap-1 mt-2 hover:underline"
+                                                            >
+                                                                <FiPaperclip /> Attachment
+                                                            </a>
+                                                        )}
+                                                        </div>
+                                                        </div>
 
-                                                    {entry.attachment && (
-                                                        <a
-                                                            href={entry.attachment}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-sm text-blue-600 flex items-center gap-1 mt-2 hover:underline"
-                                                        >
-                                                            <FiPaperclip /> Attachment
-                                                        </a>
-                                                    )}
+                                                       
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        );
+                                                );
                                     })}
-                            </div>
+                                            </div>
 
+                        </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-        </div>
-    );
+            </div>
+            );
 };
 
-export default CampaignViewPage;
+            export default CampaignViewPage;
