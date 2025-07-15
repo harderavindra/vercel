@@ -207,8 +207,15 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
 
           <div className="flex gap-4">
             <Button type="button" variant="outline" disabled={loading}>Cancel</Button>
-            <Button type="button" onClick={updateStatus} disabled={loading || !status}>
-              {loading ? "Updating..." : "Submit"}
+<Button
+  type="button"
+  onClick={updateStatus}
+  disabled={
+    loading ||
+    !status ||
+    (status !== "published" && !attachment)
+  }
+>              {loading ? "Updating..." : "Submit"}
             </Button>
           </div>
         </>

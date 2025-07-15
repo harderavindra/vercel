@@ -139,7 +139,10 @@ const CampaignCreatePage = () => {
             <FileUpload onFileSelect={handleFileChange} />
             {uploadProgress > 0 && <ProgressBar progress={uploadProgress} />}
           </div>
-                    <Button type="submit" disabled={loading}>{loading ? "Creating..." : "Create Champaign"}</Button>
+                    <Button type="submit" disabled={loading || !formData.attachment}>
+  {loading ? "Creating..." : "Create Champaign"}
+</Button>
+
 
         </div>
 
