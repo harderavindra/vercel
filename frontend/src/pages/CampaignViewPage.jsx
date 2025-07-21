@@ -254,7 +254,7 @@ const CampaignViewPage = () => {
                         <div className=" sm:w-[70%] p-6">
 
 
-                            <CampaignStatusUpdater campaignId={campaign?._id} currentStatus={campaign?.finalStatus} onUpdate={handleStatusUpdate} assignedTo={campaign?.designAssignedTo?._id === user?._id} />
+                            <CampaignStatusUpdater campaignId={campaign?._id} currentStatus={campaign?.finalStatus} onUpdate={handleStatusUpdate} assignedTo={campaign?.designAssignedTo?._id === user?._id} contentAssignedTo={campaign?.contentAssignedTo?._id === user?._id} />
                             <div>
                                 {typeof campaign?.designAssignedTo === "object" && campaign?.designAssignedTo && (
                                     <div className="assigne-to-seaction mb-5">

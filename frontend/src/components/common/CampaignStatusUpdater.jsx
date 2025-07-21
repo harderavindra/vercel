@@ -20,24 +20,40 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
   const role = user?.role?.toLowerCase();
 
   const statuses = (() => {
-   
+
     if (normalizedStatus === "campaign-created") {
-      if (["brand_manager"].includes(role)) {
-        return ["offers-inreview","offers-approved","offers-rejected"];
+      if (role === "brand_manager") {
+        return ["offers-inreview", "offers-approved", "offers-rejected"];
+      }
+      
+    }
+
+    if (
+      normalizedStatus === "offers-inreview" ||
+      normalizedStatus === "offers-rejected" || normalizedStatus === "campaign-created"
+    ) {
+      if (role === "zonal_marketing_manager") {
+        return ["campaign-resubmitted"];
       }
     }
-     if (normalizedStatus === "offers-inreview" ) {
-      if ([ "brand_manager"].includes(role)) {
-        return ["offers-approved","offers-rejected"];
-      }else  {
-        return [];
+
+    if (normalizedStatus === "campaign-resubmitted") {
+      if (role === "brand_manager") {
+        return ["offers-inreview", "offers-approved", "offers-rejected"];
       }
     }
-     if (normalizedStatus === "offers-rejected") {
-      if ([ "brand_manager"].includes(role)) {
-        return ["offers-approved","offers-inreview"];
-      }else  {
+
+    if (normalizedStatus === "offers-inreview") {
+      if (role === "brand_manager") {
+        return ["offers-approved", "offers-rejected"];
+      }
+    }
+
+    if (normalizedStatus === "offers-rejected") {
+      if (role === "brand_manager") {
         return [];
+      } else if (role === "zonal_marketing_manager") {
+        return ["campaign-resubmitted"];
       }
     }
 
@@ -55,18 +71,21 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
       }
     }
 
-    if (normalizedStatus === "content-submitted") {
+    if (normalizedStatus === "content-submitted" || normalizedStatus === "content-resubmitted") {
       if (["brand_manager"].includes(role)) {
-        return ["content-approved", "content-rejected","content-inreview"];
+        return ["content-approved", "content-rejected", "content-inreview"];
+      }
+      if (["agency"].includes(role)) {
+        return ["content-resubmitted"];
       }
     }
-     if (normalizedStatus === "content-inreview") {
-      if (["admin", "marketing_manager"].includes(role)) {
+    if (normalizedStatus === "content-inreview") {
+      if ([ "brand_manager"].includes(role)) {
         return ["content-approved", "content-rejected"];
       }
     }
-     if (normalizedStatus === "content-rejected") {
-      if (["admin", "marketing_manager"].includes(role)) {
+    if (normalizedStatus === "content-rejected") {
+      if (["brand_manager"].includes(role)) {
         return ["content-approved", "content-inreview"];
       }
     }
@@ -232,20 +251,20 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
             <Button
               type="button"
               onClick={updateStatus}
-             disabled={
-    loading ||
-    !status ||
-    (
-      !attachment &&
-      status !== "published" &&
-      status !== "offers-inreview" && 
-       status !== "offers-rejected" &&
-       status !== "offers-approved" &&
-       status !== "content-approved" &&
-       status !== "content-rejected" &&
-       status !== "content-inreview" 
-    )
-  }
+              disabled={
+                loading ||
+                !status ||
+                (
+                  !attachment &&
+                  status !== "published" &&
+                  status !== "offers-inreview" &&
+                  status !== "offers-rejected" &&
+                  status !== "offers-approved" &&
+                  status !== "content-approved" &&
+                  status !== "content-rejected" &&
+                  status !== "content-inreview"
+                )
+              }
             >              {loading ? "Updating..." : "Submit"}
             </Button>
           </div>
