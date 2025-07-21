@@ -20,12 +20,24 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
   const role = user?.role?.toLowerCase();
 
   const statuses = (() => {
-    // Design assignment stage
-
-    // Artwork submitted phase (likely after design approval)
+   
     if (normalizedStatus === "campaign-created") {
-      if (["admin", "marketing_manager"].includes(role)) {
-        return ["offers-approved"];
+      if (["brand_manager"].includes(role)) {
+        return ["offers-inreview","offers-approved","offers-rejected"];
+      }
+    }
+     if (normalizedStatus === "offers-inreview" ) {
+      if ([ "brand_manager"].includes(role)) {
+        return ["offers-approved","offers-rejected"];
+      }else  {
+        return [];
+      }
+    }
+     if (normalizedStatus === "offers-rejected") {
+      if ([ "brand_manager"].includes(role)) {
+        return ["offers-approved","offers-inreview"];
+      }else  {
+        return [];
       }
     }
 
@@ -36,16 +48,26 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
     // }
 
     if (normalizedStatus === "assigned-content") {
-    
 
-      if (["admin", "marketing_manager"].includes(role)) {
+
+      if (role === "agency" && assignedTo) {
         return ["content-submitted"];
       }
     }
 
     if (normalizedStatus === "content-submitted") {
+      if (["brand_manager"].includes(role)) {
+        return ["content-approved", "content-rejected","content-inreview"];
+      }
+    }
+     if (normalizedStatus === "content-inreview") {
       if (["admin", "marketing_manager"].includes(role)) {
         return ["content-approved", "content-rejected"];
+      }
+    }
+     if (normalizedStatus === "content-rejected") {
+      if (["admin", "marketing_manager"].includes(role)) {
+        return ["content-approved", "content-inreview"];
       }
     }
     // if (normalizedStatus === "content-approved") {
@@ -55,7 +77,7 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
     // }
 
     if (normalizedStatus === "assigned-publishing") {
-      if (["admin", "marketing_manager"].includes(role)) {
+      if (["agency"].includes(role)) {
         return ["published"];
       }
     }
@@ -207,15 +229,24 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
 
           <div className="flex gap-4">
             <Button type="button" variant="outline" disabled={loading}>Cancel</Button>
-<Button
-  type="button"
-  onClick={updateStatus}
-  disabled={
+            <Button
+              type="button"
+              onClick={updateStatus}
+             disabled={
     loading ||
     !status ||
-    (status !== "published" && !attachment)
+    (
+      !attachment &&
+      status !== "published" &&
+      status !== "offers-inreview" && 
+       status !== "offers-rejected" &&
+       status !== "offers-approved" &&
+       status !== "content-approved" &&
+       status !== "content-rejected" &&
+       status !== "content-inreview" 
+    )
   }
->              {loading ? "Updating..." : "Submit"}
+            >              {loading ? "Updating..." : "Submit"}
             </Button>
           </div>
         </>

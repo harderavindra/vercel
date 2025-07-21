@@ -41,11 +41,14 @@ const App = () => {
 
                     <Route element={<MainLayout />}>
 
+                        <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin', 'zonal_marketing_manager', 'moderator', 'agency', 'brand_manager']} />}>
+                            <Route path="/campaigns" element={<CampaignListPage />} />
+                            <Route path="/campaigns/:id" element={<CampaignViewPage />} />
+                                                </Route>
+
                         <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin', 'zonal_marketing_manager', 'moderator', 'agency']} />}>
                             <Route path="/uploader" element={<BrandTreasuryUploader />} />
                             <Route path="/artworks" element={<JobList />} />
-                            <Route path="/campaigns" element={<CampaignListPage />} />
-                            <Route path="/campaigns/:id" element={<CampaignViewPage />} />
 
                             <Route path="/artwork/:fileId" element={<JobViewPage />} />
 

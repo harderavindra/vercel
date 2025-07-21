@@ -10,9 +10,12 @@ import Button from "../components/common/Button";
 import { useNavigate } from "react-router-dom";
 import { ZONES } from "../utils/constants";
 import DropdownFilter from "../components/user/DropdownFilter";
+import { hasAccess } from "../utils/permissions";
+import { useAuth } from '../context/auth-context';
 
 const CampaignListPage = () => {
   const [campaigns, setCampaigns] = useState([]);
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -68,7 +71,10 @@ const CampaignListPage = () => {
           loading={loading}
           error={error}
         />
+                        {hasAccess(user?.role, [ 'zonal_marketing_manager']) && (
+        
         <Button width="auto" type="button" onClick={() => navigate('/create-campaign')} >Create Campaign</Button>
+                        )}
       </div>
 
       <div className={`flex flex-col sm:flex-row gap-4 mb-3  ${error ? "hidden" : ""}`}>

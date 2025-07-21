@@ -211,17 +211,17 @@ const CampaignViewPage = () => {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
+                        {/* <div>
                             <label className="text-gray-400">Type</label>
                             <p className="font-semibold capitalize">{campaign.typeOfCampaign}</p>
-                        </div>
+                        </div> */}
                         <div>
                             <label className="text-gray-400">Zone</label>
                             <p className="font-semibold capitalize">{campaign.zone}</p>
                         </div>
                         <div className="sm:col-span-2">
                             <label className="text-gray-400">Offer Details</label>
-                            <p className="font-semibold">{campaign.offerDetails || "—"}</p>
+                            <p className="font-semibold capitalize">{campaign.campaignDetails || "—"}</p>
                         </div>
                     </div>
 
@@ -253,7 +253,8 @@ const CampaignViewPage = () => {
                     <div className='flex  gap-5 justify-between p-0 h-full '>
                         <div className=" sm:w-[70%] p-6">
 
-                            <CampaignStatusUpdater campaignId={campaign._id} currentStatus={campaign.finalStatus} onUpdate={handleStatusUpdate} />
+
+                            <CampaignStatusUpdater campaignId={campaign?._id} currentStatus={campaign?.finalStatus} onUpdate={handleStatusUpdate} assignedTo={campaign?.designAssignedTo?._id === user?._id} />
                             <div>
                                 {typeof campaign?.designAssignedTo === "object" && campaign?.designAssignedTo && (
                                     <div className="assigne-to-seaction mb-5">
@@ -293,21 +294,24 @@ const CampaignViewPage = () => {
                                 )}
                             </div>
                             <div>
-                                {(campaign?.finalStatus === 'offers-approved' || campaign?.finalStatus === "content-approved") && (
-                                    <>
-                                        <h2 className=" pb-2 border-b border-gray-300 text-xl font-bold">Assign to</h2>
-                                        <div className="flex flex-col gap-3">
-                                            <AssignToDropdown onSelect={(userId) => setAssigUser(userId)} />
-                                            <Button
-                                                type="button"
-                                                onClick={() => assignUserToCampaign(campaign._id, getAssignmentRole(campaign?.finalStatus))}
-                                                disabled={loading || !assigUser}
-                                            >
-                                                {loading ? "Assigning..." : "Assign"}
-                                            </Button>
-                                        </div>
-                                    </>
-                                )}
+                                {(
+                                    (campaign?.finalStatus === 'offers-approved' || campaign?.finalStatus === 'content-approved') &&
+                                    ['admin', 'marketing_manager'].includes(user?.role)
+                                ) && (
+                                        <>
+                                            <h2 className=" pb-2 border-b border-gray-300 text-xl font-bold">Assign to</h2>
+                                            <div className="flex flex-col gap-3">
+                                                <AssignToDropdown onSelect={(userId) => setAssigUser(userId)} />
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => assignUserToCampaign(campaign._id, getAssignmentRole(campaign?.finalStatus))}
+                                                    disabled={loading || !assigUser}
+                                                >
+                                                    {loading ? "Assigning..." : "Assign"}
+                                                </Button>
+                                            </div>
+                                        </>
+                                    )}
                             </div>
 
                         </div>
@@ -363,33 +367,33 @@ const CampaignViewPage = () => {
                                                                 {entry?.updatedBy?.lastName || "N/A"}
                                                             </p>
                                                             <p className="text-gray-600 text-sm w-full">{entry.comment}</p>
-                                                             {entry.attachment && (
-                                                            <a
-                                                                href={entry.attachment}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="text-sm text-blue-600 flex items-center gap-1 mt-2 hover:underline"
-                                                            >
-                                                                <FiPaperclip /> Attachment
-                                                            </a>
-                                                        )}
+                                                            {entry.attachment && (
+                                                                <a
+                                                                    href={entry.attachment}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-sm text-blue-600 flex items-center gap-1 mt-2 hover:underline"
+                                                                >
+                                                                    <FiPaperclip /> Attachment
+                                                                </a>
+                                                            )}
                                                         </div>
-                                                        </div>
-
-                                                       
                                                     </div>
-                                                </div>
-                                                );
-                                    })}
-                                            </div>
 
-                        </div>
+
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                            </div>
+
                         </div>
                     </div>
                 </div>
-
             </div>
-            );
+
+        </div>
+    );
 };
 
-            export default CampaignViewPage;
+export default CampaignViewPage;
