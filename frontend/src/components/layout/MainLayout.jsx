@@ -3,7 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/auth-context';
 import {
     FiChevronLeft, FiGrid, FiUser, FiLogOut,
-    FiSliders, FiFolder, FiPaperclip
+    FiSliders, FiFolder, FiPaperclip, FiVolume2
 } from "react-icons/fi";
 import LogoImage from '../../assets/m-logo.svg';
 import LogoImagePro from '../../assets/marcom.svg'
@@ -13,6 +13,7 @@ import { snakeToCapitalCase } from '../../utils/convertCase';
 const menuItems = [
     { to: '/brand-treasury', icon: <FiFolder size={24} />, label: 'Brand Treasury',  },
     { to: '/artworks', icon: <FiPaperclip size={24} />, label: 'Artworks',  roles: ['admin', 'marketing_manager', 'zonal_marketing_manager', 'agency', 'moderator'] },
+    { to: '/campaigns', icon: <FiVolume2 size={24} />, label: 'Lead Gen', roles: ['admin', 'marketing_manager'] },
     { to: '/', icon: <FiGrid size={24} />, label: 'Dashboard' },
     { to: '/users', icon: <FiUser size={24} />, label: 'Users', roles: ['admin', 'marketing_manager'] },
     { to: '/masterdata', icon: <FiSliders size={24} />, label: 'Master Data', roles: ['admin', 'marketing_manager'] }
