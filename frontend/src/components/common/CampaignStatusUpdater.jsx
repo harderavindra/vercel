@@ -83,10 +83,16 @@ const CampaignStatusUpdater = ({ campaignId, currentStatus, assignedTo, onUpdate
       if ([ "brand_manager"].includes(role)) {
         return ["content-approved", "content-rejected"];
       }
+       if (["agency"].includes(role)) {
+        return ["content-resubmitted"];
+      }
     }
     if (normalizedStatus === "content-rejected") {
       if (["brand_manager"].includes(role)) {
         return ["content-approved", "content-inreview"];
+      }
+       if (["agency"].includes(role)) {
+        return ["content-resubmitted"];
       }
     }
     // if (normalizedStatus === "content-approved") {

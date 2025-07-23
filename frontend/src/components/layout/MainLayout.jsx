@@ -9,11 +9,13 @@ import LogoImage from '../../assets/m-logo.svg';
 import LogoImagePro from '../../assets/marcom.svg'
 import Avatar from '../common/Avatar';
 import { snakeToCapitalCase } from '../../utils/convertCase';
+import MegaPhoneIcon from '../../assets/megaphone_icon.svg';
+import { TbSpeakerphone } from "react-icons/tb";
 
 const menuItems = [
     { to: '/brand-treasury', icon: <FiFolder size={24} />, label: 'Brand Treasury',  },
     { to: '/artworks', icon: <FiPaperclip size={24} />, label: 'Artworks',  roles: ['admin', 'marketing_manager', 'zonal_marketing_manager', 'agency', 'moderator'] },
-    { to: '/campaigns', icon: <FiVolume2 size={24} />, label: 'Lead Gen', roles: ['admin', 'marketing_manager'] },
+    { to: '/campaigns', icon: <TbSpeakerphone size={24} />, label: 'Lead Gen' },
     { to: '/', icon: <FiGrid size={24} />, label: 'Dashboard' },
     { to: '/users', icon: <FiUser size={24} />, label: 'Users', roles: ['admin', 'marketing_manager'] },
     { to: '/masterdata', icon: <FiSliders size={24} />, label: 'Master Data', roles: ['admin', 'marketing_manager'] }
