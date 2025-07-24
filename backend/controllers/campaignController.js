@@ -7,7 +7,10 @@ import {
   generateJobCreateEmailHTML,
   assignedJobEmailHTML,
   statusChangedJobEmailHTML,
-  firstJobApprovedEmailHTML
+  firstJobApprovedEmailHTML,
+  generateCampaingnCreateEmailHTML,
+  updatedCampaignStatusEmailHTML,
+  assignedCampaignEmailHTML
 } from "../constants/emailTemplate.js";
 import { sendEmail } from "../utils/emailService.js";
 import { ZONES } from "../../frontend/src/utils/constants.js";
@@ -34,30 +37,31 @@ export const createCampaign = async (req, res) => {
     });
 
     await newCampaign.save();
-    console.log("saved")
 
-    // const html = generateJobCreateEmailHTML({
-    //   job: newCampaign,
-    //   created: req.user.name,
-    //   adminPanelLink: `https://www.adbee.in/view-campaign/${newCampaign._id}`
-    // });
+    const html = generateCampaingnCreateEmailHTML({
+      campaign: newCampaign,
+      created: req.user.name,
+      adminPanelLink: `https://www.adbee.in/campaigns/${newCampaign._id}`
+    });
 
-    // const otherUsers = await User.find({
-    //   role: { $in: ['admin', 'marketing_manager'] },
-    //   _id: { $ne: req.user.userId }
-    // }).select('email');
+    const otherUsers = await User.find({
+      role: { $in: ['admin', 'marketing_manager'] },
+      _id: { $ne: req.user.userId }
+    }).select('email');
 
-    // const createdByUser = await User.findById(newCampaign.createdBy).select('email');
-    // const assignedToUser = await User.findById(newCampaign.assignedTo).select('email');
+    const createdByUser = await User.findById(newCampaign.createdBy).select('email');
+    const assignedToUser = await User.findById(newCampaign.assignedTo).select('email');
 
-    // const emailSet = new Set([
-    //   ...otherUsers.map(u => u.email).filter(Boolean),
-    //   createdByUser?.email,
-    //   assignedToUser?.email
-    // ]);
+    const emailSet = new Set([
+      ...otherUsers.map(u => u.email).filter(Boolean),
+      createdByUser?.email,
+      assignedToUser?.email
+    ]);
+
 
     // const emails = Array.from(emailSet).filter(Boolean);
-    // await sendEmail({ to: emails, subject: `New campaign Created: ${newCampaign.title}`, html });
+    const emails = ['harderavi@gmail.com', 'sainathdandawate@bigital.co.in'];
+    await sendEmail({ to: emails, subject: `New campaign Created: ${newCampaign.title}`, html });
 
     res.status(201).json({ success: true, campaign: newCampaign });
   } catch (error) {
@@ -186,7 +190,43 @@ export const updateCampaignStatus = async (req, res) => {
     // Update finalStatus
     campaign.finalStatus = status;
 
+// Notify by email
+    const updatedByUser = await User.findById(userId).select("firstName lastName email");
+    const createdByUser = await User.findById(campaign.createdBy).select("email");
+
+    const otherUsers = await User.find({
+      role: { $in: ["admin", "marketing_manager", "zonal_marketing_manager", "brand_manager"] },
+      _id: { $ne: userId }
+    }).select("email");
+
+    const emailSet = new Set([
+      updatedByUser?.email,
+      createdByUser?.email,
+      ...otherUsers.map((u) => u.email)
+    ]);
+
+    // For test only one email
+    const emails = ['harderavi@gmail.com', 'sainathdandawate@bigital.co.in'];
+    // const emails = Array.from(emailSet).filter(Boolean);
+
+    const html = updatedCampaignStatusEmailHTML({
+      campaign,
+      status,
+      comment,
+      updatedBy: updatedByUser,
+      adminPanelLink: `https://www.adbee.in/campaigns/${id}`
+    });
+
+    await sendEmail({
+      to: emails,
+      subject: `Campaign Status Updated: ${campaign.title}`,
+      html
+    });
+
+
     await campaign.save();
+
+    
 
     res.status(200).json({
       success: true,
@@ -243,33 +283,34 @@ export const assignCampaign = async (req, res) => {
       // ✅ Update final status
       campaign.finalStatus = statusLabel;
 
-      // // Notify by email
-      // const assignedUser = await User.findById(assignedTo).select("firstName lastName email");
-      // const createdByUser = await User.findById(campaign.createdBy).select("email");
+      // Notify by email
+      const assignedUser = await User.findById(assignedTo).select("firstName lastName email");
+      const createdByUser = await User.findById(campaign.createdBy).select("email");
 
-      // const otherUsers = await User.find({
-      //   role: { $in: ["admin", "marketing_manager"] },
-      //   _id: { $ne: req.user.userId }
-      // }).select("email");
+      const otherUsers = await User.find({
+        role: { $in: ["admin", "marketing_manager"] },
+        _id: { $ne: req.user.userId }
+      }).select("email");
 
-      // const emailSet = new Set([
-      //   assignedUser?.email,
-      //   createdByUser?.email,
-      //   ...otherUsers.map((u) => u.email)
-      // ]);
+      const emailSet = new Set([
+        assignedUser?.email,
+        createdByUser?.email,
+        ...otherUsers.map((u) => u.email)
+      ]);
       // const emails = Array.from(emailSet).filter(Boolean);
+    const emails = ['harderavi@gmail.com', 'sainathdandawate@bigital.co.in'];
+      const html = assignedCampaignEmailHTML({
+        campaign,
+        assigned: { by: req.user.name, to: assignedUser },
+        adminPanelLink: `https://www.adbee.in/campaigns/${campaignId}`
 
-      // const html = assignedCampaignEmailHTML({
-      //   campaign,
-      //   assigned: { by: req.user.name, to: assignedUser },
-      //   adminPanelLink: `https://yourdomain.com/campaign/${campaignId}`
-      // });
+      });
 
-      // await sendEmail({
-      //   to: emails,
-      //   subject: `Campaign Assigned for ${role}: ${campaign.title}`,
-      //   html
-      // });
+      await sendEmail({
+        to: emails,
+        subject: `Campaign Assigned for ${role}: ${campaign.title}`,
+        html
+      });
 
       await campaign.save();
     }

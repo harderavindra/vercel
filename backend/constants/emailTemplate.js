@@ -186,3 +186,116 @@ export const statusChangedJobEmailHTML = ({job, statusChangedBy, adminPanelLink}
   ${bottomContent}
   `;
 };
+
+
+export const generateCampaingnCreateEmailHTML = ({campaign, created, adminPanelLink}) => {
+  const dueDateFormatted = campaign.dueDate
+    ? new Date(campaign.dueDate).toLocaleDateString()
+    : 'N/A';
+
+  return `
+  ${topContent}
+    <div style="padding: 20px;">
+      <h2 style="color: #333333;">New Campaign Created</h2>
+      <p style="color: #555555;">A new Campaign has been created in the system. Here are the details:</p>
+
+      <ul style="color: #555555;">
+        <li><strong>Campaign Title:</strong> ${campaign.title || 'N/A'}</li>
+        <li><strong>Zone:</strong> ${campaign.zone || 'N/A'}</li>
+        <li><strong>Details:</strong> ${campaign.campaignDetails || 'N/A'}</li>
+        <li><strong>Due Date:</strong> ${dueDateFormatted}</li>
+        <li><strong>Created By:</strong> ${created || 'N/A'}</li>
+      </ul>
+
+      <p>Please log in to your admin panel to view the details and take necessary action.</p>
+
+      <div style="text-align: center; margin-top: 25px;">
+        <a href="${adminPanelLink}" style="background-color: #d1001c; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+          View Campaign 
+        </a>
+      </div>
+    </div>
+  ${bottomContent}
+  `;
+};
+
+export const assignedCampaignEmailHTML = ({ campaign, assigned, adminPanelLink }) => {
+  const dueDateFormatted = campaign.dueDate
+    ? new Date(campaign.dueDate).toLocaleDateString()
+    : 'N/A';
+
+  const assignedToName = assigned?.to?.firstName || '' + ' ' + assigned?.to?.lastName || '';
+  const assignedBy = assigned?.by || 'N/A';
+
+  return `
+    ${topContent}
+    <div style="padding: 20px;">
+      <h2 style="color: #333333;">Campaign Assigned</h2>
+      <p style="color: #555555;">A campaign has been assigned to a team member. Below are the details:</p>
+
+      <ul style="color: #555555;">
+        <li><strong>Campaign Title:</strong> ${campaign.title || 'N/A'}</li>
+        <li><strong>Zone:</strong> ${campaign.zone || 'N/A'}</li>
+        <li><strong>Due Date:</strong> ${dueDateFormatted}</li>
+        <li><strong>Assigned To:</strong> ${assignedToName || 'N/A'}</li>
+        <li><strong>Assigned By:</strong> ${assignedBy}</li>
+      </ul>
+
+      <p>Please log in to your admin panel to take necessary action or follow up.</p>
+
+      <div style="text-align: center; margin-top: 25px;">
+        <a href="${adminPanelLink}" style="background-color: #d1001c; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+          View Campaign 
+        </a>
+      </div>
+    </div>
+    ${bottomContent}
+  `;
+};
+
+export const updatedCampaignStatusEmailHTML = ({
+  campaign,
+  status,
+  comment,
+  updatedBy,          // can be user object { firstName, lastName, email } or string
+  adminPanelLink,
+  topContent = "",
+  bottomContent = ""
+}) => {
+  const dueDateFormatted = campaign?.dueDate
+    ? new Date(campaign.dueDate).toLocaleDateString("en-IN")
+    : "N/A";
+
+  const updatedByName =
+    typeof updatedBy === "string"
+      ? updatedBy
+      : updatedBy
+      ? `${updatedBy.firstName || ""} ${updatedBy.lastName || ""}`.trim() || updatedBy.email || "N/A"
+      : "N/A";
+
+  return `
+    ${topContent}
+    <div style="padding:20px;font-family:Arial, sans-serif;">
+      <h2 style="color:#333;margin:0 0 10px;">Campaign Status Updated</h2>
+      <p style="color:#555;margin:0 0 16px;">
+        The status of the campaign has been updated. Here are the details:
+      </p>
+
+      <ul style="color:#555;line-height:1.6;padding-left:18px;margin:0 0 20px;">
+        <li><strong>Campaign Title:</strong> ${campaign?.title || "N/A"}</li>
+        <li><strong>Zone:</strong> ${campaign?.zone || "N/A"}</li>
+        <li><strong>New Status:</strong> ${status || "N/A"}</li>
+        <li><strong>Updated By:</strong> ${updatedByName}</li>
+        <li><strong>Due Date:</strong> ${dueDateFormatted}</li>
+        ${comment ? `<li><strong>Comment:</strong> ${comment}</li>` : ""}
+      </ul>
+
+      <div style="text-align:center;margin-top:24px;">
+        <a href="${adminPanelLink}" style="background:#d1001c;color:#fff;padding:12px 20px;text-decoration:none;border-radius:5px;font-weight:bold;display:inline-block;">
+          View Campaign
+        </a>
+      </div>
+    </div>
+    ${bottomContent}
+  `;
+};
