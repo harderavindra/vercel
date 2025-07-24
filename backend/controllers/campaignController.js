@@ -32,7 +32,7 @@ export const createCampaign = async (req, res) => {
       attachment,
       dueDate,
       createdBy: req.user.userId,
-      finalStatus:"campaign-created",
+      finalStatus: "campaign-created",
       decisionHistory: [{ status: "campaign-created", updatedBy: req.user.userId }]
     });
 
@@ -72,16 +72,16 @@ export const createCampaign = async (req, res) => {
 
 export const getAllCampaigns = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search = "",zone } = req.query;
+    const { page = 1, limit = 10, search = "", zone } = req.query;
 
     const query = {};
 
     if (search.trim().length >= 3) {
       query.title = { $regex: search.trim(), $options: "i" };
     }
-  if (zone) {
-  query.zone = zone;
-}
+    if (zone) {
+      query.zone = zone;
+    }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
@@ -118,8 +118,8 @@ export const getCampaignById = async (req, res) => {
   try {
     const campaign = await Campaign.findById(req.params.id)
       .populate("createdBy", "name email")
-.populate("designAssignedTo", "firstName lastName email profilePic")
-.populate("publishAssignedTo", "firstName lastName email profilePic")
+      .populate("designAssignedTo", "firstName lastName email profilePic")
+      .populate("publishAssignedTo", "firstName lastName email profilePic")
       .populate("statusHistory.updatedBy", "firstName lastName email profilePic")
       .populate("decisionHistory.updatedBy", "firstName lastName email profilePic");
 
@@ -190,7 +190,7 @@ export const updateCampaignStatus = async (req, res) => {
     // Update finalStatus
     campaign.finalStatus = status;
 
-// Notify by email
+    // Notify by email
     const updatedByUser = await User.findById(userId).select("firstName lastName email");
     const createdByUser = await User.findById(campaign.createdBy).select("email");
 
@@ -204,6 +204,17 @@ export const updateCampaignStatus = async (req, res) => {
       createdByUser?.email,
       ...otherUsers.map((u) => u.email)
     ]);
+
+    if (campaign.designAssignedTo) {
+      const designUser = await User.findById(campaign.designAssignedTo).select("email").lean();
+      if (designUser?.email) emailSet.add(designUser.email);
+    }
+
+    // Add publishAssignedTo email if present
+    if (campaign.publishAssignedTo) {
+      const publishUser = await User.findById(campaign.publishAssignedTo).select("email").lean();
+      if (publishUser?.email) emailSet.add(publishUser.email);
+    }
 
     // For test only one email
     const emails = ['harderavi@gmail.com', 'sainathdandawate@bigital.co.in'];
@@ -226,7 +237,7 @@ export const updateCampaignStatus = async (req, res) => {
 
     await campaign.save();
 
-    
+
 
     res.status(200).json({
       success: true,
@@ -240,7 +251,7 @@ export const updateCampaignStatus = async (req, res) => {
 };
 
 export const assignCampaign = async (req, res) => {
-    const { campaignId } = req.params;
+  const { campaignId } = req.params;
   const { assignedTo, role, comment } = req.body;
   const adminId = req.user.userId;
 
@@ -298,7 +309,7 @@ export const assignCampaign = async (req, res) => {
         ...otherUsers.map((u) => u.email)
       ]);
       // const emails = Array.from(emailSet).filter(Boolean);
-    const emails = ['harderavi@gmail.com', 'sainathdandawate@bigital.co.in'];
+      const emails = ['harderavi@gmail.com', 'sainathdandawate@bigital.co.in'];
       const html = assignedCampaignEmailHTML({
         campaign,
         assigned: { by: req.user.name, to: assignedUser },

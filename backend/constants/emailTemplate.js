@@ -273,6 +273,14 @@ export const updatedCampaignStatusEmailHTML = ({
       ? `${updatedBy.firstName || ""} ${updatedBy.lastName || ""}`.trim() || updatedBy.email || "N/A"
       : "N/A";
 
+      const designAssigned = campaign?.designAssignedTo?.firstName
+    ? `${campaign.designAssignedTo.firstName} ${campaign.designAssignedTo.lastName || ""}`.trim()
+    : campaign?.designAssignedTo?.email || "";
+
+  const publishAssigned = campaign?.publishAssignedTo?.firstName
+    ? `${campaign.publishAssignedTo.firstName} ${campaign.publishAssignedTo.lastName || ""}`.trim()
+    : campaign?.publishAssignedTo?.email || "";
+
   return `
     ${topContent}
     <div style="padding:20px;font-family:Arial, sans-serif;">
@@ -287,6 +295,16 @@ export const updatedCampaignStatusEmailHTML = ({
         <li><strong>New Status:</strong> ${status || "N/A"}</li>
         <li><strong>Updated By:</strong> ${updatedByName}</li>
         <li><strong>Due Date:</strong> ${dueDateFormatted}</li>
+         ${
+          designAssigned
+            ? `<li><strong>Design Assigned To:</strong> ${designAssigned}</li>`
+            : ""
+        }
+        ${
+          publishAssigned
+            ? `<li><strong>Publish Assigned To:</strong> ${publishAssigned}</li>`
+            : ""
+        }
         ${comment ? `<li><strong>Comment:</strong> ${comment}</li>` : ""}
       </ul>
 
