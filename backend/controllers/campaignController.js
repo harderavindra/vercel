@@ -45,7 +45,7 @@ export const createCampaign = async (req, res) => {
     });
 
     const otherUsers = await User.find({
-      role: { $in: ['admin', 'marketing_manager'] },
+      role: { $in: ["admin", "marketing_manager", "zonal_marketing_manager", "brand_manager"] },
       _id: { $ne: req.user.userId }
     }).select('email');
 
@@ -59,8 +59,8 @@ export const createCampaign = async (req, res) => {
     ]);
 
 
-    // const emails = Array.from(emailSet).filter(Boolean);
-    const emails = ['harderavi@gmail.com', 'sainathdandawate@bigital.co.in'];
+    const emails = Array.from(emailSet).filter(Boolean);
+    // const emails = ['harderavi@gmail.com', 'sainathdandawate@bigital.co.in'];
     await sendEmail({ to: emails, subject: `New campaign Created: ${newCampaign.title}`, html });
 
     res.status(201).json({ success: true, campaign: newCampaign });
@@ -217,8 +217,8 @@ export const updateCampaignStatus = async (req, res) => {
     }
 
     // For test only one email
-    const emails = ['harderavi@gmail.com', 'sainathdandawate@bigital.co.in'];
-    // const emails = Array.from(emailSet).filter(Boolean);
+    // const emails = ['harderavi@gmail.com', 'sainathdandawate@bigital.co.in'];
+    const emails = Array.from(emailSet).filter(Boolean);
 
     const html = updatedCampaignStatusEmailHTML({
       campaign,
