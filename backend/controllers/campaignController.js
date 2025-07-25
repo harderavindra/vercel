@@ -299,7 +299,7 @@ export const assignCampaign = async (req, res) => {
       const createdByUser = await User.findById(campaign.createdBy).select("email");
 
       const otherUsers = await User.find({
-        role: { $in: ["admin", "marketing_manager"] },
+        role: { $in: ["admin", "marketing_manager", "zonal_marketing_manager", "brand_manager"] },
         _id: { $ne: req.user.userId }
       }).select("email");
 
@@ -308,8 +308,8 @@ export const assignCampaign = async (req, res) => {
         createdByUser?.email,
         ...otherUsers.map((u) => u.email)
       ]);
-      // const emails = Array.from(emailSet).filter(Boolean);
-      const emails = ['harderavi@gmail.com', 'sainathdandawate@bigital.co.in'];
+      const emails = Array.from(emailSet).filter(Boolean);
+      // const emails = ['harderavi@gmail.com', 'sainathdandawate@bigital.co.in'];
       const html = assignedCampaignEmailHTML({
         campaign,
         assigned: { by: req.user.name, to: assignedUser },
