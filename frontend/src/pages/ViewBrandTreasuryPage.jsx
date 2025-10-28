@@ -160,7 +160,7 @@ const ViewBrandTreasuryPage = () => {
 
 
     fetchFile();
-  }, [fileId]);
+  }, [fileId]); 
 
  const generateAndCopy = async () => {
   try {
