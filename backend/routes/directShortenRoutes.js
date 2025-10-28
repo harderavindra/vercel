@@ -17,11 +17,7 @@ router.post("/", async (req, res) => {
     await short.save();
 
     // ✅ Determine BASE_URL properly
-    const BASE_URL =
-      process.env.NODE_ENV === "production"
-        ? process.env.BASE_URL || "https://api.adbee.in" // production
-        : "http://localhost:4000"; // development
-
+    const BASE_URL =   "https://api.adbee.in";
     const shortUrl = `${BASE_URL}/d/${code}`;
     res.json({ shortUrl });
   } catch (err) {
