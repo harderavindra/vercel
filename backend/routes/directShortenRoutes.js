@@ -16,14 +16,19 @@ router.post("/", async (req, res) => {
     const short = new ShortUrl({ code, originalUrl: url, fileName });
     await short.save();
 
-    const shortUrl = `${process.env.BASE_URL || "http://localhost:4000"}/d/${code}`;
+    // ✅ Determine BASE_URL properly
+    const BASE_URL =
+      process.env.NODE_ENV === "production"
+        ? process.env.BASE_URL || "https://api.adbee.in" // production
+        : "http://localhost:4000"; // development
+
+    const shortUrl = `${BASE_URL}/d/${code}`;
     res.json({ shortUrl });
   } catch (err) {
     console.error("Shorten error:", err.message);
     res.status(500).json({ error: "Failed to shorten URL" });
   }
 });
-
 // ✅ Stream file directly (no redirect)
 router.get("/:code", async (req, res) => {
   try {
