@@ -162,26 +162,24 @@ const ViewBrandTreasuryPage = () => {
     fetchFile();
   }, [fileId]);
 
-  const generateAndCopy = async () => {
-    if (!shortUrl) {
-      try {
-        const fullDownloadUrl = `${fileUrl}&response-content-disposition=attachment%3B%20filename%3D${encodeURIComponent(fileName)}`;
-        const res = await axios.get(
-          `https://tinyurl.com/api-create.php?url=${encodeURIComponent(fullDownloadUrl)}`
-        );
-        setShortUrl(res.data);
-        await navigator.clipboard.writeText(res.data);
-      } catch (err) {
-        console.error("Failed to shorten or copy:", err);
-        return;
-      }
-    } else {
-      await navigator.clipboard.writeText(shortUrl);
-    }
+ const generateAndCopy = async () => {
+  try {
+    const fullDownloadUrl = `${fileUrl}&response-content-disposition=attachment%3B%20filename%3D${encodeURIComponent(fileName)}`;
+    const res = await axios.post("http://localhost:4000/d", {
+      url: fullDownloadUrl,
+      fileName,
+    });
+
+    const shortUrl = res.data.shortUrl;
+    setShortUrl(shortUrl);
+    await navigator.clipboard.writeText(shortUrl);
 
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
-  };
+  } catch (err) {
+    console.error("Failed to shorten or copy:", err);
+  }
+};
 
   const handleApproval = async () => {
     const newStatus = !isApproved;
