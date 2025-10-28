@@ -160,12 +160,12 @@ const ViewBrandTreasuryPage = () => {
 
 
     fetchFile();
-  }, [fileId]); 
+  }, [fileId]);
 
  const generateAndCopy = async () => {
   try {
     const fullDownloadUrl = `${fileUrl}&response-content-disposition=attachment%3B%20filename%3D${encodeURIComponent(fileName)}`;
-    const res = await axios.post("http://localhost:4000/d", {
+    const res = await axios.post(`${import.meta.env.VITE_BACKEND_BASE_URL}/d`, {
       url: fullDownloadUrl,
       fileName,
     });
