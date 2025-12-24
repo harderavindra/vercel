@@ -43,6 +43,7 @@ router.get("/:code", async (req, res) => {
 
     const filePath = decodeURIComponent(match[1]);
     const file = bucket.file(filePath);
+  const [metadata] = await file.getMetadata();
 
     // ✅ Stream file from GCS directly
     res.setHeader(
@@ -50,6 +51,23 @@ router.get("/:code", async (req, res) => {
       `attachment; filename="${short.fileName || filePath.split("/").pop()}"`
     );
     res.setHeader("Content-Type", "application/octet-stream");
+    res.setHeader("Content-Length", metadata.size);
+  res.setHeader("Accept-Ranges", "bytes");
+
+  const range = req.headers.range;
+  let options = {};
+
+  if (range) {
+    const [start, end] = range.replace(/bytes=/, "").split("-");
+    options.start = parseInt(start, 10);
+    options.end = end ? parseInt(end, 10) : undefined;
+
+    res.status(206);
+    res.setHeader(
+      "Content-Range",
+      `bytes ${options.start}-${options.end || metadata.size - 1}/${metadata.size}`
+    );
+  }
 
     file.createReadStream()
       .on("error", (err) => {
