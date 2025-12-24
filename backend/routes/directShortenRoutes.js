@@ -30,55 +30,12 @@ router.post("/", async (req, res) => {
   }
 });
 // ✅ Stream file directly (no redirect)
+
+
 router.get("/:code", async (req, res) => {
-  try {
-    const short = await ShortUrl.findOne({ code: req.params.code });
-    if (!short) return res.status(404).send("Invalid download link");
+  const short = await ShortUrl.findOne({ code: req.params.code });
+  if (!short) return res.status(404).send("Invalid download link");
 
-    const fileUrl = short.originalUrl;
-
-    // Extract file path from Google Cloud Storage URL
-    const match = fileUrl.match(/mahindra_adbee_strg\/(.+)\?/);
-    if (!match) return res.status(400).send("Invalid file path");
-
-    const filePath = decodeURIComponent(match[1]);
-    const file = bucket.file(filePath);
-  const [metadata] = await file.getMetadata();
-
-    // ✅ Stream file from GCS directly
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${short.fileName || filePath.split("/").pop()}"`
-    );
-    res.setHeader("Content-Type", "application/octet-stream");
-    res.setHeader("Content-Length", metadata.size);
-  res.setHeader("Accept-Ranges", "bytes");
-
-  const range = req.headers.range;
-  let options = {};
-
-  if (range) {
-    const [start, end] = range.replace(/bytes=/, "").split("-");
-    options.start = parseInt(start, 10);
-    options.end = end ? parseInt(end, 10) : undefined;
-
-    res.status(206);
-    res.setHeader(
-      "Content-Range",
-      `bytes ${options.start}-${options.end || metadata.size - 1}/${metadata.size}`
-    );
-  }
-
-    file.createReadStream()
-      .on("error", (err) => {
-        console.error("Download error:", err);
-        res.status(500).send("File not found or access error");
-      })
-      .pipe(res);
-  } catch (err) {
-    console.error("Stream error:", err);
-    res.status(500).send("Server error");
-  }
+  return res.redirect(302, short.originalUrl);
 });
-
 export default router;
