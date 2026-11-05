@@ -128,7 +128,7 @@ const BrandTreasuryList = () => {
       {/* Left Content */}
       <div className="w-full p-3 sm:p-10">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pb-4 gap-3">
-          <PageTitle>Brand Treasury</PageTitle>
+          <PageTitle>Brand Treasury List</PageTitle>
           <StatusMessageWrapper loading={loading} success={success} error={error} />
           {hasAccess(user?.role, ['marketing_manager', 'admin', 'agency']) && (
             <Button width="auto" onClick={() => navigate('/create-brand-treasury')}>
