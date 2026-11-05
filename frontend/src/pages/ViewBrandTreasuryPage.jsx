@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import {
   FiCamera,
@@ -58,6 +58,7 @@ const EditButton = ({ isEditing, toggleEdit, updateBrand, isDisabled }) => {
 const ViewBrandTreasuryPage = () => {
   const { fileId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation(); // location.state.from = filtered list URL (set by BrandCard)
   const { user } = useAuth();
 
   const [document, setDocument] = useState(null);
@@ -266,7 +267,7 @@ const ViewBrandTreasuryPage = () => {
       <div className="flex justify-between items-center pb-4">
         <PageTitle>Brand Treasury</PageTitle>
         <StatusMessageWrapper loading={loading} success={success} error={error} />
-        <Button width="auto" onClick={() => navigate("/brand-treasury")}>
+        <Button width="auto" onClick={() => navigate(location.state?.from || "/brand-treasury")}>
           Back
         </Button>
       </div>

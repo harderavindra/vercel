@@ -3,7 +3,7 @@ import StatusBubble from '../common/StatusBubble'
 import { snakeToCapitalCase } from '../../utils/convertCase'
 import { motion } from "framer-motion";
 import FileIcon from '../common/FileIcon';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { updateStar } from '../../api/brandTreasury';
 import { FiCalendar, FiFileText, FiMapPin, FiPlayCircle, FiPrinter } from 'react-icons/fi';
 import { IoLanguageOutline } from 'react-icons/io5';
@@ -13,6 +13,11 @@ import Avatar from '../common/Avatar';
 
 const BrandCard = ({ document, loading, isEmpty }) => {
     const navigate = useNavigate()
+    const location = useLocation()
+    // Pass the list URL (with its filter query string) so the view page's
+    // Back button can return to the same filtered list.
+    const openDocument = () =>
+        navigate(`/view-brandtreasury/${document._id}`, { state: { from: location.pathname + location.search } })
     const [isStarred, setIsStarred] = useState(document?.isStarred || false);
     const handleStarToggle = async () => {
         try {
@@ -52,7 +57,7 @@ const BrandCard = ({ document, loading, isEmpty }) => {
                                     <StatusBubble size='sm' status={document?.approved ? 'success' : 'disabled'} icon={'check'} className='' />
                                     {/* <StatusBubble size='sm' status={`${user.status === 'active' ? 'success' : 'error'}`} icon={user.status === 'inactive' ? 'eyeOff' : 'check'} className='absolute right-5 top-5' /> */}
                                 </div>
-                                <div className="h-[180px]" onClick={() => navigate(`/view-brandtreasury/${document._id}`)}>
+                                <div className="h-[180px]" onClick={openDocument}>
                                     {document.thumbnailUrls[0] ? (
                                         <img src={document?.thumbnailUrls[0]} alt="Thumbnail" className="w-full h-full object-cover" style={{ borderRadius: "8px", marginBottom: "10px" }} />
                                     ) : (
@@ -65,7 +70,7 @@ const BrandCard = ({ document, loading, isEmpty }) => {
                                     )}
                                 </div>
                                 <div className='flex flex-col gap-1'>
-                                    <div className='flex gap-3 items-start' onClick={() => navigate(`/view-brandtreasury/${document._id}`)}>
+                                    <div className='flex gap-3 items-start' onClick={openDocument}>
                                         {document?.contentType ==='print' ? (<FiPrinter size={24} />):(<FiFileText size={24} />)}
                                         <p className='font-semibold text-lg capitalize line-clamp-1' >
                                             {document.title}

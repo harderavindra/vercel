@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { FiGrid, FiStar, FiUserPlus } from "react-icons/fi";
 import Pagination from "../components/common/Pagination";
 import BrandCard from "../components/brand/BrandCard";
@@ -21,6 +21,9 @@ const BrandTreasuryList = () => {
   const { ref, isSticky } = useSticky();
   const navigate = useNavigate();
   const location = useLocation();
+  // Filters are kept in the URL (?documentType=...&brand=...) so they survive
+  // navigating to a document and back, page refreshes, and shared links.
+  const [searchParams, setSearchParams] = useSearchParams();
   const [successMessage, setSuccessMessage] = useState('');
   const fileTypeList = [
     { label: "PDF", value: "pdf" },
@@ -28,22 +31,39 @@ const BrandTreasuryList = () => {
     { label: "Image (JPG, PNG, JPEG)", value: "image" },
     { label: "Video", value: "video" },
   ];
-  const [page, setPage] = useState(1);
-  const [documentType, setDocumentType] = useState("");
-  const [starred, setStarred] = useState(false);
-  const [myDocuments, setMyDocuments] = useState(false);
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(() => Number(searchParams.get("page")) || 1);
+  const [documentType, setDocumentType] = useState(() => searchParams.get("documentType") || "");
+  const [starred, setStarred] = useState(() => searchParams.get("view") === "starred");
+  const [myDocuments, setMyDocuments] = useState(() => searchParams.get("view") === "my");
+  const [search, setSearch] = useState(() => searchParams.get("search") || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(() => searchParams.get("search") || "");
   const [loading, setLoading] = useState(false);
   const [documents, setDocuments] = useState([]);
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1 });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [selectedLanguages, setSelectedLanguages] = useState([]);
+  const [selectedLanguages, setSelectedLanguages] = useState(
+    () => searchParams.get("languages")?.split(",").filter(Boolean) || []
+  );
   const [documentTypes, setDocumentTypes] = useState([]);
-  const [selectedFileType, setSelectedFileType] = useState("");
+  const [selectedFileType, setSelectedFileType] = useState(() => searchParams.get("fileType") || "");
   const [brandCategories, setBrandCategories] = useState([]);
-  const [brandType, setBrandType] = useState('');
+  const [brandType, setBrandType] = useState(() => searchParams.get("brand") || "");
+
+  // Mirror the current filters into the URL (replace, so filter changes
+  // don't pile up as separate browser-history entries).
+  useEffect(() => {
+    const params = {};
+    if (documentType) params.documentType = documentType;
+    if (brandType) params.brand = brandType;
+    if (selectedFileType) params.fileType = selectedFileType;
+    if (selectedLanguages.length) params.languages = selectedLanguages.join(",");
+    if (debouncedSearch) params.search = debouncedSearch;
+    if (starred) params.view = "starred";
+    else if (myDocuments) params.view = "my";
+    if (page > 1) params.page = String(page);
+    setSearchParams(params, { replace: true });
+  }, [documentType, brandType, selectedFileType, selectedLanguages, debouncedSearch, starred, myDocuments, page, setSearchParams]);
 
   const fetchBrandCategories = async () => {
     try {
