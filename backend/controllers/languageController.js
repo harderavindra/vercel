@@ -1,4 +1,5 @@
 import Language from '../models/Language.js';
+import Zone from '../models/Zone.js';
 
 // Starting list, copied from the mh-camp prototype (lib/masterData.ts)
 export const DEFAULT_LANGUAGES = [
@@ -102,6 +103,20 @@ export const updateLanguage = async (req, res) => {
 
     if (active === false && PROTECTED_CODES.includes(language.code)) {
       return res.status(400).json({ message: `${language.name} cannot be removed` });
+    }
+
+    // Refuse to deactivate a language that any zone state still uses
+    if (active === false && language.active !== false) {
+      const zones = await Zone.find({ 'states.languages': language.code }, 'name states').lean();
+      const usedIn = zones.flatMap((z) =>
+        z.states.filter((s) => s.languages.includes(language.code)).map((s) => `${s.name} (${z.name})`)
+      );
+      if (usedIn.length) {
+        return res.status(409).json({
+          message: `${language.name} is used by ${usedIn.length} state(s): ${usedIn.join(', ')}. Remove it from those states in Zones & States first.`,
+          usedIn,
+        });
+      }
     }
 
     if (name !== undefined) {

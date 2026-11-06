@@ -5,6 +5,7 @@ import { NavLink } from "react-router-dom";
 const MASTERS_TABS = [
   { to: "/masters/settings", label: "Settings" },
   { to: "/masters/languages", label: "Languages" },
+  { to: "/masters/zones", label: "Zones & States" },
 ];
 
 const MastersTabs = () => (

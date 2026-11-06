@@ -48,3 +48,51 @@ export const loadDefaultLanguages = async () => {
   });
   return response.data;
 };
+
+// ---- Zones & States ----
+export const getZones = async () => {
+  const response = await axios.get(`${API_baseURL}/zones`, { withCredentials: true });
+  return response.data;
+};
+
+export const createZone = async (name) => {
+  const response = await axios.post(`${API_baseURL}/zones`, { name }, { withCredentials: true });
+  return response.data;
+};
+
+export const updateZone = async (id, updates) => {
+  const response = await axios.put(`${API_baseURL}/zones/${id}`, updates, { withCredentials: true });
+  return response.data;
+};
+
+export const deleteZone = async (id) => {
+  const response = await axios.delete(`${API_baseURL}/zones/${id}`, { withCredentials: true });
+  return response.data;
+};
+
+// state: { name, languages? } → returns the updated zone
+export const addState = async (zoneId, state) => {
+  const response = await axios.post(`${API_baseURL}/zones/${zoneId}/states`, state, { withCredentials: true });
+  return response.data;
+};
+
+// updates: { name?, languages? } (languages order matters: first = default) → returns the updated zone
+export const updateState = async (zoneId, stateName, updates) => {
+  const response = await axios.put(`${API_baseURL}/zones/${zoneId}/states/${encodeURIComponent(stateName)}`, updates, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+// → returns the updated zone
+export const deleteState = async (zoneId, stateName) => {
+  const response = await axios.delete(`${API_baseURL}/zones/${zoneId}/states/${encodeURIComponent(stateName)}`, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+export const loadDefaultZones = async () => {
+  const response = await axios.post(`${API_baseURL}/zones/defaults`, {}, { withCredentials: true });
+  return response.data;
+};

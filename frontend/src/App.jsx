@@ -31,6 +31,7 @@ import CampaignListPage from "./pages/CampaignListPage";
 import CampaignViewPage from "./pages/CampaignViewPage";
 import SettingsPage from "./pages/masters/SettingsPage";
 import LanguagesPage from "./pages/masters/LanguagesPage";
+import ZonesPage from "./pages/masters/ZonesPage";
 
 const App = () => {
     return (
@@ -76,6 +77,7 @@ const App = () => {
                             <Route path="/masterdata" element={<MasterDataPage />} />
                             <Route path="/masters/settings" element={<SettingsPage />} />
                             <Route path="/masters/languages" element={<LanguagesPage />} />
+                            <Route path="/masters/zones" element={<ZonesPage />} />
 
                             <Route path="/user/:id" element={<UserDetailPage />} />
 
