@@ -25,3 +25,10 @@ We are porting master data (Settings lists, Languages, Zones & States, Brand & M
 7. **Code style:** use the existing style: ES modules, Mongoose, Express, React + Tailwind, react-icons.
 8. **Git:** one branch per step (`feat/masters-N-name`). Never commit `backend/.env 2`, `.DS_Store` or unrelated lockfile changes. Don't push or merge unless asked.
 9. **End of each step:** list the changed files, show `git diff --stat`, and give manual test steps. The test steps must include re-checking the old features: login, users, campaigns, artworks/jobs, brand treasury, `/masterdata`.
+
+## Campaigns v2 rules
+
+- Campaigns v2 is a NEW module next to the old campaigns: collection `campaigns_v2`, API `/api/campaigns-v2`, pages `/campaigns-v2`. Never modify the old `Campaign` model, `campaignController`, `campaignRoutes` or the old campaign pages.
+- Reference implementation (read-only): `/Users/raviharde/Documents/Projects/mh-camp`. Key files: `lib/masterData.ts` (FLOW, STATUS, WORKFLOW), `lib/logic.ts` (statusAfter, canDo, canEdit*, offerCode, validPrice, MAX_ITEMS), `lib/types.ts`, `components/ActionPanel.tsx`, `components/OfferModal.tsx`, `app/campaigns/[id]/page.tsx`, `app/api/campaigns/[id]/excel/route.ts`.
+- Role mapping: zmm = `zonal_marketing_manager`, bm = `brand_manager`, mm = `marketing_manager`, admin = `admin` or `master_admin`. The prototype's fixed ag1/ag2 roles become agency USERS (role `agency`): `campaign.agency` is a User id, and `handedTo` is an array of User ids.
+- The server enforces every rule. The frontend only hides buttons.
