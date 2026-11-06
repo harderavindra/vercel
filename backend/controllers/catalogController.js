@@ -9,6 +9,7 @@ import ModelCategory from '../models/ModelCategory.js';
 import Job from '../models/JobModel.js';
 import BrandTreasury from '../models/BrandTreasury.js';
 import Document from '../models/documentModel.js';
+import OfferFeature from '../models/OfferFeature.js';
 
 const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const nameRegex = (name) => ({ $regex: `^${escapeRegex(name)}$`, $options: 'i' });
@@ -190,6 +191,10 @@ export const deleteModel = async (req, res) => {
     const refs = await countReferences('model', model._id);
     if (refs.total) {
       return res.status(409).json({ message: `"${model.name}" is used by ${describeReferences(refs)} and cannot be deleted.`, references: refs });
+    }
+    const features = await OfferFeature.countDocuments({ model: model._id });
+    if (features) {
+      return res.status(409).json({ message: `"${model.name}" has ${features} offer feature(s). Delete them in Offer Features first.`, features });
     }
 
     await ModelCategory.deleteOne({ _id: model._id });

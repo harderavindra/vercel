@@ -7,6 +7,7 @@ const MASTERS_TABS = [
   { to: "/masters/languages", label: "Languages" },
   { to: "/masters/zones", label: "Zones & States" },
   { to: "/masters/brands", label: "Brand & Model" },
+  { to: "/masters/features", label: "Offer Features" },
 ];
 
 const MastersTabs = () => (

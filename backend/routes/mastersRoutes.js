@@ -11,6 +11,7 @@ import {
   getCatalog, createBrand, renameBrand, deleteBrand,
   createModel, renameModel, deleteModel,
 } from '../controllers/catalogController.js';
+import { getFeatures, createFeature, updateFeatureText, deleteFeature } from '../controllers/featureController.js';
 
 const router = express.Router();
 
@@ -49,5 +50,11 @@ router.delete('/brands/:id', requireRole(...ADMIN_ROLES), deleteBrand);
 router.post('/models', requireRole(...ADMIN_ROLES), createModel);
 router.put('/models/:id', requireRole(...ADMIN_ROLES), renameModel);
 router.delete('/models/:id', requireRole(...ADMIN_ROLES), deleteModel);
+
+// Offer Features (per model; text per language code)
+router.get('/features', getFeatures);
+router.post('/features', requireRole(...ADMIN_ROLES), createFeature);
+router.put('/features/:id', requireRole(...ADMIN_ROLES), updateFeatureText);
+router.delete('/features/:id', requireRole(...ADMIN_ROLES), deleteFeature);
 
 export default router;
