@@ -17,22 +17,26 @@ export const updateSetting = async (key, values) => {
 };
 
 // ---- Languages ----
-export const getLanguages = async () => {
+// all=true also returns inactive (removed) languages
+export const getLanguages = async (all = false) => {
   const response = await axios.get(`${API_baseURL}/languages`, {
+    params: all ? { all: 1 } : {},
     withCredentials: true,
   });
   return response.data;
 };
 
-export const addLanguage = async (name) => {
-  const response = await axios.post(`${API_baseURL}/languages`, { name }, {
+// code is optional; the server generates one from the name
+export const addLanguage = async (name, code) => {
+  const response = await axios.post(`${API_baseURL}/languages`, code ? { name, code } : { name }, {
     withCredentials: true,
   });
   return response.data;
 };
 
-export const deleteLanguage = async (id) => {
-  const response = await axios.delete(`${API_baseURL}/languages/${id}`, {
+// updates: { name?, active? }. Removing a language is { active: false } (never hard-deleted)
+export const updateLanguage = async (id, updates) => {
+  const response = await axios.put(`${API_baseURL}/languages/${id}`, updates, {
     withCredentials: true,
   });
   return response.data;

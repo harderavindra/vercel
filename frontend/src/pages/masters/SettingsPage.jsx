@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/auth-context";
 import { hasAccess } from "../../utils/permissions";
 import { getSettings, updateSetting } from "../../api/mastersApi";
-import ChipCard from "../../components/masters/ChipCard";
+import ChipRow from "../../components/masters/ChipRow";
 import MastersTabs from "../../components/masters/MastersTabs";
 
 const ADMIN_ROLES = ["admin", "master_admin"];
@@ -79,11 +79,12 @@ const SettingsPage = () => {
         <p>Loading settings...</p>
       ) : (
         SETTING_CARDS.map(({ key, title, placeholder }) => (
-          <ChipCard
+          <ChipRow
             key={key}
-            title={title}
+            label={title}
             items={settings[key] || []}
-            addPlaceholder={placeholder}
+            placeholder={placeholder}
+            empty="No values yet."
             busy={saving}
             onAdd={canEdit ? (value) => addValue(key, value) : undefined}
             onRemove={canEdit ? (value) => removeValue(key, value) : undefined}

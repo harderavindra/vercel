@@ -2,7 +2,7 @@ import express from 'express';
 import { authenticate } from '../controllers/userController.js';
 import { requireRole, ADMIN_ROLES } from '../middleware/requireRole.js';
 import { getSettings, updateSetting } from '../controllers/settingsController.js';
-import { getLanguages, addLanguage, deleteLanguage, loadDefaultLanguages } from '../controllers/languageController.js';
+import { getLanguages, addLanguage, updateLanguage, loadDefaultLanguages } from '../controllers/languageController.js';
 
 const router = express.Router();
 
@@ -21,6 +21,6 @@ router.put('/settings/:key', requireRole(...ADMIN_ROLES), updateSetting);
 router.get('/languages', getLanguages);
 router.post('/languages', requireRole(...ADMIN_ROLES), addLanguage);
 router.post('/languages/defaults', requireRole(...ADMIN_ROLES), loadDefaultLanguages);
-router.delete('/languages/:id', requireRole(...ADMIN_ROLES), deleteLanguage);
+router.put('/languages/:id', requireRole(...ADMIN_ROLES), updateLanguage);
 
 export default router;
