@@ -6,7 +6,8 @@ const labelStyle = "py-2 px-4 rounded-md border flex gap-3 items-center bg-white
 
 // One masters card: title on the left, chips on the right.
 // Pass onAdd / onRemove only when the user is allowed to edit.
-const ChipCard = ({ title, items = [], onAdd, onRemove, addPlaceholder = "Enter new value", emptyText = "No values yet.", busy = false }) => {
+// canRemove(item) can hide the remove cross for single items (e.g. English).
+const ChipCard = ({ title, items = [], onAdd, onRemove, canRemove, addPlaceholder = "Enter new value", emptyText = "No values yet.", busy = false }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [value, setValue] = useState("");
 
@@ -30,7 +31,7 @@ const ChipCard = ({ title, items = [], onAdd, onRemove, addPlaceholder = "Enter 
             items.map((item) => (
               <div key={item} className={labelStyle}>
                 <span>{item}</span>
-                {onRemove && (
+                {onRemove && (!canRemove || canRemove(item)) && (
                   <button
                     type="button"
                     title={`Remove ${item}`}

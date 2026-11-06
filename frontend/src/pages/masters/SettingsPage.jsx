@@ -3,6 +3,7 @@ import { useAuth } from "../../context/auth-context";
 import { hasAccess } from "../../utils/permissions";
 import { getSettings, updateSetting } from "../../api/mastersApi";
 import ChipCard from "../../components/masters/ChipCard";
+import MastersTabs from "../../components/masters/MastersTabs";
 
 const ADMIN_ROLES = ["admin", "master_admin"];
 
@@ -68,6 +69,7 @@ const SettingsPage = () => {
 
   return (
     <div className="flex flex-col gap-8 p-4 sm:p-10">
+      <MastersTabs />
       <div>
         <h1 className="font-semibold text-2xl">Settings</h1>
         {!canEdit && <p className="text-gray-500 text-sm mt-1">View only. Only admins can change these lists.</p>}

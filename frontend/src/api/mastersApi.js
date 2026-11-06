@@ -15,3 +15,32 @@ export const updateSetting = async (key, values) => {
   });
   return response.data;
 };
+
+// ---- Languages ----
+export const getLanguages = async () => {
+  const response = await axios.get(`${API_baseURL}/languages`, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+export const addLanguage = async (name) => {
+  const response = await axios.post(`${API_baseURL}/languages`, { name }, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+export const deleteLanguage = async (id) => {
+  const response = await axios.delete(`${API_baseURL}/languages/${id}`, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+export const loadDefaultLanguages = async () => {
+  const response = await axios.post(`${API_baseURL}/languages/defaults`, {}, {
+    withCredentials: true,
+  });
+  return response.data;
+};
