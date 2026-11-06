@@ -43,6 +43,7 @@ const userSchema = new mongoose.Schema(
       state: { type: String, trim: true },
       country: { type: String, default: "India", trim: true },
     },
+    zone: { type: String, trim: true }, // optional; set for zonal_marketing_manager (masters Zone name)
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
     lastUpdatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
