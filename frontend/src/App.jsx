@@ -29,6 +29,7 @@ import BrandTreasuryUploader from "./pages/BrandTreasuryUploader";
 import ChampaignCreatePage from "./pages/ChampaignCreatePage";
 import CampaignListPage from "./pages/CampaignListPage";
 import CampaignViewPage from "./pages/CampaignViewPage";
+import SettingsPage from "./pages/masters/SettingsPage";
 
 const App = () => {
     return (
@@ -72,6 +73,7 @@ const App = () => {
                             <Route path="/about" element={<About />} />
                             <Route path="/profile" element={<ProfilePage />} />
                             <Route path="/masterdata" element={<MasterDataPage />} />
+                            <Route path="/masters/settings" element={<SettingsPage />} />
 
                             <Route path="/user/:id" element={<UserDetailPage />} />
 
