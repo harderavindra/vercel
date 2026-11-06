@@ -19,7 +19,7 @@ We are porting master data (Settings lists, Languages, Zones & States, Brand & M
 6. **Allowed edits to existing files (append-only):**
    - the mount line in `backend/index.js`
    - new `<Route>`s in `App.jsx`
-   - a nav link in `Nav.jsx`
+   - nav links: append entries to the `menuItems` array in `frontend/src/components/layout/MainLayout.jsx` (plus any react-icons import they need). This is the real sidebar; `Nav.jsx` is not rendered anywhere.
    - an optional `zone` field in `User.js`
    - a zone select in `UserForm.jsx`
 7. **Code style:** use the existing style: ES modules, Mongoose, Express, React + Tailwind, react-icons.
