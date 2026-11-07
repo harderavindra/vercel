@@ -4,7 +4,7 @@ import CampaignV2 from '../models/CampaignV2.js';
 import Zone from '../models/Zone.js';
 import { allocateSerials } from '../utils/allocateSerials.js';
 import {
-  ROLE, STATUS, STATUS_KEYS, ACTION_KEYS, MONTH_PATTERN, canDo, offerCode, campaignStates,
+  ROLE, STATUS, STATUS_KEYS, API_ACTIONS, API_ACTION_KEYS, ZONE_SCOPED_ACTIONS, MONTH_PATTERN, canDo, offerCode, campaignStates,
 } from '../constants/campaignV2Workflow.js';
 import {
   HttpError, sendError, visibilityFilter, loadCampaign, assertZmmOfZone, addHistory, sameId, MM_ADMIN,
@@ -17,10 +17,11 @@ const USER_FIELDS = 'firstName lastName email role zone';
 /** What the current user may do on this campaign right now (the frontend uses it to show buttons). */
 export const permissionsFor = (campaign, user) => {
   const zmmOfZone = user.role === ROLE.ZMM && !!user.zone && user.zone === campaign.zone;
-  const actions = ACTION_KEYS.filter((a) => {
-    if (!canDo(a, campaign, user)) return false;
+  // API action names (POST /:id/actions/:action) the user can run right now
+  const actions = API_ACTION_KEYS.filter((a) => {
+    if (!canDo(API_ACTIONS[a].gate, campaign, user)) return false;
     // ZMM actions are limited to their own zone
-    return !['submit', 'approveContent', 'rejectContent'].includes(a) || zmmOfZone;
+    return !ZONE_SCOPED_ACTIONS.includes(a) || zmmOfZone;
   });
   const isAgency = sameId(campaign.agency, user.userId);
   return {
