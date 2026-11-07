@@ -10,6 +10,7 @@ import brandTreasuryRoutes from "./routes/brandTreasuryRoutes.js";
 import campaignRoutes from "./routes/campaignRoutes.js"
 import directShortenRoutes from "./routes/directShortenRoutes.js";
 import mastersRoutes from "./routes/mastersRoutes.js";
+import campaignV2Routes from "./routes/campaignV2Routes.js";
 
 import cookieParser from 'cookie-parser';
 import { bucket, uuidv4 } from './config/storage.js';
@@ -47,6 +48,7 @@ app.use("/api/brand-treasury", brandTreasuryRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use("/d", directShortenRoutes);
 app.use("/api/masters", mastersRoutes);
+app.use("/api/campaigns-v2", campaignV2Routes);
 
 app.get('/', (req, res) => {
     res.send('working');

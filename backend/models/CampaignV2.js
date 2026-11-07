@@ -111,7 +111,8 @@ const CampaignV2Schema = new mongoose.Schema(
     },
     history: { type: [HistorySchema], default: [] },
   },
-  { timestamps: true, collection: 'campaigns_v2' }
+  // optimisticConcurrency: a save fails (VersionError) if someone else saved the campaign in between
+  { timestamps: true, collection: 'campaigns_v2', optimisticConcurrency: true }
 );
 
 CampaignV2Schema.index({ zone: 1, month: 1 });
