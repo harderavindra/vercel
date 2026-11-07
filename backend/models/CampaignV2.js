@@ -27,10 +27,12 @@ const ItemSchema = new mongoose.Schema(
   { _id: false }
 );
 
+// The file lives in the GCS bucket at `fileName` (campaigns-v2/<campaignId>/<offerId>/<uuid>.png|jpg);
+// it is only read through short-lived signed URLs (GET .../artwork/view).
 const ArtworkSchema = new mongoose.Schema(
   {
-    url: { type: String, required: true },
-    fileName: { type: String },
+    fileName: { type: String, required: true }, // bucket object path
+    originalName: { type: String, trim: true }, // the file name on the agency's computer, for display
     type: { type: String },
     size: { type: Number },
     uploadedAt: { type: Date, default: Date.now },

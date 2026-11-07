@@ -5,10 +5,11 @@ import {
   listCampaigns, getCampaign, createCampaign, updateCampaign, deleteCampaign, duplicateCampaign,
 } from '../controllers/campaignV2Controller.js';
 import {
-  addOffer, updateOffer, removeOffer, setArtwork, addArtworkComment,
+  addOffer, updateOffer, removeOffer, addArtworkComment,
 } from '../controllers/campaignV2OfferController.js';
 import { performAction } from '../controllers/campaignV2ActionsController.js';
 import { getMyNotifications, markNotificationsRead } from '../controllers/notificationV2Controller.js';
+import { getArtworkUploadUrl, confirmArtwork, viewArtwork } from '../controllers/campaignV2ArtworkController.js';
 
 // Campaigns v2 (new module; the old /api/campaigns is untouched).
 // Role/status/zone rules are checked in the controllers for every request.
@@ -32,7 +33,9 @@ router.post('/:id/duplicate', duplicateCampaign);
 router.post('/:id/offers', addOffer);
 router.put('/:id/offers/:offerId', updateOffer);
 router.delete('/:id/offers/:offerId', removeOffer);
-router.put('/:id/offers/:offerId/artwork', setArtwork);
+router.post('/:id/offers/:offerId/artwork/upload-url', getArtworkUploadUrl);
+router.put('/:id/offers/:offerId/artwork', confirmArtwork);
+router.get('/:id/offers/:offerId/artwork/view', viewArtwork);
 router.post('/:id/offers/:offerId/comments', addArtworkComment);
 
 // Workflow actions: submit, decideOffers, assign, changeStatus, submitArtwork, decideContent,
