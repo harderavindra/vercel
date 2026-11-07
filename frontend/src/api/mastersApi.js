@@ -133,3 +133,25 @@ export const deleteModel = async (id) => {
   const response = await axios.delete(`${API_baseURL}/models/${id}`, { withCredentials: true });
   return response.data;
 };
+
+// ---- Offer Features (per model; text is { [languageCode]: string }) ----
+export const getFeatures = async (modelId) => {
+  const response = await axios.get(`${API_baseURL}/features`, { params: { model: modelId }, withCredentials: true });
+  return response.data;
+};
+
+export const createFeature = async (modelId, en) => {
+  const response = await axios.post(`${API_baseURL}/features`, { model: modelId, en }, { withCredentials: true });
+  return response.data;
+};
+
+// Empty text removes that language's text (English cannot be emptied)
+export const updateFeatureText = async (id, lang, text) => {
+  const response = await axios.put(`${API_baseURL}/features/${id}`, { lang, text }, { withCredentials: true });
+  return response.data;
+};
+
+export const deleteFeature = async (id) => {
+  const response = await axios.delete(`${API_baseURL}/features/${id}`, { withCredentials: true });
+  return response.data;
+};
