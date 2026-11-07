@@ -114,7 +114,7 @@ const HANDLERS = {
   // Assigned agency: send artwork of every not-yet-approved state to the ZMM
   submitArtwork(campaign) {
     const current = mapToObject(campaign.contentApprovals);
-    const missing = campaign.offers.filter((o) => current[o.state]?.status !== 'approved' && !o.artwork?.url);
+    const missing = campaign.offers.filter((o) => current[o.state]?.status !== 'approved' && !o.artwork?.fileName);
     if (missing.length) throw new HttpError(400, `Upload the artwork for every offer first (missing: ${missing.map((o) => o.code).join(', ')})`);
     const { approvals, sent } = resubmitStates(campaign, current);
     return { set: { contentApprovals: approvals }, to: statusAfter('content', campaign, approvals), note: sent.join(', ') };

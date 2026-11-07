@@ -1,9 +1,9 @@
 // Campaigns v2: offers inside a campaign, their artwork, artwork comments and links.
 import { allocateSerials } from '../utils/allocateSerials.js';
-import { offerCode, ARTWORK_TYPES, MAX_ARTWORK_MB } from '../constants/campaignV2Workflow.js';
+import { offerCode } from '../constants/campaignV2Workflow.js';
 import {
   HttpError, sendError, loadCampaign, assertCanEditOffers, assertZmmOfZone, unapproveStates,
-  findOffer, validateOffer, isUrl, sameId,
+  findOffer, validateOffer,
 } from '../utils/campaignV2Access.js';
 
 const clean = (v) => (typeof v === 'string' ? v.trim() : '');
@@ -59,42 +59,6 @@ export const removeOffer = async (req, res) => {
     res.status(200).json({ message: 'Offer removed', _id: req.params.offerId });
   } catch (error) {
     sendError(res, error, 'Failed to remove offer');
-  }
-};
-
-// PUT /api/campaigns-v2/:id/offers/:offerId/artwork  body: { url, fileName, type, size }  or { artwork: null } to clear.
-// The file itself is uploaded by the client through /api/files/signed-url/upload first.
-// Allowed for the assigned agency while preparing artwork, until that state's artwork is approved.
-export const setArtwork = async (req, res) => {
-  try {
-    const { user } = req;
-    const campaign = await loadCampaign(req.params.id, user);
-    if (!sameId(campaign.agency, user.userId)) throw new HttpError(403, 'Only the assigned agency can upload artwork');
-    if (!['in_progress', 'content_rejected'].includes(campaign.status)) {
-      throw new HttpError(409, 'Artwork can be uploaded after the agency changes the status, or after a rejection');
-    }
-    const offer = findOffer(campaign, req.params.offerId);
-    if (campaign.contentApprovals.get(offer.state)?.status === 'approved') {
-      throw new HttpError(409, `The artwork for ${offer.state} is already approved and locked`);
-    }
-
-    if (req.body?.artwork === null) {
-      offer.artwork = null;
-    } else {
-      const url = clean(req.body?.url);
-      const type = clean(req.body?.type);
-      const size = Number(req.body?.size);
-      if (!isUrl(url)) throw new HttpError(400, 'A valid artwork URL is required');
-      if (!ARTWORK_TYPES.includes(type)) throw new HttpError(400, 'Artwork must be a PNG or JPG image');
-      if (!Number.isFinite(size) || size <= 0 || size > MAX_ARTWORK_MB * 1024 * 1024) {
-        throw new HttpError(400, `Artwork must be at most ${MAX_ARTWORK_MB} MB`);
-      }
-      offer.artwork = { url, fileName: clean(req.body?.fileName), type, size, uploadedAt: new Date(), uploadedBy: user.userId };
-    }
-    await campaign.save();
-    res.status(200).json(offerJson(campaign, offer));
-  } catch (error) {
-    sendError(res, error, 'Failed to save artwork');
   }
 };
 

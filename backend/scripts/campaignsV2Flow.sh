@@ -80,7 +80,17 @@ offer() { # offer <state> <languages-json> <details>
   jq -n --arg s "$1" --argjson l "$2" --arg b "$BRAND_ID" --arg m "$MODEL_ID" --arg hp "$HP" --arg t "$TYPE" --argjson f "$FEATS" --arg d "$3" \
     '{state:$s, languages:$l, items:[{brand:$b, model:$m, hp:$hp, type:$t, offerPrice:"650000", crossingPrice:"700000", features:$f, details:$d}]}'
 }
-artwork() { jq -n --arg n "$1" '{url:("https://storage.googleapis.com/test/"+$n+".png"), fileName:($n+".png"), type:"image/png", size:250000}'; }
+# A 1×1 PNG to upload as artwork
+echo 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==' | base64 -d > "$JARS/art.png"
+ART_SIZE=$(wc -c < "$JARS/art.png" | tr -d ' ')
+# upload_artwork <offerId> <label>: signed upload URL → PUT the file to storage → confirm on the offer
+upload_artwork() {
+  req agency POST "$API/$CID/offers/$1/artwork/upload-url" 200 "$2: get upload URL" "{\"fileType\":\"image/png\",\"size\":$ART_SIZE}"
+  local url fname code; url=$(echo "$LAST" | jq -r '.uploadUrl'); fname=$(echo "$LAST" | jq -r '.fileName')
+  code=$(curl -s -o /dev/null -w '%{http_code}' -X PUT -H 'Content-Type: image/png' --data-binary @"$JARS/art.png" "$url")
+  if [ "$code" = "200" ]; then PASS=$((PASS+1)); echo "PASS  $code          $2: PUT file to storage"; else FAIL=$((FAIL+1)); echo "FAIL  $code          $2: PUT file to storage"; fi
+  req agency PUT "$API/$CID/offers/$1/artwork" 200 "$2: confirm" "{\"fileName\":\"$fname\",\"type\":\"image/png\",\"size\":$ART_SIZE,\"originalName\":\"art.png\"}"
+}
 
 echo "== Create campaign + offers (ZMM)"
 MONTH=$(date +%Y-%m)
@@ -112,15 +122,16 @@ act agency changeStatus 200 "agency changes status" "{\"agencyStatus\":\"$AGSTAT
 
 echo "== Artwork + approval, with a rejection loop"
 act agency submitArtwork 400 "submit with no artwork"
-req agency PUT "$API/$CID/offers/$O1/artwork" 200 "artwork $S1" "$(artwork a1)"
-req agency PUT "$API/$CID/offers/$O2/artwork" 200 "artwork $S2" "$(artwork a2)"
+upload_artwork "$O1" "artwork $S1"
+upload_artwork "$O2" "artwork $S2"
+req zmm GET "$API/$CID/offers/$O1/artwork/view" 200 "ZMM gets a view URL for $S1 artwork"
 act agency submitArtwork 200 "agency submits artwork"; check "content_uploaded" '.status=="content_uploaded"'
 req zmm POST "$API/$CID/offers/$O2/comments" 201 "ZMM comments on $S2 artwork" '{"text":"Logo too small"}'
 act zmm decideContent 200 "ZMM approves $S1 artwork" "{\"state\":\"$S1\",\"decision\":\"approved\"}"
 act zmm decideContent 400 "reject artwork without remark" "{\"state\":\"$S2\",\"decision\":\"rejected\"}"
 act zmm decideContent 200 "ZMM rejects $S2 artwork" "{\"state\":\"$S2\",\"decision\":\"rejected\",\"remark\":\"See comment\"}"; check "content_rejected" '.status=="content_rejected"'
-req agency PUT "$API/$CID/offers/$O1/artwork" 409 "approved $S1 artwork is locked" "$(artwork a1b)"
-req agency PUT "$API/$CID/offers/$O2/artwork" 200 "agency replaces $S2 artwork" "$(artwork a2b)"
+req agency POST "$API/$CID/offers/$O1/artwork/upload-url" 409 "approved $S1 artwork is locked" "{\"fileType\":\"image/png\",\"size\":$ART_SIZE}"
+upload_artwork "$O2" "agency replaces $S2 artwork"
 act agency submitArtwork 200 "agency resubmits"; check "$S1 approved, $S2 pending" ".campaign.contentApprovals[\"$S1\"].status==\"approved\" and .campaign.contentApprovals[\"$S2\"].status==\"pending\""
 act zmm decideContent 200 "ZMM approves $S2 artwork" "{\"state\":\"$S2\",\"decision\":\"approved\"}"; check "artwork_approved" '.status=="artwork_approved"'
 
