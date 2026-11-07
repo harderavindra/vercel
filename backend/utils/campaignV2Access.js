@@ -129,6 +129,8 @@ const settingValues = async (key) => (await Setting.findOne({ key }).lean())?.va
  */
 export const validateOffer = async (body, campaign) => {
   const errors = [];
+  const fieldErrors = {}; // first message per field, e.g. { state, languages, "items.0.brand" }
+  const err = (field, message) => { errors.push(message); if (!fieldErrors[field]) fieldErrors[field] = message; };
   const state = clean(body?.state);
   const languages = Array.isArray(body?.languages) ? body.languages.map((c) => clean(c).toLowerCase()).filter(Boolean) : [];
   const rawItems = Array.isArray(body?.items) ? body.items : [];
@@ -136,18 +138,18 @@ export const validateOffer = async (body, campaign) => {
   // State must belong to the campaign's zone; languages must be set for that state and active
   const zone = await Zone.findOne({ name: campaign.zone }).lean();
   const zoneState = zone?.states.find((s) => s.name === state);
-  if (!state) errors.push('State is required');
-  else if (!zoneState) errors.push(`State "${state}" is not in ${campaign.zone}`);
+  if (!state) err("state", 'State is required');
+  else if (!zoneState) err("state", `State "${state}" is not in ${campaign.zone}`);
 
-  if (!languages.length) errors.push('Select at least one language');
-  if (new Set(languages).size !== languages.length) errors.push('A language is listed twice');
+  if (!languages.length) err("languages", 'Select at least one language');
+  if (new Set(languages).size !== languages.length) err("languages", 'A language is listed twice');
   if (zoneState) {
     const active = new Set((await Language.find({ active: { $ne: false } }, 'code').lean()).map((l) => l.code));
     const bad = languages.filter((c) => !zoneState.languages.includes(c) || !active.has(c));
-    if (bad.length) errors.push(`Language(s) not available for ${state}: ${bad.join(', ')}`);
+    if (bad.length) err("languages", `Language(s) not available for ${state}: ${bad.join(', ')}`);
   }
 
-  if (rawItems.length < 1 || rawItems.length > MAX_ITEMS) errors.push(`An offer needs 1 to ${MAX_ITEMS} brand sections`);
+  if (rawItems.length < 1 || rawItems.length > MAX_ITEMS) err("items", `An offer needs 1 to ${MAX_ITEMS} brand sections`);
 
   const [hpSegments, offerTypes] = await Promise.all([settingValues('hpSegments'), settingValues('offerTypes')]);
   const items = [];
@@ -164,42 +166,42 @@ export const validateOffer = async (body, campaign) => {
 
     const brand = isId(String(raw?.brand ?? '')) ? await BrandCategory.findById(raw.brand).lean() : null;
     const model = brand && isId(String(raw?.model ?? '')) ? await ModelCategory.findOne({ _id: raw.model, brand: brand._id }).lean() : null;
-    if (!brand) errors.push(`Brand is required${n}`);
-    else if (brandsUsed.has(String(brand._id))) errors.push(`Each brand section must be a different brand${n}`);
+    if (!brand) err(`items.${i}.brand`, `Brand is required${n}`);
+    else if (brandsUsed.has(String(brand._id))) err(`items.${i}.brand`, `Each brand section must be a different brand${n}`);
     else brandsUsed.add(String(brand._id));
-    if (brand && !model) errors.push(`Model is required and must belong to ${brand.name}${n}`);
+    if (brand && !model) err(`items.${i}.model`, `Model is required and must belong to ${brand.name}${n}`);
     if (brand) Object.assign(item, { brand: brand._id, brandName: brand.name });
     if (model) Object.assign(item, { model: model._id, modelName: model.name });
 
-    if (!item.hp) errors.push(`HP is required${n}`);
-    else if (hpSegments.length && !hpSegments.includes(item.hp)) errors.push(`HP "${item.hp}" is not in Settings${n}`);
-    if (!item.type) errors.push(`Offer type is required${n}`);
-    else if (offerTypes.length && !offerTypes.includes(item.type)) errors.push(`Offer type "${item.type}" is not in Settings${n}`);
+    if (!item.hp) err(`items.${i}.hp`, `HP is required${n}`);
+    else if (hpSegments.length && !hpSegments.includes(item.hp)) err(`items.${i}.hp`, `HP "${item.hp}" is not in Settings${n}`);
+    if (!item.type) err(`items.${i}.type`, `Offer type is required${n}`);
+    else if (offerTypes.length && !offerTypes.includes(item.type)) err(`items.${i}.type`, `Offer type "${item.type}" is not in Settings${n}`);
 
     // Prices are optional, but must be 6–9 digits when entered
     for (const field of ['offerPrice', 'crossingPrice']) {
       const v = raw?.[field];
       if (v === undefined || v === null || v === '') continue;
-      if (!validPrice(v)) errors.push(`${field === 'offerPrice' ? 'Offer' : 'Crossing'} price must be 6–9 digits${n}`);
+      if (!validPrice(v)) err(`items.${i}.${field}`, `${field === 'offerPrice' ? 'Offer' : 'Crossing'} price must be 6–9 digits${n}`);
       else item[field] = Number(v);
     }
 
     const featureIds = Array.isArray(raw?.features) ? raw.features.map(String) : [];
-    if (featureIds.length < 1 || featureIds.length > MAX_FEATURES) errors.push(`Select 1 to ${MAX_FEATURES} features${n}`);
-    else if (new Set(featureIds).size !== featureIds.length) errors.push(`A feature is selected twice${n}`);
+    if (featureIds.length < 1 || featureIds.length > MAX_FEATURES) err(`items.${i}.features`, `Select 1 to ${MAX_FEATURES} features${n}`);
+    else if (new Set(featureIds).size !== featureIds.length) err(`items.${i}.features`, `A feature is selected twice${n}`);
     else if (model) {
       const valid = featureIds.every(isId)
         ? await OfferFeature.countDocuments({ _id: { $in: featureIds }, model: model._id })
         : 0;
-      if (valid !== featureIds.length) errors.push(`Features must belong to ${model.name}${n}`);
+      if (valid !== featureIds.length) err(`items.${i}.features`, `Features must belong to ${model.name}${n}`);
       else item.features = featureIds;
     }
 
-    if (!item.details) errors.push(`Offer details are required${n}`);
+    if (!item.details) err(`items.${i}.details`, `Offer details are required${n}`);
     items.push(item);
   }
 
-  if (errors.length) throw new HttpError(400, errors.join('; '), { errors });
+  if (errors.length) throw new HttpError(400, errors.join("; "), { errors, fieldErrors });
   return { state, languages, items };
 };
 

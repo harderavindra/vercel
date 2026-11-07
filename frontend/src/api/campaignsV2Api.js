@@ -59,3 +59,76 @@ export const addArtworkComment = async (campaignId, offerId, text) => {
   const { data } = await axios.post(`${API_baseURL}/${campaignId}/offers/${offerId}/comments`, { text }, { withCredentials: true });
   return data;
 };
+
+// ---- Campaigns ----
+// params: { status, zone, month, q }
+export const listCampaigns = async (params = {}) => {
+  const clean = Object.fromEntries(Object.entries(params).filter(([, v]) => v));
+  const { data } = await axios.get(API_baseURL, { params: clean, withCredentials: true });
+  return data;
+};
+
+/** Full campaign incl. `permissions` for the current user. */
+export const getCampaign = async (id) => {
+  const { data } = await axios.get(`${API_baseURL}/${id}`, { withCredentials: true });
+  return data;
+};
+
+// fields: { title, description, month, zone (admin only) }
+export const createCampaign = async (fields) => {
+  const { data } = await axios.post(API_baseURL, fields, { withCredentials: true });
+  return data;
+};
+
+// ---- Offers ----
+// offer: { state, languages: [code], items: [{ brand, model, hp, type, offerPrice, crossingPrice, features: [id], details, remarks }] }
+// On a 400 the server sends { message, errors: [...], fieldErrors: { state, languages, "items.0.brand", ... } }.
+export const addOffer = async (campaignId, offer) => {
+  const { data } = await axios.post(`${API_baseURL}/${campaignId}/offers`, offer, { withCredentials: true });
+  return data;
+};
+
+export const updateOffer = async (campaignId, offerId, offer) => {
+  const { data } = await axios.put(`${API_baseURL}/${campaignId}/offers/${offerId}`, offer, { withCredentials: true });
+  return data;
+};
+
+export const removeOffer = async (campaignId, offerId) => {
+  const { data } = await axios.delete(`${API_baseURL}/${campaignId}/offers/${offerId}`, { withCredentials: true });
+  return data;
+};
+
+// fields: { title, description, month }
+export const updateCampaign = async (id, fields) => {
+  const { data } = await axios.put(`${API_baseURL}/${id}`, fields, { withCredentials: true });
+  return data;
+};
+
+export const deleteCampaign = async (id) => {
+  const { data } = await axios.delete(`${API_baseURL}/${id}`, { withCredentials: true });
+  return data;
+};
+
+// fields: { title, description, month } → the new draft campaign
+export const duplicateCampaign = async (id, fields) => {
+  const { data } = await axios.post(`${API_baseURL}/${id}/duplicate`, fields, { withCredentials: true });
+  return data;
+};
+
+// ---- Workflow actions ----
+// action: submit | decideOffers | assign | changeStatus | submitArtwork | decideContent |
+//         setCreativeLinks | submitLinks | setLandingPages | handOver
+// body examples: decideOffers/decideContent { state, decision: "approved"|"rejected", remark },
+//   assign { agencyUserId }, changeStatus { agencyStatus }, setCreativeLinks { links: { offerId: url } },
+//   setLandingPages { pages: { offerId: url } }, handOver { agencyUserIds: [id] }
+// Returns { message, status, campaign }.
+export const performAction = async (id, action, body = {}) => {
+  const { data } = await axios.post(`${API_baseURL}/${id}/actions/${action}`, body, { withCredentials: true });
+  return data;
+};
+
+// Active agency users (Marketing Manager / Admin only)
+export const listAgencyUsers = async () => {
+  const { data } = await axios.get(`${API_baseURL}/agency-users`, { withCredentials: true });
+  return data;
+};

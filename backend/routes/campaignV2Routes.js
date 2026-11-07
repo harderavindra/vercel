@@ -2,7 +2,7 @@ import express from 'express';
 import { authenticate } from '../controllers/userController.js';
 import { loadCurrentUser } from '../utils/campaignV2Access.js';
 import {
-  listCampaigns, getCampaign, createCampaign, updateCampaign, deleteCampaign, duplicateCampaign,
+  listCampaigns, getCampaign, createCampaign, updateCampaign, deleteCampaign, duplicateCampaign, listAgencyUsers,
 } from '../controllers/campaignV2Controller.js';
 import {
   addOffer, updateOffer, removeOffer, addArtworkComment,
@@ -20,6 +20,8 @@ router.use(authenticate, loadCurrentUser);
 // Notifications for the logged-in user (before '/:id' so "notifications" is not read as an id)
 router.get('/notifications', getMyNotifications);
 router.post('/notifications/read', markNotificationsRead);
+// Agency users for Assign / Hand over (before '/:id')
+router.get('/agency-users', listAgencyUsers);
 
 // Campaigns
 router.get('/', listCampaigns);

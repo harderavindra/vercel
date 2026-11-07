@@ -34,6 +34,8 @@ import LanguagesPage from "./pages/masters/LanguagesPage";
 import ZonesPage from "./pages/masters/ZonesPage";
 import BrandsPage from "./pages/masters/BrandsPage";
 import FeaturesPage from "./pages/masters/FeaturesPage";
+import CampaignsV2ListPage from "./pages/campaignsV2/CampaignsV2ListPage";
+import CampaignV2DetailPage from "./pages/campaignsV2/CampaignV2DetailPage";
 
 const App = () => {
     return (
@@ -50,6 +52,12 @@ const App = () => {
                             <Route path="/campaigns" element={<CampaignListPage />} />
                             <Route path="/campaigns/:id" element={<CampaignViewPage />} />
                                                 </Route>
+
+                        {/* Campaigns v2 (new module next to the old /campaigns) */}
+                        <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin', 'master_admin', 'zonal_marketing_manager', 'brand_manager', 'agency']} />}>
+                            <Route path="/campaigns-v2" element={<CampaignsV2ListPage />} />
+                            <Route path="/campaigns-v2/:id" element={<CampaignV2DetailPage />} />
+                        </Route>
 
                         <Route element={<ProtectedRoute allowedRoles={['marketing_manager', 'admin', 'zonal_marketing_manager', 'moderator', 'agency']} />}>
                             <Route path="/uploader" element={<BrandTreasuryUploader />} />
