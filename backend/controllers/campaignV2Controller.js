@@ -1,18 +1,47 @@
 // Campaigns v2: list, read, create, edit, delete and duplicate campaigns.
 // Offers are in campaignV2OfferController.js, workflow actions in campaignV2ActionController.js.
 import CampaignV2 from '../models/CampaignV2.js';
+import User from '../models/User.js';
 import Zone from '../models/Zone.js';
+import { bucket } from '../config/storage.js';
 import { allocateSerials } from '../utils/allocateSerials.js';
 import {
   ROLE, STATUS, STATUS_KEYS, API_ACTIONS, API_ACTION_KEYS, ZONE_SCOPED_ACTIONS, MONTH_PATTERN, canDo, offerCode, campaignStates,
 } from '../constants/campaignV2Workflow.js';
 import {
-  HttpError, sendError, visibilityFilter, loadCampaign, assertZmmOfZone, addHistory, sameId, MM_ADMIN,
+  HttpError, sendError, visibilityFilter, loadCampaign, assertZmmOfZone, addHistory, sameId, MM_ADMIN, ADMINS,
 } from '../utils/campaignV2Access.js';
 
 const clean = (v) => (typeof v === 'string' ? v.trim() : '');
 const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const USER_FIELDS = 'firstName lastName email role zone';
+const BUCKET_URL = 'https://storage.googleapis.com/mahindra_adbee_strg/';
+
+// Profile pictures are stored as bucket URLs; replace each with a 10-minute signed read URL (as the job pages do).
+// Each distinct picture is signed once. Pictures hosted elsewhere are left as they are.
+const signProfilePics = async (json) => {
+  const users = [];
+  const walk = (v) => {
+    if (!v || typeof v !== 'object') return;
+    if (Array.isArray(v)) { v.forEach(walk); return; }
+    if (v.constructor !== Object) return;
+    if (typeof v.profilePic === 'string' && v.profilePic && 'firstName' in v) users.push(v);
+    Object.values(v).forEach(walk);
+  };
+  walk(json);
+  const signed = new Map();
+  await Promise.all([...new Set(users.map((u) => u.profilePic))].map(async (pic) => {
+    if (/^https?:\/\//i.test(pic) && !pic.startsWith(BUCKET_URL)) { signed.set(pic, pic); return; }
+    try {
+      const path = decodeURIComponent(pic).replace(BUCKET_URL, '').split('?')[0];
+      const [url] = await bucket.file(path).getSignedUrl({ version: 'v4', action: 'read', expires: Date.now() + 10 * 60 * 1000 });
+      signed.set(pic, url);
+    } catch {
+      signed.set(pic, '');
+    }
+  }));
+  users.forEach((u) => { u.profilePic = signed.get(u.profilePic) || ''; });
+};
 
 /** What the current user may do on this campaign right now (the frontend uses it to show buttons). */
 export const permissionsFor = (campaign, user) => {
@@ -90,31 +119,41 @@ export const getCampaign = async (req, res) => {
   try {
     const campaign = await loadCampaign(req.params.id, req.user);
     await campaign.populate([
-      { path: 'createdBy agency handedTo history.by offers.artworkComments.by offers.artwork.uploadedBy', select: USER_FIELDS },
+      { path: 'createdBy agency handedTo history.by offers.artworkComments.by offers.artwork.uploadedBy', select: `${USER_FIELDS} profilePic` },
       { path: 'approvals.$*.by contentApprovals.$*.by', select: USER_FIELDS },
       { path: 'offers.items.features', select: 'text order' },
     ]);
     const json = campaign.toJSON({ flattenMaps: true });
+    await signProfilePics(json);
     res.status(200).json({ ...json, statusLabel: STATUS[json.status]?.label, permissions: permissionsFor(campaign, req.user) });
   } catch (error) {
     sendError(res, error, 'Failed to fetch campaign');
   }
 };
 
-// POST /api/campaigns-v2  body: { title, description?, month }  (ZMM; zone = the ZMM's own zone)
+// POST /api/campaigns-v2  body: { title, description?, month, zone? }
+// ZMM: zone is always their own zone. Admin / Master Admin: pick any zone from the Zones & States master.
+// Offers are then added by that zone's ZMM.
 export const createCampaign = async (req, res) => {
   try {
     const { user } = req;
-    if (user.role !== ROLE.ZMM) throw new HttpError(403, 'Only a Zonal Marketing Manager can create campaigns');
-    if (!user.zone) throw new HttpError(400, 'Your user has no zone. Ask an admin to set your zone first.');
+    const isAdmin = ADMINS.includes(user.role);
+    if (user.role !== ROLE.ZMM && !isAdmin) throw new HttpError(403, 'Only a Zonal Marketing Manager or an Admin can create campaigns');
+    if (!isAdmin && !user.zone) throw new HttpError(400, 'Your user has no zone. Ask an admin to set your zone first.');
     const title = clean(req.body?.title);
     if (!title) throw new HttpError(400, 'Title is required');
     const month = validMonth(clean(req.body?.month));
-    if (req.body?.zone && req.body.zone !== user.zone) throw new HttpError(403, `You can only create campaigns for ${user.zone}`);
-    if (!(await Zone.exists({ name: user.zone }))) throw new HttpError(400, `Zone "${user.zone}" is not in the Zones & States master`);
+    let zone = user.zone;
+    if (isAdmin) {
+      zone = clean(req.body?.zone);
+      if (!zone) throw new HttpError(400, 'Choose a zone');
+    } else if (req.body?.zone && req.body.zone !== user.zone) {
+      throw new HttpError(403, `You can only create campaigns for ${user.zone}`);
+    }
+    if (!(await Zone.exists({ name: zone }))) throw new HttpError(400, `Zone "${zone}" is not in the Zones & States master`);
 
     const campaign = new CampaignV2({
-      title, description: clean(req.body?.description), zone: user.zone, month, status: 'draft', createdBy: user.userId,
+      title, description: clean(req.body?.description), zone, month, status: 'draft', createdBy: user.userId,
     });
     addHistory(campaign, user, 'Campaign draft started');
     await campaign.save();
@@ -194,5 +233,16 @@ export const duplicateCampaign = async (req, res) => {
     res.status(201).json(campaign.toJSON({ flattenMaps: true }));
   } catch (error) {
     sendError(res, error, 'Failed to duplicate campaign');
+  }
+};
+
+// GET /api/campaigns-v2/agency-users  → active agency users, for Assign and Hand over (MM / Admin only)
+export const listAgencyUsers = async (req, res) => {
+  try {
+    if (!MM_ADMIN.includes(req.user.role)) throw new HttpError(403, 'Only a Marketing Manager or an Admin can assign agencies');
+    const users = await User.find({ role: ROLE.AGENCY_ROLE, status: { $ne: 'inactive' } }, 'firstName lastName email').sort({ firstName: 1 }).lean();
+    res.status(200).json(users);
+  } catch (error) {
+    sendError(res, error, 'Failed to fetch agency users');
   }
 };
