@@ -11,7 +11,7 @@ import Avatar from '../common/Avatar';
 import { snakeToCapitalCase } from '../../utils/convertCase';
 import MegaPhoneIcon from '../../assets/megaphone_icon.svg';
 import { TbSpeakerphone } from "react-icons/tb";
-import { FiDatabase } from "react-icons/fi";
+import { FiDatabase, FiTarget } from "react-icons/fi";
 
 const menuItems = [
     { to: '/brand-treasury', icon: <FiFolder size={24} />, label: 'Brand Treasury',  },
@@ -20,7 +20,8 @@ const menuItems = [
     { to: '/', icon: <FiGrid size={24} />, label: 'Dashboard' },
     { to: '/users', icon: <FiUser size={24} />, label: 'Users', roles: ['admin', 'marketing_manager'] },
     { to: '/masterdata', icon: <FiSliders size={24} />, label: 'Master Data', roles: ['admin', 'marketing_manager'] },
-    { to: '/masters/settings', icon: <FiDatabase size={24} />, label: 'Masters', roles: ['admin', 'master_admin', 'marketing_manager'] }
+    { to: '/masters/settings', icon: <FiDatabase size={24} />, label: 'Masters', roles: ['admin', 'master_admin', 'marketing_manager'] },
+    { to: '/campaigns-v2', icon: <FiTarget size={24} />, label: 'Campaigns', roles: ['marketing_manager', 'admin', 'master_admin', 'zonal_marketing_manager', 'brand_manager', 'agency'] }
 ];
 
 const MainLayout = () => {
