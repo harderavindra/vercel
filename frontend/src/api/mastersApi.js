@@ -96,3 +96,40 @@ export const loadDefaultZones = async () => {
   const response = await axios.post(`${API_baseURL}/zones/defaults`, {}, { withCredentials: true });
   return response.data;
 };
+
+// ---- Brand & Model (existing product/brand/model categories) ----
+// → [{ _id, name, category, brands: [{ _id, name, models: [{ _id, name }] }] }]
+export const getCatalog = async () => {
+  const response = await axios.get(`${API_baseURL}/catalog`, { withCredentials: true });
+  return response.data;
+};
+
+export const createBrand = async (name, product) => {
+  const response = await axios.post(`${API_baseURL}/brands`, { name, product }, { withCredentials: true });
+  return response.data;
+};
+
+export const renameBrand = async (id, name) => {
+  const response = await axios.put(`${API_baseURL}/brands/${id}`, { name }, { withCredentials: true });
+  return response.data;
+};
+
+export const deleteBrand = async (id) => {
+  const response = await axios.delete(`${API_baseURL}/brands/${id}`, { withCredentials: true });
+  return response.data;
+};
+
+export const createModel = async (name, brand) => {
+  const response = await axios.post(`${API_baseURL}/models`, { name, brand }, { withCredentials: true });
+  return response.data;
+};
+
+export const renameModel = async (id, name) => {
+  const response = await axios.put(`${API_baseURL}/models/${id}`, { name }, { withCredentials: true });
+  return response.data;
+};
+
+export const deleteModel = async (id) => {
+  const response = await axios.delete(`${API_baseURL}/models/${id}`, { withCredentials: true });
+  return response.data;
+};
