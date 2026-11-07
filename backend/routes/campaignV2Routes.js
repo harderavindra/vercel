@@ -8,12 +8,17 @@ import {
   addOffer, updateOffer, removeOffer, setArtwork, addArtworkComment,
 } from '../controllers/campaignV2OfferController.js';
 import { performAction } from '../controllers/campaignV2ActionsController.js';
+import { getMyNotifications, markNotificationsRead } from '../controllers/notificationV2Controller.js';
 
 // Campaigns v2 (new module; the old /api/campaigns is untouched).
 // Role/status/zone rules are checked in the controllers for every request.
 const router = express.Router();
 
 router.use(authenticate, loadCurrentUser);
+
+// Notifications for the logged-in user (before '/:id' so "notifications" is not read as an id)
+router.get('/notifications', getMyNotifications);
+router.post('/notifications/read', markNotificationsRead);
 
 // Campaigns
 router.get('/', listCampaigns);

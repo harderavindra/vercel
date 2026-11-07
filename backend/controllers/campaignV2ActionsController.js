@@ -14,6 +14,7 @@ import {
   HttpError, sendError, loadCampaign, assertZmmOfZone, loadAgencyUsers, isUrl, isId,
 } from '../utils/campaignV2Access.js';
 import { permissionsFor } from './campaignV2Controller.js';
+import { notifyCampaignV2 } from '../utils/notifyCampaignV2.js';
 
 const clean = (v) => (typeof v === 'string' ? v.trim() : '');
 const mapToObject = (m) => Object.fromEntries([...(m?.entries?.() || [])].map(([k, v]) => [k, v?.toObject ? v.toObject() : { ...v }]));
@@ -214,6 +215,10 @@ export const performAction = async (req, res) => {
       }
       throw new HttpError(409, 'This campaign was changed by someone else. Reload it and try again.');
     }
+
+    // Tell the people WORKFLOW names for this step (off unless NOTIFY_V2_ENABLED=true; never fails the action).
+    // Saving links without a status change has no WORKFLOW row, so nobody is notified for it.
+    if (changesStatus) await notifyCampaignV2(updated, result.workflowKey || spec.gate, user, result.note || '', result.remark || '');
 
     respond(res, updated, user, spec.event || row.event);
   } catch (error) {
