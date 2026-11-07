@@ -12,6 +12,7 @@ import AdminResetPassword from '../components/user/AdminResetPassword';
 import { useAuth } from '../context/auth-context';
 
 import { hasAccess } from "../utils/permissions";
+import { getZones } from '../api/mastersApi';
 
 const ViewText = ({ children }) => (<p className='text-xl capitalize'>{children}</p>)
 
@@ -57,6 +58,15 @@ const UserDetails = () => {
         status: false,
     });
     const [updatedFields, setUpdatedFields] = useState({});
+    // Zone (masters) is shown and required only for Zonal Marketing Managers
+    const ZONAL_ROLE = "zonal_marketing_manager";
+    const [zones, setZones] = useState([]);
+    useEffect(() => {
+        getZones().then(setZones).catch(() => setZones([]));
+    }, []);
+    const effectiveRole = updatedFields.role ?? viewUser?.role;
+    const effectiveZone = updatedFields.zone ?? viewUser?.zone ?? "";
+    const zoneMissing = editSections.status && effectiveRole === ZONAL_ROLE && !effectiveZone;
  const getUserDetails = async () => {
     console.log("uploaded refresh")
             try {
@@ -348,12 +358,35 @@ const UserDetails = () => {
                                             isEditing={editSections.status}
                                             toggleEdit={() => toggleEditSection("status")}
                                             updateProfile={updateUserProfile}
-                                            isDisabled={Object.keys(updatedFields).length === 0}
+                                            isDisabled={Object.keys(updatedFields).length === 0 || zoneMissing}
                                         />
                                    )}
 
                                     </div>
                                 </div>
+                                {effectiveRole === ZONAL_ROLE && (
+                                    <div className='flex gap-8 max-w-2xl items-start mb-6'>
+                                        <div className='w-full'>
+                                            <label className='text-gray-400'>Zone</label>
+                                            {editSections.status && hasAccess(user?.role, ['marketing_manager', 'admin']) ? (
+                                                <select className={`w-full border rounded-md py-1 px-2 ${zoneMissing ? 'border-red-500' : 'border-gray-400'}`}
+                                                    name="zone"
+                                                    value={effectiveZone}
+                                                    onChange={handleOnChange}
+                                                >
+                                                    <option value="" disabled>Select zone</option>
+                                                    {zones.map(z => (
+                                                        <option value={z.name} key={z._id}>{z.name}</option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <ViewText>{viewUser?.zone || '—'}</ViewText>
+                                            )}
+                                        </div>
+                                        <div className='w-full'></div>
+                                        <div className='w-8 shrink-0'></div>
+                                    </div>
+                                )}
                             </div>) : (
                             <div>
 

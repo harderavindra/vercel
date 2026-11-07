@@ -269,7 +269,7 @@ export const updateUser = async (req, res) => {
 
   try {
     const userId = req.params.id;
-    const { firstName, lastName, contactNumber, userType, designation, role, status, location, profilePic } = req.body;
+    const { firstName, lastName, contactNumber, userType, designation, role, status, location, profilePic, zone } = req.body;
 
     const updateData = {};
     if (firstName) updateData.firstName = firstName;
@@ -314,6 +314,7 @@ export const updateUser = async (req, res) => {
     if (profilePic) {
       updateData.profilePic = profilePic;
     }
+    if (zone) updateData.zone = zone;
 
 
     updateData.lastUpdatedAt = new Date();

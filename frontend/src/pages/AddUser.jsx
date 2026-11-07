@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { getZones } from '../api/mastersApi';
 import { GENDER } from '../utils/enums'
 import { snakeToCapitalCase } from '../utils/convertCase';
 import Button from '../components/common/Button';
@@ -41,6 +42,13 @@ const AddUser = () => {
         gender: "",
         location: { city: "", state: "", country: "" }
     });
+    // Zone (masters) is required only for Zonal Marketing Managers
+    const ZONAL_ROLE = "zonal_marketing_manager";
+    const [zone, setZone] = useState("");
+    const [zones, setZones] = useState([]);
+    useEffect(() => {
+        getZones().then(setZones).catch(() => setZones([]));
+    }, []);
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
         if (!selectedFile) return;
@@ -90,6 +98,10 @@ const AddUser = () => {
             setIsSubmitting(false);
             return;
         }
+        if (dataFields.role === ZONAL_ROLE && !zone) {
+            setError("Please select a zone for the Zonal Marketing Manager.");
+            return;
+        }
 
         try {
             const userData = {
@@ -130,6 +142,7 @@ const AddUser = () => {
                 uploadedUrl = data.fileUrl; // Use the file URL from the response
             }
             userData.profilePic = uploadedUrl;
+            if (dataFields.role === ZONAL_ROLE) userData.zone = zone; // other roles send no zone
 
             // Submit user data to backend
             await axios.post(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/users`, userData, { withCredentials: true });
@@ -275,6 +288,20 @@ const AddUser = () => {
                                     </select>
                                 </div>
                             </div>
+                            {dataFields.role === ZONAL_ROLE && (
+                                <div className='flex gap-8'>
+                                    <div className='w-full'>
+                                        <label>Zone <span className='text-red-500'>*</span></label>
+                                        <select className={`${commonSelectStyles} w-full `} name='zone' value={zone} onChange={(e) => setZone(e.target.value)} required>
+                                            <option value="">{zones.length ? "Select Zone" : "No zones in Masters yet"}</option>
+                                            {zones.map((z) => (
+                                                <option key={z._id} value={z.name}>{z.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className='w-full'></div>
+                                </div>
+                            )}
                             <div className='flex gap-8'>
                                 <div className='flex flex-col gap-1 w-full'>
                                     <label>User Type</label>

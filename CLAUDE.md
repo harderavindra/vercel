@@ -21,7 +21,7 @@ We are porting master data (Settings lists, Languages, Zones & States, Brand & M
    - new `<Route>`s in `App.jsx`
    - nav links: append entries to the `menuItems` array in `frontend/src/components/layout/MainLayout.jsx` (plus any react-icons import they need). This is the real sidebar; `Nav.jsx` is not rendered anywhere.
    - an optional `zone` field in `User.js`
-   - a zone select in `UserForm.jsx`
+   - a zone select in `frontend/src/pages/AddUser.jsx` (create user) and `frontend/src/pages/UserDetailPage.jsx` (edit role/zone), plus `zone` in the `updateUser` field list in `userController.js`. `UserForm.jsx` has no role field and is only used by the old `/add` page.
 7. **Code style:** use the existing style: ES modules, Mongoose, Express, React + Tailwind, react-icons.
 8. **Git:** one branch per step (`feat/masters-N-name`). Never commit `backend/.env 2`, `.DS_Store` or unrelated lockfile changes. Don't push or merge unless asked.
 9. **End of each step:** list the changed files, show `git diff --stat`, and give manual test steps. The test steps must include re-checking the old features: login, users, campaigns, artworks/jobs, brand treasury, `/masterdata`.
