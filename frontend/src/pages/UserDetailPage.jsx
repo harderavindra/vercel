@@ -352,7 +352,20 @@ const UserDetails = () => {
                                             <ViewText>{viewUser?.role ? snakeToCapitalCase(viewUser?.role) : ''}</ViewText>
                                         )}
                                     </div>
-                                    {effectiveRole === ZONAL_ROLE && (
+                                    <div>
+                                   {  hasAccess(user?.role, ['marketing_manager', 'admin']) &&(
+                                        <EditButton
+                                            isEditing={editSections.status}
+                                            toggleEdit={() => toggleEditSection("status")}
+                                            updateProfile={updateUserProfile}
+                                            isDisabled={Object.keys(updatedFields).length === 0 || zoneMissing}
+                                        />
+                                   )}
+
+                                    </div>
+                                </div>
+                                {effectiveRole === ZONAL_ROLE && (
+                                    <div className='flex gap-8 max-w-2xl items-start mb-6'>
                                         <div className='w-full'>
                                             <label className='text-gray-400'>Zone</label>
                                             {editSections.status && hasAccess(user?.role, ['marketing_manager', 'admin']) ? (
@@ -370,19 +383,10 @@ const UserDetails = () => {
                                                 <ViewText>{viewUser?.zone || '—'}</ViewText>
                                             )}
                                         </div>
-                                    )}
-                                    <div>
-                                   {  hasAccess(user?.role, ['marketing_manager', 'admin']) &&(
-                                        <EditButton
-                                            isEditing={editSections.status}
-                                            toggleEdit={() => toggleEditSection("status")}
-                                            updateProfile={updateUserProfile}
-                                            isDisabled={Object.keys(updatedFields).length === 0 || zoneMissing}
-                                        />
-                                   )}
-
+                                        <div className='w-full'></div>
+                                        <div className='w-8 shrink-0'></div>
                                     </div>
-                                </div>
+                                )}
                             </div>) : (
                             <div>
 
