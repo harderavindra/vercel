@@ -3,7 +3,7 @@ import { allocateSerials } from '../utils/allocateSerials.js';
 import { offerCode, ARTWORK_TYPES, MAX_ARTWORK_MB } from '../constants/campaignV2Workflow.js';
 import {
   HttpError, sendError, loadCampaign, assertCanEditOffers, assertZmmOfZone, unapproveStates,
-  findOffer, validateOffer, isUrl, sameId, MM_ADMIN,
+  findOffer, validateOffer, isUrl, sameId,
 } from '../utils/campaignV2Access.js';
 
 const clean = (v) => (typeof v === 'string' ? v.trim() : '');
@@ -115,38 +115,6 @@ export const addArtworkComment = async (req, res) => {
     res.status(201).json(offerJson(campaign, offer));
   } catch (error) {
     sendError(res, error, 'Failed to add comment');
-  }
-};
-
-// PUT /api/campaigns-v2/:id/offers/:offerId/links  body: { creativeLink } or { landingPage }
-// creativeLink: the assigned agency, after every state's artwork is approved.
-// landingPage: Marketing Manager / Admin, after the creative links are shared.
-export const setOfferLinks = async (req, res) => {
-  try {
-    const { user } = req;
-    const campaign = await loadCampaign(req.params.id, user);
-    const offer = findOffer(campaign, req.params.offerId);
-    const { creativeLink, landingPage } = req.body || {};
-    if (creativeLink === undefined && landingPage === undefined) throw new HttpError(400, 'Send creativeLink or landingPage');
-
-    if (creativeLink !== undefined) {
-      if (!sameId(campaign.agency, user.userId)) throw new HttpError(403, 'Only the assigned agency can set the creative link');
-      if (campaign.status !== 'artwork_approved') throw new HttpError(409, 'Creative links are shared after every state\'s artwork is approved');
-      const v = clean(creativeLink);
-      if (v && !isUrl(v)) throw new HttpError(400, 'Creative link must be an http(s) URL');
-      offer.creativeLink = v;
-    }
-    if (landingPage !== undefined) {
-      if (!MM_ADMIN.includes(user.role)) throw new HttpError(403, 'Only the Marketing Manager or Admin can set the landing page');
-      if (campaign.status !== 'links_submitted') throw new HttpError(409, 'Landing pages are added after the creative links are shared');
-      const v = clean(landingPage);
-      if (v && !isUrl(v)) throw new HttpError(400, 'Landing page must be an http(s) URL');
-      offer.landingPage = v;
-    }
-    await campaign.save();
-    res.status(200).json(offerJson(campaign, offer));
-  } catch (error) {
-    sendError(res, error, 'Failed to save link');
   }
 };
 

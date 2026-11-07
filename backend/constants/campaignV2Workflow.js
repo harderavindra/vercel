@@ -150,3 +150,27 @@ export const statusAfter = (kind, campaign, approvals) => {
   if (decisions.some((d) => d !== 'approved' && d !== 'rejected')) return waiting;
   return decisions.includes('rejected') ? rejected : approved;
 };
+
+// ---------- API actions ----------
+// POST /api/campaigns-v2/:id/actions/:action uses these names. Each one is gated by a WORKFLOW row
+// (who may act + from which statuses). `transition: false` = saves data without changing the status.
+// decideOffers / decideContent pick the approve or reject row from body.decision.
+export const API_ACTIONS = {
+  submit:           { gate: 'submit' },
+  decideOffers:     { gate: 'approveOffers', approve: 'approveOffers', reject: 'rejectOffers' },
+  assign:           { gate: 'assign' },
+  changeStatus:     { gate: 'changeStatus' },
+  submitArtwork:    { gate: 'uploadContent' },
+  decideContent:    { gate: 'approveContent', approve: 'approveContent', reject: 'rejectContent' },
+  setCreativeLinks: { gate: 'submitLinks', transition: false, event: 'Creative links saved' },
+  submitLinks:      { gate: 'submitLinks' },
+  setLandingPages:  { gate: 'assignSecond', transition: false, event: 'Landing pages saved' },
+  handOver:         { gate: 'assignSecond' },
+};
+export const API_ACTION_KEYS = Object.keys(API_ACTIONS);
+// Actions only the ZMM of the campaign's zone may do (canDo checks the role; this adds the zone)
+export const ZONE_SCOPED_ACTIONS = ['submit', 'decideContent'];
+
+/** Is the user allowed by role/ownership (ignoring status) for a WORKFLOW row? */
+export const roleAllowed = (workflowKey, campaign, user) =>
+  WORKFLOW[workflowKey].roles.some((ref) => matchesRoleRef(ref, campaign, user));
