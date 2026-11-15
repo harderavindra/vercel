@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Button from "../common/Button";
 import StatusPill from "./StatusPill";
-import { performAction, listAgencyUsers } from "../../api/campaignsV2Api";
+import DeclarationModal from "./DeclarationModal";
+import { performAction, listAgencyUsers, getDeclarationTexts } from "../../api/campaignsV2Api";
 import { getSettings } from "../../api/mastersApi";
-import { STATUS, NEXT_STEP, userName, waitingOn } from "../../utils/campaignV2Flow";
+import { useAuth } from "../../context/auth-context";
+import { STATUS, NEXT_STEP, ROLE_LABELS, fmtMonthLong, userName, waitingOn } from "../../utils/campaignV2Flow";
 
 // Workflow actions, ported from mh-camp components/ActionPanel.tsx.
 // Shows only what the current user can do now (campaign.permissions.actions, worked out by the server);
@@ -67,7 +69,11 @@ const StateList = ({ campaign, kind, decidable, busy, onDecide }) => {
  */
 const ActionPanel = ({ campaign: c, onChanged, saveLinks }) => {
   const can = (a) => c.permissions?.actions?.includes(a);
+  const { user } = useAuth();
   const [busy, setBusy] = useState(false);
+  const [texts, setTexts] = useState(null); // declaration wording, loaded when first needed
+  // Open declaration: { kind, states, index, collected: { state: [itemIds] }, finish(collected) }
+  const [decl, setDecl] = useState(null);
   const [error, setError] = useState("");
   const [agencies, setAgencies] = useState([]);
   const [agencyId, setAgencyId] = useState("");
@@ -111,6 +117,33 @@ const ActionPanel = ({ campaign: c, onChanged, saveLinks }) => {
       setBusy(false);
     }
   };
+  // State-level declarations: submit (ZMM, one per state being sent) and approvals (BM offers, ZMM artwork).
+  // Rejections never need one. finish(collected) runs the action once every state is declared.
+  const openDeclaration = async (kind, declStates, finish) => {
+    setError("");
+    try {
+      const t = texts || (await getDeclarationTexts()).declarations;
+      setTexts(t);
+      setDecl({ kind, states: declStates, index: 0, collected: {}, finish });
+    } catch {
+      setError("Could not load the declaration. Reload the page and try again.");
+    }
+  };
+  const confirmDeclaration = async (accepted) => {
+    const state = decl.states[decl.index];
+    const collected = { ...decl.collected, [state]: accepted };
+    if (decl.index + 1 < decl.states.length) {
+      setDecl({ ...decl, index: decl.index + 1, collected });
+      return;
+    }
+    await decl.finish(collected);
+    setDecl(null);
+  };
+  const decideWithDeclaration = (action, kind) => (state, decision, remark) => {
+    if (decision !== "approved") return run(action, { state, decision, remark });
+    openDeclaration(kind, [state], (col) => run(action, { state, decision, remark, declaration: { accepted: col[state] } }));
+  };
+
   const approvedCount = (kind) => states.filter((s) => ((kind === "offers" ? c.approvals : c.contentApprovals) || {})[s]?.status === "approved").length;
 
   let body;
@@ -121,15 +154,25 @@ const ActionPanel = ({ campaign: c, onChanged, saveLinks }) => {
         ? "Add the offers for this campaign, then submit them to the Brand Manager. Offers are approved state by state."
         : "Some states were rejected. Edit their offers, then resubmit; approved states stay approved."}</p>
       {!draft && <StateList campaign={c} kind="offers" />}
-      <Button type="button" disabled={busy || !c.offers.length} onClick={() => run("submit")}>
+      <Button
+        type="button"
+        disabled={busy || !c.offers.length}
+        onClick={() => {
+          const sending = states.filter((s) => (c.approvals || {})[s]?.status !== "approved");
+          if (!sending.length) return run("submit");
+          openDeclaration("zmm_submit", sending, (col) => run("submit", { declarations: Object.fromEntries(Object.entries(col).map(([s, accepted]) => [s, { accepted }])) }));
+        }}
+      >
         {busy ? "Submitting..." : draft ? "Submit for approval" : "Resubmit rejected states"}
       </Button>
       {!c.offers.length && <p className="text-gray-500 text-sm">Add at least one offer first.</p>}
+      {c.offers.length > 0 && <p className="text-gray-500 text-sm">You will confirm a declaration for each state before it is sent.</p>}
     </>;
   } else if (can("decideOffers")) {
     body = <>
       <p>Approve or reject each state&apos;s offers (see the offers table below). {approvedCount("offers")} of {states.length} states approved; the campaign moves on once every state is approved.</p>
-      <StateList campaign={c} kind="offers" decidable busy={busy} onDecide={(state, decision, remark) => run("decideOffers", { state, decision, remark })} />
+      <StateList campaign={c} kind="offers" decidable busy={busy} onDecide={decideWithDeclaration("decideOffers", "bm_review")} />
+      <p className="text-gray-500 text-sm">Approving a state asks you to confirm the Brand Manager declaration; rejecting needs only a remark.</p>
     </>;
   } else if (can("assign")) {
     body = <>
@@ -166,7 +209,8 @@ const ActionPanel = ({ campaign: c, onChanged, saveLinks }) => {
   } else if (can("decideContent")) {
     body = <>
       <p>Check the artwork of each state&apos;s offers in the table below (use Comments on an artwork to note changes), then approve or reject that state. {approvedCount("content")} of {states.length} states approved.</p>
-      <StateList campaign={c} kind="content" decidable busy={busy} onDecide={(state, decision, remark) => run("decideContent", { state, decision, remark })} />
+      <StateList campaign={c} kind="content" decidable busy={busy} onDecide={decideWithDeclaration("decideContent", "zmm_creative")} />
+      <p className="text-gray-500 text-sm">Approving a state&apos;s artwork asks you to confirm the creative declaration; rejecting needs only a remark.</p>
     </>;
   } else if (can("submitLinks")) {
     body = <>
@@ -207,6 +251,24 @@ const ActionPanel = ({ campaign: c, onChanged, saveLinks }) => {
       <div><StatusPill status={c.status} /></div>
       {body}
       {error && <p className="text-red-500 text-sm">{error}</p>}
+      {decl && texts?.[decl.kind] && (
+        <DeclarationModal
+          key={`${decl.kind}-${decl.index}`}
+          decl={texts[decl.kind]}
+          state={decl.states[decl.index]}
+          period={fmtMonthLong(c.month)}
+          userLabel={[userName(user), ROLE_LABELS[user?.role]].filter(Boolean).join(" · ")}
+          progress={decl.states.length > 1 ? `State ${decl.index + 1} of ${decl.states.length}` : ""}
+          confirmLabel={
+            decl.index + 1 < decl.states.length ? "Confirm & next state"
+              : decl.kind === "zmm_submit" ? `Confirm & submit${decl.states.length > 1 ? ` ${decl.states.length} states` : ""}`
+                : "Confirm & approve"
+          }
+          busy={busy}
+          onConfirm={confirmDeclaration}
+          onClose={() => setDecl(null)}
+        />
+      )}
     </div>
   );
 };

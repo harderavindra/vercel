@@ -15,6 +15,7 @@ import OfferV2Modal from "../../components/campaignsV2/OfferV2Modal";
 import ArtworkCell from "../../components/campaignsV2/ArtworkCell";
 import ActionPanel from "../../components/campaignsV2/ActionPanel";
 import CampaignV2Modal from "../../components/campaignsV2/CampaignV2Modal";
+import DeclarationsSection from "../../components/campaignsV2/DeclarationsSection";
 import { ROLE_LABELS, STATUS, fmtMonthLong, fmtINR, userName, eventStyle } from "../../utils/campaignV2Flow";
 import { formatDateTime, formatDateDistance, formatShortDateTime } from "../../utils/formatDateTime";
 
@@ -388,6 +389,13 @@ const CampaignV2DetailPage = () => {
           </div>
         )}
       </div>
+
+      {/* State-level declarations (audit trail) */}
+      <DeclarationsSection
+        className={`${card} p-6`}
+        campaignId={campaign._id}
+        refreshKey={`${campaign.updatedAt || ""}-${campaign.history?.length || 0}`}
+      />
 
       {campModal && (
         <CampaignV2Modal

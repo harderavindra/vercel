@@ -132,3 +132,20 @@ export const listAgencyUsers = async () => {
   const { data } = await axios.get(`${API_baseURL}/agency-users`, { withCredentials: true });
   return data;
 };
+
+// ---- State-level declarations ----
+// Needed to submit (ZMM) and to approve (Brand Manager offers, ZMM artwork); rejections need only a remark.
+//   submit       body: { declarations: { [state]: { accepted: [itemId] } } }  (every state being sent)
+//   decideOffers / decideContent with decision "approved": { state, decision, remark, declaration: { accepted: [itemId] } }
+
+/** { textVersion, declarations: { zmm_submit, bm_review, zmm_creative } } — wording for the declaration modal. */
+export const getDeclarationTexts = async () => {
+  const { data } = await axios.get(`${API_baseURL}/declarations/texts`, { withCredentials: true });
+  return data;
+};
+
+/** A campaign's declarations, newest first. */
+export const listDeclarations = async (id) => {
+  const { data } = await axios.get(`${API_baseURL}/${id}/declarations`, { withCredentials: true });
+  return data;
+};

@@ -10,6 +10,7 @@ import {
 import { performAction } from '../controllers/campaignV2ActionsController.js';
 import { getMyNotifications, markNotificationsRead } from '../controllers/notificationV2Controller.js';
 import { getArtworkUploadUrl, confirmArtwork, viewArtwork } from '../controllers/campaignV2ArtworkController.js';
+import { getDeclarationTexts, listDeclarations } from '../controllers/campaignV2DeclarationController.js';
 
 // Campaigns v2 (new module; the old /api/campaigns is untouched).
 // Role/status/zone rules are checked in the controllers for every request.
@@ -22,6 +23,8 @@ router.get('/notifications', getMyNotifications);
 router.post('/notifications/read', markNotificationsRead);
 // Agency users for Assign / Hand over (before '/:id')
 router.get('/agency-users', listAgencyUsers);
+// Declaration wording for the declaration modals (before '/:id')
+router.get('/declarations/texts', getDeclarationTexts);
 
 // Campaigns
 router.get('/', listCampaigns);
@@ -30,6 +33,7 @@ router.get('/:id', getCampaign);
 router.put('/:id', updateCampaign);
 router.delete('/:id', deleteCampaign);
 router.post('/:id/duplicate', duplicateCampaign);
+router.get('/:id/declarations', listDeclarations);
 
 // Offers
 router.post('/:id/offers', addOffer);
@@ -40,7 +44,7 @@ router.put('/:id/offers/:offerId/artwork', confirmArtwork);
 router.get('/:id/offers/:offerId/artwork/view', viewArtwork);
 router.post('/:id/offers/:offerId/comments', addArtworkComment);
 
-// Workflow actions: submit, decideOffers, assign, changeStatus, submitArtwork, decideContent,
+// Workflow actions (submit and approvals need state-level declarations): submit, decideOffers, assign, changeStatus, submitArtwork, decideContent,
 // setCreativeLinks, submitLinks, setLandingPages, handOver (see campaignV2ActionsController.js)
 router.post('/:id/actions/:action', performAction);
 
