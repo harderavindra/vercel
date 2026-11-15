@@ -122,7 +122,16 @@ const CampaignsV2ListPage = () => {
               </tr>
             ) : (
               rows.map((c) => (
-                <tr key={c._id} className="border-b border-gray-200 hover:bg-gray-50 align-top">
+                <tr
+                  key={c._id}
+                  className="border-b border-gray-200 hover:bg-gray-50 align-top cursor-pointer"
+                  onClick={(e) => {
+                    // Clicking anywhere on the row opens the campaign (the title link still works on its own,
+                    // and selecting text in the row does not navigate)
+                    if (e.target.closest("a") || window.getSelection()?.toString()) return;
+                    navigate(`/campaigns-v2/${c._id}`);
+                  }}
+                >
                   <td className="p-3">
                     <Link to={`/campaigns-v2/${c._id}`} className="font-semibold hover:text-red-500">{c.title}</Link>
                     {c.description && <p className="text-gray-500 text-sm line-clamp-1">{c.description}</p>}
