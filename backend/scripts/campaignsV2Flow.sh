@@ -99,19 +99,30 @@ CID=$(echo "$LAST" | jq -r '._id')
 req zmm POST "$API/$CID/offers" 201 "offer in $S1" "$(offer "$S1" "$L1" "Offer one")"; O1=$(echo "$LAST" | jq -r '._id')
 req zmm POST "$API/$CID/offers" 201 "offer in $S2" "$(offer "$S2" "$L2" "Offer two")"; O2=$(echo "$LAST" | jq -r '._id')
 
-echo "== Submit + offer approval, with a rejection loop"
-act bm submit 403 "brand manager cannot submit"
-act zmm submit 200 "ZMM submits"; check "both states pending" ".campaign.approvals[\"$S1\"].status==\"pending\" and .campaign.approvals[\"$S2\"].status==\"pending\""
+# State-level declarations: needed to submit and to approve; rejections need only a remark
+ALL='["a","b","c","d"]'
+decl_states() { jq -cn --argjson all "$ALL" '{declarations: ([$ARGS.positional[] | {key: ., value: {accepted: $all}}] | from_entries)}' --args "$@"; }
+decide() { jq -cn --arg s "$1" --arg d "$2" --arg r "${3:-}" --argjson acc "${4:-null}" '{state:$s, decision:$d, remark:$r} + (if $acc then {declaration:{accepted:$acc}} else {} end)'; }
+
+echo "== Submit + offer approval, with a rejection loop (declarations on submit / approve only)"
+act bm submit 403 "brand manager cannot submit" "$(decl_states "$S1" "$S2")"
+act zmm submit 400 "submit without declarations"
+act zmm submit 400 "submit with a declaration for $S1 only" "$(decl_states "$S1")"
+act zmm submit 400 "submit with an incomplete declaration" "$(jq -cn --arg a "$S1" --arg b "$S2" '{declarations:{($a):{accepted:["a","b","c"]},($b):{accepted:["a","b","c","d"]}}}')"
+act zmm submit 200 "ZMM submits with a declaration per state" "$(decl_states "$S1" "$S2")"; check "both states pending" ".campaign.approvals[\"$S1\"].status==\"pending\" and .campaign.approvals[\"$S2\"].status==\"pending\""
 act zmm decideOffers 403 "ZMM cannot decide offers" "{\"state\":\"$S1\",\"decision\":\"approved\"}"
 act bm decideOffers 400 "bad decision value" "{\"state\":\"$S1\",\"decision\":\"maybe\"}"
-act bm decideOffers 200 "BM approves $S1" "{\"state\":\"$S1\",\"decision\":\"approved\"}"; check "still awaiting $S2" '.status=="pending_offer_approval"'
-act bm decideOffers 409 "BM approves $S1 twice" "{\"state\":\"$S1\",\"decision\":\"approved\"}"
+act bm decideOffers 400 "BM approves $S1 without a declaration" "$(decide "$S1" approved)"
+act bm decideOffers 400 "BM approves $S1 with an incomplete declaration" "$(decide "$S1" approved "" '["a","b"]')"
+act bm decideOffers 200 "BM approves $S1 with the declaration" "$(decide "$S1" approved "" "$ALL")"; check "still awaiting $S2" '.status=="pending_offer_approval"'
+act bm decideOffers 409 "BM approves $S1 twice" "$(decide "$S1" approved "" "$ALL")"
 act bm decideOffers 400 "reject without remark" "{\"state\":\"$S2\",\"decision\":\"rejected\"}"
-act bm decideOffers 200 "BM rejects $S2" "{\"state\":\"$S2\",\"decision\":\"rejected\",\"remark\":\"Price too high\"}"; check "offers_rejected" '.status=="offers_rejected"'
+act bm decideOffers 200 "BM rejects $S2 without a declaration (remark only)" "{\"state\":\"$S2\",\"decision\":\"rejected\",\"remark\":\"Price too high\"}"; check "offers_rejected" '.status=="offers_rejected"'
 act mm assign 409 "assign while offers rejected" "{\"agencyUserId\":\"$AG_ID\"}"
 req zmm PUT "$API/$CID/offers/$O2" 200 "ZMM fixes the $S2 offer" "$(offer "$S2" "$L2" "Offer two, new price")"
-act zmm submit 200 "ZMM resubmits"; check "$S1 stays approved, $S2 pending" ".campaign.approvals[\"$S1\"].status==\"approved\" and .campaign.approvals[\"$S2\"].status==\"pending\""
-act bm decideOffers 200 "BM approves $S2" "{\"state\":\"$S2\",\"decision\":\"approved\"}"; check "offers_approved" '.status=="offers_approved"'
+act zmm submit 400 "resubmit without the $S2 declaration"
+act zmm submit 200 "ZMM resubmits (declaration for $S2 only)" "$(decl_states "$S2")"; check "$S1 stays approved, $S2 pending" ".campaign.approvals[\"$S1\"].status==\"approved\" and .campaign.approvals[\"$S2\"].status==\"pending\""
+act bm decideOffers 200 "BM approves $S2" "$(decide "$S2" approved "" "$ALL")"; check "offers_approved" '.status=="offers_approved"'
 
 echo "== Assign + agency status"
 act bm assign 403 "brand manager cannot assign" "{\"agencyUserId\":\"$AG_ID\"}"
@@ -127,13 +138,14 @@ upload_artwork "$O2" "artwork $S2"
 req zmm GET "$API/$CID/offers/$O1/artwork/view" 200 "ZMM gets a view URL for $S1 artwork"
 act agency submitArtwork 200 "agency submits artwork"; check "content_uploaded" '.status=="content_uploaded"'
 req zmm POST "$API/$CID/offers/$O2/comments" 201 "ZMM comments on $S2 artwork" '{"text":"Logo too small"}'
-act zmm decideContent 200 "ZMM approves $S1 artwork" "{\"state\":\"$S1\",\"decision\":\"approved\"}"
+act zmm decideContent 400 "ZMM approves $S1 artwork without a declaration" "$(decide "$S1" approved)"
+act zmm decideContent 200 "ZMM approves $S1 artwork with the declaration" "$(decide "$S1" approved "" "$ALL")"
 act zmm decideContent 400 "reject artwork without remark" "{\"state\":\"$S2\",\"decision\":\"rejected\"}"
-act zmm decideContent 200 "ZMM rejects $S2 artwork" "{\"state\":\"$S2\",\"decision\":\"rejected\",\"remark\":\"See comment\"}"; check "content_rejected" '.status=="content_rejected"'
+act zmm decideContent 200 "ZMM rejects $S2 artwork without a declaration (remark only)" "{\"state\":\"$S2\",\"decision\":\"rejected\",\"remark\":\"See comment\"}"; check "content_rejected" '.status=="content_rejected"'
 req agency POST "$API/$CID/offers/$O1/artwork/upload-url" 409 "approved $S1 artwork is locked" "{\"fileType\":\"image/png\",\"size\":$ART_SIZE}"
 upload_artwork "$O2" "agency replaces $S2 artwork"
 act agency submitArtwork 200 "agency resubmits"; check "$S1 approved, $S2 pending" ".campaign.contentApprovals[\"$S1\"].status==\"approved\" and .campaign.contentApprovals[\"$S2\"].status==\"pending\""
-act zmm decideContent 200 "ZMM approves $S2 artwork" "{\"state\":\"$S2\",\"decision\":\"approved\"}"; check "artwork_approved" '.status=="artwork_approved"'
+act zmm decideContent 200 "ZMM approves $S2 artwork" "$(decide "$S2" approved "" "$ALL")"; check "artwork_approved" '.status=="artwork_approved"'
 
 echo "== Creative links"
 act agency submitLinks 400 "share links before setting them"
@@ -159,6 +171,15 @@ req agency2 GET "$API/$CID" 200 "agency 2 now sees the campaign"
 check "history: one entry per action (18), ending with the hand-over" '(.history | length) == 18 and .history[-1].event == "Landing pages added and handed over"'
 echo "$LAST" | jq -r '.history[] | "      " + .event + (if .note != "" then " (" + .note + ")" else "" end) + (if .remark != "" then " — \"" + .remark + "\"" else "" end)'
 act mm handOver 409 "nothing left to do when completed" "{\"agencyUserIds\":[\"$AG2_ID\"]}"
+
+echo "== Declarations (audit trail)"
+req zmm GET "$API/declarations/texts" 200 "declaration texts"; check "3 declarations, 4 points each" '[.declarations[] | .items | length] == [4,4,4]'
+req bm GET "$API/$CID/declarations" 200 "list declarations"
+check "7 records: 3 submit (S2 twice), 2 BM approvals, 2 creative approvals" "length == 7 and ([.[] | select(.kind==\"zmm_submit\")] | length) == 3 and ([.[] | select(.kind==\"bm_review\")] | length) == 2 and ([.[] | select(.kind==\"zmm_creative\")] | length) == 2"
+check "$S2 resubmission is version 2" "[.[] | select(.kind==\"zmm_submit\" and .state==\"$S2\") | .version] | sort == [1,2]"
+check "approvals only, never a rejection" '[.[] | .decision] | all(. == "submitted" or . == "approved")'
+check "no ip / user-agent in the list" '[.[] | has("ip") or has("userAgent")] | any | not'
+req agency2 GET "$API/$CID/declarations" 200 "handed-to agency can see them"
 
 echo
 echo "Campaign $CID: $PASS passed, $FAIL failed"

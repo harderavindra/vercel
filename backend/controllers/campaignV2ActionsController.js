@@ -15,6 +15,8 @@ import {
 } from '../utils/campaignV2Access.js';
 import { permissionsFor } from './campaignV2Controller.js';
 import { notifyCampaignV2 } from '../utils/notifyCampaignV2.js';
+import DeclarationV2 from '../models/DeclarationV2.js';
+import { DECLARATIONS, DECLARATION_TEXT_VERSION, acceptsAll, declarationSnapshot } from '../constants/declarationsV2.js';
 
 const clean = (v) => (typeof v === 'string' ? v.trim() : '');
 const mapToObject = (m) => Object.fromEntries([...(m?.entries?.() || [])].map(([k, v]) => [k, v?.toObject ? v.toObject() : { ...v }]));
@@ -67,24 +69,80 @@ const linkUpdates = (campaign, map, field) => {
   return { set, arrayFilters };
 };
 
+// State-level declarations: needed to submit (ZMM) and to approve (BM offers, ZMM artwork); never to reject.
+// accepted: { state: [item ids] }. Throws 400 naming the states whose declaration is missing or incomplete.
+const requireDeclarations = (kind, states, accepted) => {
+  const missing = states.filter((s) => !acceptsAll(kind, accepted?.[s]));
+  if (missing.length) {
+    throw new HttpError(400, `Confirm every point of the "${DECLARATIONS[kind].title}" for: ${missing.join(', ')}`, { missingDeclarations: missing });
+  }
+};
+
 const requireAllLinks = (campaign, field, label) => {
   const missing = campaign.offers.filter((o) => !isUrl(o[field] || ''));
   if (missing.length) throw new HttpError(400, `Enter a valid ${label} for every offer first (missing: ${missing.map((o) => o.code).join(', ')})`);
 };
 
+// Declaration for one state's decision: only an approval needs one (a declaration sent with a rejection is ignored).
+const approvalDeclaration = (kind, r, body) => {
+  if (r.decision !== 'approved') return undefined;
+  const accepted = { [r.state]: body?.declaration?.accepted };
+  requireDeclarations(kind, [r.state], accepted);
+  return { kind, decision: 'approved', accepted };
+};
+
+// Builds one DeclarationV2 per state (version = earlier ones of this kind for the campaign + state, + 1).
+const buildDeclarations = async (campaign, user, declare, req) => {
+  const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '';
+  const at = new Date();
+  return Promise.all(Object.entries(declare.accepted).map(async ([state, accepted]) => ({
+    campaign: campaign._id,
+    kind: declare.kind,
+    state,
+    user: user.userId,
+    userName: (user.name || '').replace(/\bundefined\b/g, '').replace(/\s+/g, ' ').trim() || user.email || '',
+    userEmail: user.email || '',
+    role: user.role,
+    period: campaign.month,
+    version: (await DeclarationV2.countDocuments({ campaign: campaign._id, state, kind: declare.kind })) + 1,
+    decision: declare.decision,
+    acceptedItems: accepted.map(String),
+    textVersion: DECLARATION_TEXT_VERSION,
+    textSnapshot: declarationSnapshot(declare.kind),
+    ip,
+    userAgent: String(req.headers['user-agent'] || '').slice(0, 500),
+    at,
+  })));
+};
+
+const declarationNote = (records) => {
+  if (!records.length) return '';
+  if (records.length === 1) return `(declaration v${records[0].version} recorded)`;
+  return `(declarations recorded: ${records.map((d) => `${d.state} v${d.version}`).join(', ')})`;
+};
+
 // Each handler returns { set, arrayFilters?, workflowKey?, to?, note?, remark? }
 const HANDLERS = {
   // ZMM of the zone: send every not-yet-approved state to the Brand Manager
-  submit(campaign) {
+  // body.declarations = { [state]: { accepted: [item ids] } } for every state being sent
+  submit(campaign, user, body) {
     if (!campaign.offers.length) throw new HttpError(400, 'Add at least one offer first');
     const { approvals, sent } = resubmitStates(campaign, mapToObject(campaign.approvals));
-    return { set: { approvals }, to: statusAfter('offers', campaign, approvals), note: sent.join(', ') };
+    const accepted = Object.fromEntries(sent.map((s) => [s, body?.declarations?.[s]?.accepted]));
+    requireDeclarations('zmm_submit', sent, accepted);
+    return {
+      set: { approvals }, to: statusAfter('offers', campaign, approvals), note: sent.join(', '),
+      declare: { kind: 'zmm_submit', decision: 'submitted', accepted },
+    };
   },
 
   // Brand Manager: approve or reject one state's offers
+  // Approving needs body.declaration = { accepted: [item ids] }; rejecting needs only the remark.
   decideOffers(campaign, user, body) {
     const r = decideState(campaign, user, mapToObject(campaign.approvals), body);
+    const declare = approvalDeclaration('bm_review', r, body);
     return {
+      declare,
       set: { approvals: r.approvals },
       workflowKey: r.decision === 'approved' ? 'approveOffers' : 'rejectOffers',
       to: statusAfter('offers', campaign, r.approvals),
@@ -121,9 +179,12 @@ const HANDLERS = {
   },
 
   // ZMM of the zone: approve or reject one state's artwork
+  // Approving needs body.declaration = { accepted: [item ids] }; rejecting needs only the remark.
   decideContent(campaign, user, body) {
     const r = decideState(campaign, user, mapToObject(campaign.contentApprovals), body);
+    const declare = approvalDeclaration('zmm_creative', r, body);
     return {
+      declare,
       set: { contentApprovals: r.approvals },
       workflowKey: r.decision === 'approved' ? 'approveContent' : 'rejectContent',
       to: statusAfter('content', campaign, r.approvals),
@@ -190,23 +251,34 @@ export const performAction = async (req, res) => {
     const changesStatus = spec.transition !== false;
     const nextStatus = changesStatus ? result.to || row.to : campaign.status;
 
+    // Declarations are saved first so an approval is never recorded without one; if the guarded
+    // campaign update below does not go through, they are removed again.
+    const records = result.declare ? await buildDeclarations(campaign, user, result.declare, req) : [];
+    const savedIds = records.length ? (await DeclarationV2.insertMany(records)).map((d) => d._id) : [];
+    const historyNote = [result.note, declarationNote(records)].filter(Boolean).join(' ');
+
     const update = {
       $set: { ...result.set, ...(changesStatus ? { status: nextStatus } : {}) },
       $push: {
         history: {
           at: new Date(), by: user.userId, role: user.role,
-          event: spec.event || row.event, note: result.note || '', remark: result.remark || '',
+          event: spec.event || row.event, note: historyNote, remark: result.remark || '',
         },
       },
       $inc: { __v: 1 },
     };
 
     // Atomic: only if the status is still allowed AND nobody else saved the campaign since we read it
-    const updated = await CampaignV2.findOneAndUpdate(
-      { _id: campaign._id, status: { $in: gate.from }, __v: campaign.__v },
-      update,
-      { new: true, arrayFilters: result.arrayFilters }
-    );
+    let updated;
+    try {
+      updated = await CampaignV2.findOneAndUpdate(
+        { _id: campaign._id, status: { $in: gate.from }, __v: campaign.__v },
+        update,
+        { new: true, arrayFilters: result.arrayFilters }
+      );
+    } finally {
+      if (!updated && savedIds.length) await DeclarationV2.deleteMany({ _id: { $in: savedIds } });
+    }
 
     if (!updated) {
       const now = await CampaignV2.findById(campaign._id, 'status').lean();
