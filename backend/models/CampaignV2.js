@@ -9,8 +9,8 @@ const hasDuplicates = (values) => new Set(values.map(String)).size !== values.le
 // their wording even if the master is renamed later.
 const ItemSchema = new mongoose.Schema(
   {
-    brand: { type: ObjectId, ref: 'BrandCategory' },
-    model: { type: ObjectId, ref: 'ModelCategory' },
+    brand: { type: ObjectId, ref: 'CatalogBrand' }, // Campaigns v2 brand list (campaign_brands)
+    model: { type: ObjectId, ref: 'CatalogModel' }, // Campaigns v2 model list (campaign_models)
     brandName: { type: String, trim: true },
     modelName: { type: String, trim: true },
     hp: { type: String, trim: true },

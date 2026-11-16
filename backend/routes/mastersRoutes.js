@@ -8,7 +8,7 @@ import {
   addState, updateState, deleteState, loadDefaultZones,
 } from '../controllers/zoneController.js';
 import {
-  getCatalog, createBrand, renameBrand, deleteBrand,
+  getCatalog, importCatalog, createBrand, renameBrand, deleteBrand,
   createModel, renameModel, deleteModel, setModelHpSegments,
 } from '../controllers/catalogController.js';
 import { getFeatures, createFeature, updateFeatureText, deleteFeature } from '../controllers/featureController.js';
@@ -42,8 +42,9 @@ router.post('/zones/:id/states', requireRole(...ADMIN_ROLES), addState);
 router.put('/zones/:id/states/:stateName', requireRole(...ADMIN_ROLES), updateState);
 router.delete('/zones/:id/states/:stateName', requireRole(...ADMIN_ROLES), deleteState);
 
-// Brand & Model (existing ProductCategory / BrandCategory / ModelCategory collections)
+// Brand & Model for Campaigns v2 (own collections; the old ProductCategory / BrandCategory / ModelCategory are only read by import)
 router.get('/catalog', getCatalog);
+router.post('/catalog/import', requireRole(...ADMIN_ROLES), importCatalog);
 router.post('/brands', requireRole(...ADMIN_ROLES), createBrand);
 router.put('/brands/:id', requireRole(...ADMIN_ROLES), renameBrand);
 router.delete('/brands/:id', requireRole(...ADMIN_ROLES), deleteBrand);

@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 // 'en' is required; other languages are optional translations.
 const OfferFeatureSchema = new mongoose.Schema(
   {
-    model: { type: mongoose.Schema.Types.ObjectId, ref: 'ModelCategory', required: true },
+    model: { type: mongoose.Schema.Types.ObjectId, ref: 'CatalogModel', required: true },
     text: { type: Map, of: String, default: {} },
     order: { type: Number, default: 0 },
   },

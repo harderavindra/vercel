@@ -6,10 +6,9 @@ import User from '../models/User.js';
 import Zone from '../models/Zone.js';
 import Language from '../models/Language.js';
 import Setting from '../models/Setting.js';
-import BrandCategory from '../models/BrandCategory.js';
-import ModelCategory from '../models/ModelCategory.js';
+import CatalogBrand from '../models/CatalogBrand.js'; // Campaigns v2 brand/model list (not the old Master Data)
+import CatalogModel from '../models/CatalogModel.js';
 import OfferFeature from '../models/OfferFeature.js';
-import ModelHpSegment from '../models/ModelHpSegment.js';
 import { ROLE, MAX_ITEMS, MAX_FEATURES, PRICE_TYPES, validPrice } from '../constants/campaignV2Workflow.js';
 
 export const ADMINS = [ROLE.ADMIN, ROLE.MASTER_ADMIN];
@@ -164,8 +163,8 @@ export const validateOffer = async (body, campaign) => {
       details: clean(raw?.details),
     };
 
-    const brand = isId(String(raw?.brand ?? '')) ? await BrandCategory.findById(raw.brand).lean() : null;
-    const model = brand && isId(String(raw?.model ?? '')) ? await ModelCategory.findOne({ _id: raw.model, brand: brand._id }).lean() : null;
+    const brand = isId(String(raw?.brand ?? '')) ? await CatalogBrand.findById(raw.brand).lean() : null;
+    const model = brand && isId(String(raw?.model ?? '')) ? await CatalogModel.findOne({ _id: raw.model, brand: brand._id }).lean() : null;
     if (!brand) err(`items.${i}.brand`, `Brand is required${n}`);
     else if (brandsUsed.has(String(brand._id))) err(`items.${i}.brand`, `Each brand section must be a different brand${n}`);
     else brandsUsed.add(String(brand._id));
@@ -177,7 +176,7 @@ export const validateOffer = async (body, campaign) => {
     else if (hpSegments.length && !hpSegments.includes(item.hp)) err(`items.${i}.hp`, `HP "${item.hp}" is not in Settings${n}`);
     else if (model) {
       // When the model has HP segments set (Masters → Brand & Model), the HP must be one of them
-      const modelHp = (await ModelHpSegment.findOne({ model: model._id }, 'hpSegments').lean())?.hpSegments || [];
+      const modelHp = model.hpSegments || [];
       if (modelHp.length && !modelHp.includes(item.hp)) err(`items.${i}.hp`, `${model.name} comes in ${modelHp.join(', ')}${n}`);
     }
     if (!item.type) err(`items.${i}.type`, `Offer type is required${n}`);

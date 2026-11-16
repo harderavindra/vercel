@@ -134,6 +134,13 @@ export const deleteModel = async (id) => {
   return response.data;
 };
 
+// Copy brands and models from Master Data (old collections, read only) into the Campaigns v2 list.
+// Only adds what isn't copied yet. Returns { message, added: { products, brands, models } }.
+export const importCatalog = async () => {
+  const response = await axios.post(`${API_baseURL}/catalog/import`, {}, { withCredentials: true });
+  return response.data;
+};
+
 // HP segments the model comes in (values from Settings → HP Segments); [] clears them
 export const setModelHpSegments = async (id, hpSegments) => {
   const response = await axios.put(`${API_baseURL}/models/${id}/hp`, { hpSegments }, { withCredentials: true });

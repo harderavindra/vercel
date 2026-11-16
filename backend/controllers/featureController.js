@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import OfferFeature from '../models/OfferFeature.js';
-import ModelCategory from '../models/ModelCategory.js';
+import CatalogModel from '../models/CatalogModel.js';
 import Language from '../models/Language.js';
 
 const isId = (v) => typeof v === 'string' && mongoose.Types.ObjectId.isValid(v);
@@ -36,7 +36,7 @@ export const createFeature = async (req, res) => {
   if (!isId(model)) return res.status(400).json({ message: 'A valid model id is required' });
   if (!en) return res.status(400).json({ message: 'English text is required' });
   try {
-    if (!(await ModelCategory.exists({ _id: model }))) return res.status(404).json({ message: 'Model not found' });
+    if (!(await CatalogModel.exists({ _id: model }))) return res.status(404).json({ message: 'Model not found' });
     const last = await OfferFeature.findOne({ model }, 'order').sort({ order: -1 }).lean();
     const feature = await OfferFeature.create({ model, text: { en }, order: (last?.order ?? 0) + 1 });
     res.status(201).json(toJson(feature));

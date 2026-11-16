@@ -4,8 +4,9 @@ import { useAuth } from "../../context/auth-context";
 import { hasAccess } from "../../utils/permissions";
 import {
   getCatalog, createBrand, renameBrand, deleteBrand,
-  createModel, renameModel, deleteModel, setModelHpSegments, getSettings,
+  createModel, renameModel, deleteModel, setModelHpSegments, getSettings, importCatalog,
 } from "../../api/mastersApi";
+import Button from "../../components/common/Button";
 import ChipRow from "../../components/masters/ChipRow";
 import MastersTabs from "../../components/masters/MastersTabs";
 import RenameForm from "../../components/masters/RenameForm";
@@ -21,8 +22,9 @@ const RenameButton = ({ label, onClick }) => (
   </div>
 );
 
-// Brand & Model master. Works on the same product/brand/model categories as /masterdata,
-// Jobs and Brand Treasury, so renames keep the same ids and used items can't be deleted.
+// Brand & Model master for Campaigns v2. Its own list (campaign_products / campaign_brands / campaign_models),
+// separate from Master Data (/masterdata), which Jobs, Brand Treasury and Documents use.
+// Copied from Master Data once with "Copy from Master Data"; after that the two lists change independently.
 const BrandsPage = () => {
   const { user } = useAuth();
   const canEdit = hasAccess(user?.role, ADMIN_ROLES);
@@ -164,17 +166,37 @@ const BrandsPage = () => {
     if (ok) setModelId(null);
   };
 
+  const handleImport = async () => {
+    setNotice("");
+    let message = "";
+    const ok = await run(async () => {
+      message = (await importCatalog()).message;
+      const data = await getCatalog();
+      if (data.length && !productId) setProductId(data[0]._id);
+    }, "Failed to copy from Master Data");
+    if (ok) setNotice(message);
+  };
+
   return (
     <div className="flex flex-col gap-8 p-4 sm:p-10">
       <MastersTabs />
       <div>
         <h1 className="font-semibold text-2xl">Brand & Model</h1>
         <p className="text-gray-500 text-sm mt-1">
-          Pick a product category, then a brand, to see and manage its models. Brands and models used by artworks,
-          brand treasury or documents cannot be deleted, but can be renamed.
+          Brands and models for Campaigns v2. This list is separate from Master Data (/masterdata): changes here don&apos;t
+          affect artworks, brand treasury or documents, and changes there don&apos;t affect campaigns.
+          Pick a product category, then a brand, to see its models. Brands and models used by campaign offers cannot be deleted, but can be renamed.
           {canEdit ? " Click a model to rename it or set its HP segments." : " View only. Only admins can change these."}
         </p>
       </div>
+
+      {!loading && canEdit && catalog.length === 0 && (
+        <div className="flex flex-col gap-2 self-start">
+          <p className="text-gray-600">The campaign brand list is empty. Start by copying today&apos;s brands and models from Master Data (one time).</p>
+          <div><Button width="auto" onClick={handleImport} disabled={saving}>{saving ? "Copying..." : "Copy from Master Data"}</Button></div>
+        </div>
+      )}
+      {notice && !model && <p className="text-green-700">{notice}</p>}
 
       {loading ? (
         <p>Loading brands and models...</p>
