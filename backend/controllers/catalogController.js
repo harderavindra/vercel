@@ -10,6 +10,8 @@ import Job from '../models/JobModel.js';
 import BrandTreasury from '../models/BrandTreasury.js';
 import Document from '../models/documentModel.js';
 import OfferFeature from '../models/OfferFeature.js';
+import ModelHpSegment from '../models/ModelHpSegment.js';
+import Setting from '../models/Setting.js';
 
 const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const nameRegex = (name) => ({ $regex: `^${escapeRegex(name)}$`, $options: 'i' });
@@ -41,20 +43,23 @@ const describeReferences = (refs) =>
     refs.documents && `${refs.documents} document(s)`,
   ].filter(Boolean).join(', ');
 
-// GET /api/masters/catalog → [{ _id, name, category, brands: [{ _id, name, models: [{ _id, name }] }] }]
+// GET /api/masters/catalog → [{ _id, name, category, brands: [{ _id, name, models: [{ _id, name, hpSegments }] }] }]
+// hpSegments: the model's HP segments ([] = not set, every segment allowed)
 export const getCatalog = async (req, res) => {
   try {
-    const [products, brands, models] = await Promise.all([
+    const [products, brands, models, hpDocs] = await Promise.all([
       ProductCategory.find({}, 'name category').sort({ _id: 1 }).lean(),
       BrandCategory.find({}, 'name product').sort({ _id: 1 }).lean(),
       ModelCategory.find({}, 'name brand').sort({ _id: 1 }).lean(),
+      ModelHpSegment.find({}, 'model hpSegments').lean(),
     ]);
+    const hpByModel = new Map(hpDocs.map((d) => [String(d.model), d.hpSegments || []]));
 
     const modelsByBrand = new Map();
     for (const m of models) {
       const key = String(m.brand);
       if (!modelsByBrand.has(key)) modelsByBrand.set(key, []);
-      modelsByBrand.get(key).push({ _id: m._id, name: m.name });
+      modelsByBrand.get(key).push({ _id: m._id, name: m.name, hpSegments: hpByModel.get(String(m._id)) || [] });
     }
     const brandsByProduct = new Map();
     for (const b of brands) {
@@ -198,8 +203,35 @@ export const deleteModel = async (req, res) => {
     }
 
     await ModelCategory.deleteOne({ _id: model._id });
+    await ModelHpSegment.deleteOne({ model: model._id });
     res.status(200).json({ message: 'Model deleted', _id: model._id });
   } catch (error) {
     handleError(res, error, 'Failed to delete model');
+  }
+};
+
+// PUT /api/masters/models/:id/hp  body: { hpSegments: string[] }  ([] clears: every segment allowed)
+// Each value must be in Settings → HP Segments; saved in Settings order.
+export const setModelHpSegments = async (req, res) => {
+  const { hpSegments } = req.body || {};
+  if (!Array.isArray(hpSegments) || hpSegments.some((v) => typeof v !== 'string')) {
+    return res.status(400).json({ message: 'hpSegments must be an array of strings' });
+  }
+  try {
+    const model = await ModelCategory.findById(req.params.id, 'name').lean();
+    if (!model) return res.status(404).json({ message: 'Model not found' });
+    const allowed = (await Setting.findOne({ key: 'hpSegments' }).lean())?.values || [];
+    const wanted = [...new Set(hpSegments.map((v) => v.trim()).filter(Boolean))];
+    const unknown = wanted.filter((v) => !allowed.includes(v));
+    if (unknown.length) return res.status(400).json({ message: `Not in Settings → HP Segments: ${unknown.join(', ')}` });
+    const ordered = allowed.filter((v) => wanted.includes(v));
+    if (ordered.length) {
+      await ModelHpSegment.updateOne({ model: model._id }, { $set: { hpSegments: ordered } }, { upsert: true });
+    } else {
+      await ModelHpSegment.deleteOne({ model: model._id });
+    }
+    res.status(200).json({ _id: model._id, name: model.name, hpSegments: ordered });
+  } catch (error) {
+    handleError(res, error, 'Failed to save HP segments');
   }
 };

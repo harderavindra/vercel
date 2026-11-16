@@ -114,7 +114,20 @@ const OfferV2Modal = ({ campaign, offer, readOnly = false, onClose, onSaved }) =
   };
   // A new brand or model has different features, so ticked ones are cleared
   const setBrand = (i, brand) => { updateItem(i, { brand, model: "", features: [] }); clearError(`items.${i}.brand`); };
-  const setModel = (i, model) => { updateItem(i, { model, features: [] }); clearError(`items.${i}.model`); };
+  // HP segments for a brand section: the model's own (Masters → Brand & Model) if set, otherwise every segment
+  const hpOptionsFor = (brandId, modelId) => {
+    const m = brandsById[brandId]?.models.find((x) => x._id === modelId);
+    return m?.hpSegments?.length ? m.hpSegments : masters.settings.hpSegments || [];
+  };
+  // A model with one HP segment fills it in; an HP the new model doesn't come in is cleared
+  const setModel = (i, model) => {
+    const opts = hpOptionsFor(d.items[i].brand, model);
+    const cur = d.items[i].hp;
+    const hp = opts.length === 1 ? opts[0] : opts.includes(cur) ? cur : "";
+    updateItem(i, { model, features: [], hp });
+    clearError(`items.${i}.model`);
+    if (hp) clearError(`items.${i}.hp`);
+  };
   const setField = (i, field, value) => { updateItem(i, { [field]: value }); clearError(`items.${i}.${field}`); };
   const toggleFeature = (i, id, checked) => {
     const it = d.items[i];
@@ -293,7 +306,9 @@ const OfferV2Modal = ({ campaign, offer, readOnly = false, onClose, onSaved }) =
                     <Label required>HP Segment</Label>
                     <select disabled={readOnly} className={`${inputStyle} ${errClass(k("hp"))}`} value={it.hp} onChange={(e) => setField(i, "hp", e.target.value)}>
                       <option value="">Select</option>
-                      {(masters.settings.hpSegments || []).map((o) => <option key={o} value={o}>{o}</option>)}
+                      {hpOptionsFor(it.brand, it.model).map((o) => <option key={o} value={o}>{o}</option>)}
+                      {/* an older offer's HP that this model no longer lists stays visible (the server will ask to change it) */}
+                      {it.hp && !hpOptionsFor(it.brand, it.model).includes(it.hp) && <option value={it.hp}>{it.hp} (not listed for this model)</option>}
                     </select>
                     <FieldError k={k("hp")} />
                   </label>

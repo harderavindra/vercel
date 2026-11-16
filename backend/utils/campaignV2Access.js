@@ -9,6 +9,7 @@ import Setting from '../models/Setting.js';
 import BrandCategory from '../models/BrandCategory.js';
 import ModelCategory from '../models/ModelCategory.js';
 import OfferFeature from '../models/OfferFeature.js';
+import ModelHpSegment from '../models/ModelHpSegment.js';
 import { ROLE, MAX_ITEMS, MAX_FEATURES, PRICE_TYPES, validPrice } from '../constants/campaignV2Workflow.js';
 
 export const ADMINS = [ROLE.ADMIN, ROLE.MASTER_ADMIN];
@@ -174,6 +175,11 @@ export const validateOffer = async (body, campaign) => {
 
     if (!item.hp) err(`items.${i}.hp`, `HP is required${n}`);
     else if (hpSegments.length && !hpSegments.includes(item.hp)) err(`items.${i}.hp`, `HP "${item.hp}" is not in Settings${n}`);
+    else if (model) {
+      // When the model has HP segments set (Masters → Brand & Model), the HP must be one of them
+      const modelHp = (await ModelHpSegment.findOne({ model: model._id }, 'hpSegments').lean())?.hpSegments || [];
+      if (modelHp.length && !modelHp.includes(item.hp)) err(`items.${i}.hp`, `${model.name} comes in ${modelHp.join(', ')}${n}`);
+    }
     if (!item.type) err(`items.${i}.type`, `Offer type is required${n}`);
     else if (offerTypes.length && !offerTypes.includes(item.type)) err(`items.${i}.type`, `Offer type "${item.type}" is not in Settings${n}`);
 

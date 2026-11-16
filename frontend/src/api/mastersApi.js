@@ -134,6 +134,12 @@ export const deleteModel = async (id) => {
   return response.data;
 };
 
+// HP segments the model comes in (values from Settings → HP Segments); [] clears them
+export const setModelHpSegments = async (id, hpSegments) => {
+  const response = await axios.put(`${API_baseURL}/models/${id}/hp`, { hpSegments }, { withCredentials: true });
+  return response.data;
+};
+
 // ---- Offer Features (per model; text is { [languageCode]: string }) ----
 export const getFeatures = async (modelId) => {
   const response = await axios.get(`${API_baseURL}/features`, { params: { model: modelId }, withCredentials: true });

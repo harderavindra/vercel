@@ -4,11 +4,12 @@ import { useAuth } from "../../context/auth-context";
 import { hasAccess } from "../../utils/permissions";
 import {
   getCatalog, createBrand, renameBrand, deleteBrand,
-  createModel, renameModel, deleteModel,
+  createModel, renameModel, deleteModel, setModelHpSegments, getSettings,
 } from "../../api/mastersApi";
 import ChipRow from "../../components/masters/ChipRow";
 import MastersTabs from "../../components/masters/MastersTabs";
 import RenameForm from "../../components/masters/RenameForm";
+import ModelHpForm from "../../components/masters/ModelHpForm";
 
 const ADMIN_ROLES = ["admin", "master_admin"];
 
@@ -34,6 +35,12 @@ const BrandsPage = () => {
   const [brandId, setBrandId] = useState(null);
   const [modelId, setModelId] = useState(null); // model selected for renaming
   const [renamingBrand, setRenamingBrand] = useState(false);
+  const [hpOptions, setHpOptions] = useState([]); // Settings → HP Segments
+  const [notice, setNotice] = useState("");
+
+  useEffect(() => {
+    if (user) getSettings().then((s) => setHpOptions(s.hpSegments || [])).catch(() => setHpOptions([]));
+  }, [user]);
 
   const reload = useCallback(async () => {
     const data = await getCatalog();
@@ -126,6 +133,13 @@ const BrandsPage = () => {
   const selectModel = (name) => {
     const m = modelByName(name);
     setModelId(m && m._id !== modelId ? m._id : null);
+    setNotice("");
+  };
+
+  const handleSaveHp = async (hpSegments) => {
+    setNotice("");
+    const ok = await run(() => setModelHpSegments(model._id, hpSegments), "Failed to save HP segments");
+    if (ok) setNotice(`HP segments saved for ${model.name}.`);
   };
 
   const handleAddModel = (name) => {
@@ -158,7 +172,7 @@ const BrandsPage = () => {
         <p className="text-gray-500 text-sm mt-1">
           Pick a product category, then a brand, to see and manage its models. Brands and models used by artworks,
           brand treasury or documents cannot be deleted, but can be renamed.
-          {canEdit ? " Click a model to rename it." : " View only. Only admins can change these."}
+          {canEdit ? " Click a model to rename it or set its HP segments." : " View only. Only admins can change these."}
         </p>
       </div>
 
@@ -207,7 +221,20 @@ const BrandsPage = () => {
               busy={saving}
             >
               {canEdit && model && (
-                <RenameForm key={model._id} current={model.name} busy={saving} onSave={handleRenameModel} onCancel={() => setModelId(null)} />
+                <div className="flex flex-col gap-5">
+                  <RenameForm key={model._id} current={model.name} busy={saving} onSave={handleRenameModel} onCancel={() => setModelId(null)} />
+                  <div className="border-t border-gray-200 pt-4">
+                    <ModelHpForm
+                      key={`${model._id}:${(model.hpSegments || []).join("|")}`}
+                      modelName={model.name}
+                      current={model.hpSegments || []}
+                      options={hpOptions}
+                      busy={saving}
+                      onSave={handleSaveHp}
+                    />
+                    {notice && <p className="text-green-700 text-sm mt-2">{notice}</p>}
+                  </div>
+                </div>
               )}
             </ChipRow>
           ) : (

@@ -9,7 +9,7 @@ import {
 } from '../controllers/zoneController.js';
 import {
   getCatalog, createBrand, renameBrand, deleteBrand,
-  createModel, renameModel, deleteModel,
+  createModel, renameModel, deleteModel, setModelHpSegments,
 } from '../controllers/catalogController.js';
 import { getFeatures, createFeature, updateFeatureText, deleteFeature } from '../controllers/featureController.js';
 
@@ -50,6 +50,7 @@ router.delete('/brands/:id', requireRole(...ADMIN_ROLES), deleteBrand);
 router.post('/models', requireRole(...ADMIN_ROLES), createModel);
 router.put('/models/:id', requireRole(...ADMIN_ROLES), renameModel);
 router.delete('/models/:id', requireRole(...ADMIN_ROLES), deleteModel);
+router.put('/models/:id/hp', requireRole(...ADMIN_ROLES), setModelHpSegments);
 
 // Offer Features (per model; text per language code)
 router.get('/features', getFeatures);
