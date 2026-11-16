@@ -36,8 +36,8 @@ const validate = (d) => {
   d.items.forEach((it, i) => {
     const k = (f) => `items.${i}.${f}`;
     if (!it.brand) e[k("brand")] = "Brand is required";
-    else if (d.items.some((o, j) => j !== i && o.brand === it.brand)) e[k("brand")] = "Each brand section must be a different brand";
     if (!it.model) e[k("model")] = "Model is required";
+    else if (d.items.some((o, j) => j !== i && o.model === it.model)) e[k("model")] = "This model is already in another brand section";
     if (!it.hp) e[k("hp")] = "HP is required";
     if (!it.type) e[k("type")] = "Offer type is required";
     if (it.offerPrice && !validPrice(it.offerPrice)) e[k("offerPrice")] = `Enter ${MIN_PRICE_DIGITS}–${MAX_PRICE_DIGITS} digits (₹1,00,000 or more)`;
@@ -263,7 +263,7 @@ const OfferV2Modal = ({ campaign, offer, readOnly = false, onClose, onSaved }) =
 
           {/* Brand sections */}
           {d.items.map((it, i) => {
-            const otherBrand = d.items[1 - i]?.brand;
+            const otherModel = d.items[1 - i]?.model; // the same model can't be in both sections
             const brand = brandsById[it.brand];
             const features = it.model ? featuresByModel[it.model] : null;
             const k = (f) => `items.${i}.${f}`;
@@ -288,7 +288,7 @@ const OfferV2Modal = ({ campaign, offer, readOnly = false, onClose, onSaved }) =
                       <option value="">Select</option>
                       {masters.catalog.filter((p) => p.brands.length).map((p) => (
                         <optgroup key={p._id} label={p.name}>
-                          {p.brands.filter((b) => b._id !== otherBrand).map((b) => <option key={b._id} value={b._id}>{b.name}</option>)}
+                          {p.brands.map((b) => <option key={b._id} value={b._id}>{b.name}</option>)}
                         </optgroup>
                       ))}
                     </select>
@@ -298,7 +298,7 @@ const OfferV2Modal = ({ campaign, offer, readOnly = false, onClose, onSaved }) =
                     <Label required>Model</Label>
                     <select disabled={readOnly || !it.brand} className={`${inputStyle} ${errClass(k("model"))}`} value={it.model} onChange={(e) => setModel(i, e.target.value)}>
                       <option value="">{it.brand ? "Select" : "Select a brand first"}</option>
-                      {(brand?.models || []).map((m) => <option key={m._id} value={m._id}>{m.name}</option>)}
+                      {(brand?.models || []).filter((m) => m._id !== otherModel).map((m) => <option key={m._id} value={m._id}>{m.name}</option>)}
                     </select>
                     <FieldError k={k("model")} />
                   </label>

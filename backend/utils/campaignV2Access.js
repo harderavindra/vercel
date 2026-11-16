@@ -153,7 +153,7 @@ export const validateOffer = async (body, campaign) => {
 
   const [hpSegments, offerTypes] = await Promise.all([settingValues('hpSegments'), settingValues('offerTypes')]);
   const items = [];
-  const brandsUsed = new Set();
+  const modelsUsed = new Set(); // two brand sections may share a brand, but not a model
 
   for (const [i, raw] of rawItems.slice(0, MAX_ITEMS).entries()) {
     const n = rawItems.length > 1 ? ` (brand section ${i + 1})` : '';
@@ -166,9 +166,9 @@ export const validateOffer = async (body, campaign) => {
     const brand = isId(String(raw?.brand ?? '')) ? await CatalogBrand.findById(raw.brand).lean() : null;
     const model = brand && isId(String(raw?.model ?? '')) ? await CatalogModel.findOne({ _id: raw.model, brand: brand._id }).lean() : null;
     if (!brand) err(`items.${i}.brand`, `Brand is required${n}`);
-    else if (brandsUsed.has(String(brand._id))) err(`items.${i}.brand`, `Each brand section must be a different brand${n}`);
-    else brandsUsed.add(String(brand._id));
     if (brand && !model) err(`items.${i}.model`, `Model is required and must belong to ${brand.name}${n}`);
+    else if (model && modelsUsed.has(String(model._id))) err(`items.${i}.model`, `${model.name} is already in another brand section${n}`);
+    else if (model) modelsUsed.add(String(model._id));
     if (brand) Object.assign(item, { brand: brand._id, brandName: brand.name });
     if (model) Object.assign(item, { model: model._id, modelName: model.name });
 

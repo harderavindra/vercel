@@ -62,7 +62,8 @@ const OfferSchema = new mongoose.Schema({
     type: [ItemSchema],
     validate: [
       { validator: (v) => Array.isArray(v) && v.length >= 1 && v.length <= MAX_ITEMS, message: `An offer needs 1 to ${MAX_ITEMS} brand sections` },
-      { validator: (v) => !hasDuplicates((v || []).map((i) => i.brand).filter(Boolean)), message: 'Each brand section of an offer must be a different brand' },
+      // Two brand sections may be the same brand, but not the same model
+      { validator: (v) => !hasDuplicates((v || []).map((i) => i.model).filter(Boolean)), message: 'Each brand section of an offer must be a different model' },
     ],
   },
   artwork: { type: ArtworkSchema, default: null },

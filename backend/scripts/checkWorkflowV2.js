@@ -70,7 +70,9 @@ check('offer with 0 items', errorsOf(new CampaignV2({ title: 'T', zone: 'Z', mon
 check('offer with 3 items', errorsOf(new CampaignV2({ title: 'T', zone: 'Z', month: '2026-10', offers: [{ serial: 1, state: 'S', items: [{}, {}, {}] }] })), ['An offer needs 1 to 2 brand sections']);
 check('duplicate serial in a campaign', errorsOf(new CampaignV2({ title: 'T', zone: 'Z', month: '2026-10', offers: [{ serial: 7, state: 'S', items: [item] }, { serial: 7, state: 'S', items: [item] }] })), ['An offer serial is used twice in this campaign']);
 check('4 features in a section', errorsOf(new CampaignV2({ title: 'T', zone: 'Z', month: '2026-10', offers: [{ serial: 1, state: 'S', items: [{ ...item, features: [1, 2, 3, 4].map(() => new mongoose.Types.ObjectId()) }] }] })), ['A brand section can have at most 3 features']);
-check('same brand twice in one offer', errorsOf(new CampaignV2({ title: 'T', zone: 'Z', month: '2026-10', offers: [{ serial: 1, state: 'S', items: [item, item] }] })), ['Each brand section of an offer must be a different brand']);
+const modelA = new mongoose.Types.ObjectId(); const modelB = new mongoose.Types.ObjectId();
+check('same brand, different models → allowed', errorsOf(new CampaignV2({ title: 'T', zone: 'Z', month: '2026-10', offers: [{ serial: 1, state: 'S', items: [{ ...item, model: modelA }, { ...item, model: modelB }] }] })), []);
+check('same model twice in one offer', errorsOf(new CampaignV2({ title: 'T', zone: 'Z', month: '2026-10', offers: [{ serial: 1, state: 'S', items: [{ ...item, model: modelA }, { ...item, model: modelA }] }] })), ['Each brand section of an offer must be a different model']);
 check('price with 5 digits', errorsOf(new CampaignV2({ title: 'T', zone: 'Z', month: '2026-10', offers: [{ serial: 1, state: 'S', items: [{ ...item, offerPrice: 99999 }] }] })), ['Offer price must be 6–9 digits']);
 check('bad status value', errorsOf(new CampaignV2({ title: 'T', zone: 'Z', month: '2026-10', status: 'done' })).length, 1);
 
