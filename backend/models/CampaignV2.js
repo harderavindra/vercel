@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { STATUS_KEYS, MAX_ITEMS, MAX_FEATURES, MONTH_PATTERN, validPrice } from '../constants/campaignV2Workflow.js';
+import { STATUS_KEYS, MAX_ITEMS, MAX_FEATURES, MONTH_PATTERN, validPrice, PRICE_TYPES } from '../constants/campaignV2Workflow.js';
 
 // Campaigns v2: a NEW module next to the old Campaign model (collection 'campaigns_v2').
 const { ObjectId } = mongoose.Schema.Types;
@@ -16,13 +16,15 @@ const ItemSchema = new mongoose.Schema(
     hp: { type: String, trim: true },
     type: { type: String, trim: true }, // offer type (Settings → offerTypes)
     offerPrice: { type: Number, validate: { validator: (v) => v == null || validPrice(v), message: 'Offer price must be 6–9 digits' } },
+    priceType: { type: String, trim: true, enum: { values: PRICE_TYPES, message: 'Price type must be On Road or Ex-Showroom' } },
+    // No longer entered (replaced by priceType); kept so older offers still read
     crossingPrice: { type: Number, validate: { validator: (v) => v == null || validPrice(v), message: 'Crossing price must be 6–9 digits' } },
     features: {
       type: [{ type: ObjectId, ref: 'OfferFeature' }],
       validate: { validator: (v) => !v || v.length <= MAX_FEATURES, message: `A brand section can have at most ${MAX_FEATURES} features` },
     },
     details: { type: String, trim: true },
-    remarks: { type: String, trim: true }, // for the Brand Manager
+    remarks: { type: String, trim: true }, // no longer entered (removed from the offer form); kept so older offers still read
   },
   { _id: false }
 );

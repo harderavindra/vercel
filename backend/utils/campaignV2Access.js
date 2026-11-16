@@ -9,7 +9,7 @@ import Setting from '../models/Setting.js';
 import BrandCategory from '../models/BrandCategory.js';
 import ModelCategory from '../models/ModelCategory.js';
 import OfferFeature from '../models/OfferFeature.js';
-import { ROLE, MAX_ITEMS, MAX_FEATURES, validPrice } from '../constants/campaignV2Workflow.js';
+import { ROLE, MAX_ITEMS, MAX_FEATURES, PRICE_TYPES, validPrice } from '../constants/campaignV2Workflow.js';
 
 export const ADMINS = [ROLE.ADMIN, ROLE.MASTER_ADMIN];
 export const MM_ADMIN = [ROLE.MM, ...ADMINS];
@@ -161,7 +161,6 @@ export const validateOffer = async (body, campaign) => {
       hp: clean(raw?.hp),
       type: clean(raw?.type),
       details: clean(raw?.details),
-      remarks: clean(raw?.remarks),
     };
 
     const brand = isId(String(raw?.brand ?? '')) ? await BrandCategory.findById(raw.brand).lean() : null;
@@ -178,13 +177,15 @@ export const validateOffer = async (body, campaign) => {
     if (!item.type) err(`items.${i}.type`, `Offer type is required${n}`);
     else if (offerTypes.length && !offerTypes.includes(item.type)) err(`items.${i}.type`, `Offer type "${item.type}" is not in Settings${n}`);
 
-    // Prices are optional, but must be 6–9 digits when entered
-    for (const field of ['offerPrice', 'crossingPrice']) {
-      const v = raw?.[field];
-      if (v === undefined || v === null || v === '') continue;
-      if (!validPrice(v)) err(`items.${i}.${field}`, `${field === 'offerPrice' ? 'Offer' : 'Crossing'} price must be 6–9 digits${n}`);
-      else item[field] = Number(v);
-    }
+    // Offer price is optional, but must be 6–9 digits when entered; then its price type is required
+    const price = raw?.offerPrice;
+    const hasPrice = !(price === undefined || price === null || price === '');
+    if (hasPrice && !validPrice(price)) err(`items.${i}.offerPrice`, `Offer price must be 6–9 digits${n}`);
+    else if (hasPrice) item.offerPrice = Number(price);
+    const priceType = typeof raw?.priceType === 'string' ? raw.priceType.trim() : '';
+    if (priceType && !PRICE_TYPES.includes(priceType)) err(`items.${i}.priceType`, `Price type must be ${PRICE_TYPES.join(' or ')}${n}`);
+    else if (hasPrice && !priceType) err(`items.${i}.priceType`, `Choose On Road or Ex-Showroom for the offer price${n}`);
+    else if (priceType) item.priceType = priceType;
 
     const featureIds = Array.isArray(raw?.features) ? raw.features.map(String) : [];
     if (featureIds.length < 1 || featureIds.length > MAX_FEATURES) err(`items.${i}.features`, `Select 1 to ${MAX_FEATURES} features${n}`);

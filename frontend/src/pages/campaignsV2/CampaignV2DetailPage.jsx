@@ -348,6 +348,8 @@ const CampaignV2DetailPage = () => {
                             <div>
                               {it.type}
                               {it.offerPrice && <> · <strong>{fmtINR(it.offerPrice)}</strong></>}
+                              {it.priceType && <span className="text-gray-500"> {it.priceType}</span>}
+                              {/* older offers only (crossing price is no longer entered) */}
                               {it.crossingPrice && <span className="text-gray-500"> ({it.offerPrice ? "was " : "crossing "}<s>{fmtINR(it.crossingPrice)}</s>)</span>}
                             </div>
                             {it.details && <div className="text-gray-700">{it.details}</div>}
@@ -356,7 +358,6 @@ const CampaignV2DetailPage = () => {
                                 {it.features.map((f, j) => <li key={j}>{f?.text?.en || "(feature removed)"}</li>)}
                               </ul>
                             )}
-                            {it.remarks && <div className="text-xs text-gray-500 italic">Remarks: {it.remarks}</div>}
                           </div>
                         ))}
                       </div>

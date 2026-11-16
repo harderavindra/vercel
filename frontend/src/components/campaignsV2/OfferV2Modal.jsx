@@ -4,10 +4,10 @@ import Modal from "./Modal";
 import Button from "../common/Button";
 import { addOffer, updateOffer } from "../../api/campaignsV2Api";
 import { getCatalog, getFeatures, getSettings, getZones, getLanguages } from "../../api/mastersApi";
-import { MAX_ITEMS, MAX_FEATURES, MIN_PRICE_DIGITS, MAX_PRICE_DIGITS, fmtINR, fmtMonth, validPrice } from "../../utils/campaignV2Flow";
+import { MAX_ITEMS, MAX_FEATURES, MIN_PRICE_DIGITS, MAX_PRICE_DIGITS, fmtINR, fmtMonth, validPrice, PRICE_TYPES } from "../../utils/campaignV2Flow";
 
 const inputStyle = "border rounded-md px-3 py-2 focus:border-blue-300 focus:outline-0 w-full bg-white disabled:bg-gray-100";
-const blankItem = () => ({ brand: "", model: "", hp: "", type: "", offerPrice: "", crossingPrice: "", features: [], details: "", remarks: "" });
+const blankItem = () => ({ brand: "", model: "", hp: "", type: "", offerPrice: "", priceType: "", features: [], details: "" });
 const idOf = (v) => (v && typeof v === "object" ? String(v._id) : v ? String(v) : "");
 
 // Offer from the API → form draft (ids as strings, prices as digit strings)
@@ -21,10 +21,9 @@ const toDraft = (offer) => ({
         hp: it.hp || "",
         type: it.type || "",
         offerPrice: it.offerPrice ? String(it.offerPrice) : "",
-        crossingPrice: it.crossingPrice ? String(it.crossingPrice) : "",
+        priceType: it.priceType || "",
         features: (it.features || []).map(idOf),
         details: it.details || "",
-        remarks: it.remarks || "",
       }))
     : [blankItem()],
 });
@@ -42,7 +41,7 @@ const validate = (d) => {
     if (!it.hp) e[k("hp")] = "HP is required";
     if (!it.type) e[k("type")] = "Offer type is required";
     if (it.offerPrice && !validPrice(it.offerPrice)) e[k("offerPrice")] = `Enter ${MIN_PRICE_DIGITS}–${MAX_PRICE_DIGITS} digits (₹1,00,000 or more)`;
-    if (it.crossingPrice && !validPrice(it.crossingPrice)) e[k("crossingPrice")] = `Enter ${MIN_PRICE_DIGITS}–${MAX_PRICE_DIGITS} digits (₹1,00,000 or more)`;
+    if (it.offerPrice && !it.priceType) e[k("priceType")] = "Choose On Road or Ex-Showroom";
     if (it.features.length < 1 || it.features.length > MAX_FEATURES) e[k("features")] = `Select 1 to ${MAX_FEATURES} features`;
     if (!it.details.trim()) e[k("details")] = "Offer details are required";
   });
@@ -149,7 +148,7 @@ const OfferV2Modal = ({ campaign, offer, readOnly = false, onClose, onSaved }) =
     const body = {
       state: d.state,
       languages: d.languages,
-      items: d.items.map((it) => ({ ...it, offerPrice: it.offerPrice || undefined, crossingPrice: it.crossingPrice || undefined })),
+      items: d.items.map((it) => ({ ...it, offerPrice: it.offerPrice || undefined, priceType: it.priceType || undefined })),
     };
     try {
       const saved = offer?._id ? await updateOffer(campaign._id, offer._id, body) : await addOffer(campaign._id, body);
@@ -307,7 +306,14 @@ const OfferV2Modal = ({ campaign, offer, readOnly = false, onClose, onSaved }) =
                     <FieldError k={k("type")} />
                   </label>
                   {priceInput(i, "offerPrice", "Offer Price (₹)")}
-                  {priceInput(i, "crossingPrice", "Crossing Price (₹)")}
+                  <label className="flex flex-col gap-1">
+                    <Label required={!!it.offerPrice}>Price Type</Label>
+                    <select disabled={readOnly} className={`${inputStyle} ${errClass(k("priceType"))}`} value={it.priceType} onChange={(e) => setField(i, "priceType", e.target.value)}>
+                      <option value="">Select</option>
+                      {PRICE_TYPES.map((o) => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                    <FieldError k={k("priceType")} />
+                  </label>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -336,12 +342,8 @@ const OfferV2Modal = ({ campaign, offer, readOnly = false, onClose, onSaved }) =
                   <div className="flex flex-col gap-4">
                     <label className="flex flex-col gap-1">
                       <Label required>Offer Details</Label>
-                      <textarea rows={3} disabled={readOnly} className={`${inputStyle} ${errClass(k("details"))}`} value={it.details} onChange={(e) => setField(i, "details", e.target.value)} />
+                      <textarea rows={4} disabled={readOnly} className={`${inputStyle} ${errClass(k("details"))}`} value={it.details} onChange={(e) => setField(i, "details", e.target.value)} />
                       <FieldError k={k("details")} />
-                    </label>
-                    <label className="flex flex-col gap-1">
-                      <Label>Remarks for Brand Manager</Label>
-                      <textarea rows={2} disabled={readOnly} className={`${inputStyle} border-gray-400`} value={it.remarks} onChange={(e) => setField(i, "remarks", e.target.value)} />
                     </label>
                   </div>
                 </div>

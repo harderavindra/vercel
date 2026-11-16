@@ -81,7 +81,7 @@ export const createCampaign = async (fields) => {
 };
 
 // ---- Offers ----
-// offer: { state, languages: [code], items: [{ brand, model, hp, type, offerPrice, crossingPrice, features: [id], details, remarks }] }
+// offer: { state, languages: [code], items: [{ brand, model, hp, type, offerPrice, priceType, features: [id], details }] }
 // On a 400 the server sends { message, errors: [...], fieldErrors: { state, languages, "items.0.brand", ... } }.
 export const addOffer = async (campaignId, offer) => {
   const { data } = await axios.post(`${API_baseURL}/${campaignId}/offers`, offer, { withCredentials: true });

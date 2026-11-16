@@ -75,6 +75,8 @@ export const MAX_ITEMS = 2;    // brand sections per offer
 export const MAX_FEATURES = 3; // features per brand section
 export const MIN_PRICE_DIGITS = 6;
 export const MAX_PRICE_DIGITS = 9;
+// What the offer price is (required when an offer price is entered)
+export const PRICE_TYPES = ['On Road', 'Ex-Showroom'];
 export const ARTWORK_TYPES = ['image/png', 'image/jpeg'];
 export const MAX_ARTWORK_MB = 5;
 

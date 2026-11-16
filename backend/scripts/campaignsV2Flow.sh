@@ -78,7 +78,7 @@ done
 echo "states: $S1, $S2 | hp: $HP | type: $TYPE | brand/model: $BRAND_ID/$MODEL_ID"
 offer() { # offer <state> <languages-json> <details>
   jq -n --arg s "$1" --argjson l "$2" --arg b "$BRAND_ID" --arg m "$MODEL_ID" --arg hp "$HP" --arg t "$TYPE" --argjson f "$FEATS" --arg d "$3" \
-    '{state:$s, languages:$l, items:[{brand:$b, model:$m, hp:$hp, type:$t, offerPrice:"650000", crossingPrice:"700000", features:$f, details:$d}]}'
+    '{state:$s, languages:$l, items:[{brand:$b, model:$m, hp:$hp, type:$t, offerPrice:"650000", priceType:"On Road", features:$f, details:$d}]}'
 }
 # A 1×1 PNG to upload as artwork
 echo 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==' | base64 -d > "$JARS/art.png"

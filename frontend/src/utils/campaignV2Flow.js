@@ -91,6 +91,8 @@ export const fmtDateTime = (d) =>
 
 export const MAX_ITEMS = 2;
 export const MAX_FEATURES = 3;
+// What the offer price is (same as backend PRICE_TYPES); required when an offer price is entered
+export const PRICE_TYPES = ["On Road", "Ex-Showroom"];
 export const MIN_PRICE_DIGITS = 6;
 export const MAX_PRICE_DIGITS = 9;
 export const validPrice = (v) => new RegExp(`^[1-9]\\d{${MIN_PRICE_DIGITS - 1},${MAX_PRICE_DIGITS - 1}}$`).test(String(v));
