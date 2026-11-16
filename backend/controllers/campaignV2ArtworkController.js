@@ -52,7 +52,7 @@ export const getArtworkUploadUrl = async (req, res) => {
 };
 
 // PUT /api/campaigns-v2/:id/offers/:offerId/artwork  body: { fileName, type, size, originalName? }
-// The file must already be in the bucket at fileName (from upload-url) with the same type and a size <= 5 MB.
+// The file must already be in the bucket at fileName (from upload-url) with the same type and a size <= MAX_ARTWORK_MB (10 MB).
 export const confirmArtwork = async (req, res) => {
   try {
     const { user } = req;

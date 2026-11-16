@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { FiCheckCircle, FiX } from "react-icons/fi";
+import { FiX } from "react-icons/fi";
 
-// State-level declaration (TruCadence): a red panel with the step and role, then the points to confirm.
+// State-level declaration: title, state and period, then the points to confirm.
 // The confirm button stays disabled until every point is ticked.
-// decl: one entry of GET /declarations/texts (title, intro, items, footer, step, role, stage, note)
+// decl: one entry of GET /declarations/texts (only title, intro and items are shown)
 // readOnly + accepted: shows a recorded declaration (the snapshot) instead.
 const DeclarationModal = ({
   decl, state, period, userLabel, progress, confirmLabel = "Confirm", busy, onConfirm, onClose,
@@ -25,28 +25,18 @@ const DeclarationModal = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex justify-center items-start sm:items-center p-4 overflow-y-auto" onClick={() => !busy && onClose?.()}>
       <div
-        className="bg-white rounded-xl shadow-md w-full max-w-4xl flex flex-col md:flex-row overflow-hidden max-h-[92vh]"
+        className="bg-white rounded-xl shadow-md w-full max-w-2xl flex flex-col overflow-hidden max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-label={decl.title}
       >
-        {/* Left: step, role, stage */}
-        <div className="bg-red-700 text-white md:w-64 shrink-0 p-6 flex flex-col gap-4">
-          {decl.step && <div className="text-4xl font-bold">{decl.step}</div>}
-          <div className="text-2xl font-bold">{decl.role}</div>
-          <div className="font-semibold">{decl.stage}</div>
-          {decl.note && <p className="text-sm border-t border-white/40 pt-4">{decl.note}</p>}
-          <p className="text-xs font-semibold mt-auto">Named · dated · time-stamped</p>
-        </div>
-
-        {/* Right: declaration */}
         <div className="flex-1 flex flex-col min-w-0">
           <div className="flex items-start justify-between gap-4 px-6 pt-5">
-            <div>
-              <p className="text-xs font-bold tracking-widest text-red-700">DECLARATION{progress ? ` · ${progress}` : ""}</p>
-              <h2 className="font-semibold text-lg mt-1">{decl.title}</h2>
-            </div>
+            <h2 className="font-semibold text-lg">
+              {decl.title}
+              {progress && <span className="ml-2 text-sm font-normal text-gray-500">({progress})</span>}
+            </h2>
             <button type="button" onClick={onClose} disabled={busy} aria-label="Close" className="text-gray-500 hover:text-red-500 cursor-pointer p-1">
               <FiX size={20} />
             </button>
@@ -75,11 +65,6 @@ const DeclarationModal = ({
                 </label>
               ))}
             </div>
-            {decl.footer && (
-              <p className="flex gap-2 items-start bg-red-50 text-red-700 font-semibold text-sm rounded-md px-4 py-3">
-                <FiCheckCircle className="mt-0.5 shrink-0" /> {decl.footer}
-              </p>
-            )}
           </div>
 
           <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-200">

@@ -1,9 +1,9 @@
 // Campaigns v2: offers inside a campaign, their artwork, artwork comments and links.
 import { allocateSerials } from '../utils/allocateSerials.js';
-import { offerCode } from '../constants/campaignV2Workflow.js';
+import { offerCode, statusAfter } from '../constants/campaignV2Workflow.js';
 import {
   HttpError, sendError, loadCampaign, assertCanEditOffers, assertZmmOfZone, unapproveStates,
-  findOffer, validateOffer,
+  findOffer, validateOffer, isUnderReview, addHistory,
 } from '../utils/campaignV2Access.js';
 
 const clean = (v) => (typeof v === 'string' ? v.trim() : '');
@@ -13,7 +13,7 @@ const offerJson = (campaign, offer) => ({ ...offer.toJSON({ flattenMaps: true })
 export const addOffer = async (req, res) => {
   try {
     const campaign = await loadCampaign(req.params.id, req.user);
-    assertCanEditOffers(campaign, req.user);
+    assertCanEditOffers(campaign, req.user, { adding: true });
     const fields = await validateOffer(req.body, campaign);
 
     const serial = await allocateSerials(1);
@@ -30,13 +30,19 @@ export const addOffer = async (req, res) => {
 export const updateOffer = async (req, res) => {
   try {
     const campaign = await loadCampaign(req.params.id, req.user);
-    assertCanEditOffers(campaign, req.user);
     const offer = findOffer(campaign, req.params.offerId);
-    const fields = await validateOffer(req.body, campaign);
-
     const oldState = offer.state;
+    assertCanEditOffers(campaign, req.user, { offerState: oldState });
+    const fields = await validateOffer(req.body, campaign);
+    assertCanEditOffers(campaign, req.user, { offerState: oldState, newState: fields.state });
+
     offer.set(fields);
-    unapproveStates(campaign, oldState, fields.state); // a changed offer needs its state approved again
+    if (isUnderReview(campaign)) {
+      // The state stays with the Brand Manager; the edit is in the history for them to see
+      addHistory(campaign, req.user, 'Offer edited during review', { note: `${offer.code} · ${fields.state}` });
+    } else {
+      unapproveStates(campaign, oldState, fields.state); // a changed offer needs its state approved again
+    }
     await campaign.save();
     res.status(200).json(offerJson(campaign, offer));
   } catch (error) {
@@ -48,15 +54,24 @@ export const updateOffer = async (req, res) => {
 export const removeOffer = async (req, res) => {
   try {
     const campaign = await loadCampaign(req.params.id, req.user);
-    assertCanEditOffers(campaign, req.user);
     const offer = findOffer(campaign, req.params.offerId);
-    const { state } = offer;
+    const { state, code } = offer;
+    assertCanEditOffers(campaign, req.user, { offerState: state });
+    const reviewing = isUnderReview(campaign);
+    if (reviewing && campaign.offers.length === 1) {
+      throw new HttpError(409, 'A submitted campaign needs at least one offer. Edit this offer instead.');
+    }
     offer.deleteOne();
-    unapproveStates(campaign, state);
+    if (!reviewing) unapproveStates(campaign, state);
     // a state with no offers left has nothing to approve
     if (!campaign.offers.some((o) => o.state === state)) campaign.approvals.delete(state);
+    if (reviewing) {
+      addHistory(campaign, req.user, 'Offer removed during review', { note: `${code} · ${state}` });
+      // Removing the last waiting state's offers can finish the review (every remaining state decided)
+      campaign.status = statusAfter('offers', campaign, campaign.approvals);
+    }
     await campaign.save();
-    res.status(200).json({ message: 'Offer removed', _id: req.params.offerId });
+    res.status(200).json({ message: 'Offer removed', _id: req.params.offerId, campaignStatus: campaign.status });
   } catch (error) {
     sendError(res, error, 'Failed to remove offer');
   }

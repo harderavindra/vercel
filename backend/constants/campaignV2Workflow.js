@@ -78,7 +78,7 @@ export const MAX_PRICE_DIGITS = 9;
 // What the offer price is (required when an offer price is entered)
 export const PRICE_TYPES = ['On Road', 'Ex-Showroom'];
 export const ARTWORK_TYPES = ['image/png', 'image/jpeg'];
-export const MAX_ARTWORK_MB = 5;
+export const MAX_ARTWORK_MB = 10;
 
 // ---------- Helpers ----------
 const idString = (v) => (v == null ? '' : String(v._id ?? v));

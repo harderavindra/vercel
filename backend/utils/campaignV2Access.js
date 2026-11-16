@@ -88,10 +88,35 @@ export const assertZmmOfZone = (campaign, user) => {
 };
 
 /** Offers can be added/edited/removed by the zone's ZMM while the campaign is a draft or rejected. */
-export const assertCanEditOffers = (campaign, user) => {
+// Offers are freely editable in these statuses (changing an approved state's offer un-approves it)
+export const OFFER_EDIT_STATUSES = ['draft', 'offers_rejected'];
+// While the Brand Manager reviews, the ZMM may still edit or remove offers of states that are not approved yet
+export const isUnderReview = (campaign) => campaign.status === 'pending_offer_approval';
+export const offerDecision = (campaign, state) => {
+  const a = campaign.approvals;
+  return (a instanceof Map ? a.get(state) : a?.[state])?.status;
+};
+
+/**
+ * Who may change offers, and when.
+ * opts.adding: a new offer. opts.offerState: the state of the offer being edited / removed.
+ * opts.newState: the state an edited offer moves to (checked after validation).
+ */
+export const assertCanEditOffers = (campaign, user, { adding = false, offerState, newState } = {}) => {
   assertZmmOfZone(campaign, user);
-  if (!['draft', 'offers_rejected'].includes(campaign.status)) {
-    throw new HttpError(409, 'Offers can only be changed while the campaign is a draft or its offers were rejected');
+  if (OFFER_EDIT_STATUSES.includes(campaign.status)) return;
+  if (!isUnderReview(campaign)) {
+    throw new HttpError(409, 'Offers can only be changed until the Brand Manager approves them');
+  }
+  if (adding) {
+    throw new HttpError(409, "New offers can't be added while the Brand Manager is reviewing. Edit an existing offer, or add after the decision.");
+  }
+  if (offerState && offerDecision(campaign, offerState) === 'approved') {
+    throw new HttpError(409, `${offerState} is already approved, so its offers can no longer be changed`);
+  }
+  if (newState && newState !== offerState && !['pending', 'rejected'].includes(offerDecision(campaign, newState))) {
+    const message = `While the Brand Manager is reviewing, an offer can only move to a submitted state that is not approved yet`;
+    throw new HttpError(400, message, { errors: [message], fieldErrors: { state: message } });
   }
 };
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Button from "../common/Button";
 import StatusPill from "./StatusPill";
 import DeclarationModal from "./DeclarationModal";
-import { performAction, listAgencyUsers, getDeclarationTexts } from "../../api/campaignsV2Api";
+import { performAction, listAgencyUsers, getDeclarationTexts, MAX_ARTWORK_MB } from "../../api/campaignsV2Api";
 import { getSettings } from "../../api/mastersApi";
 import { useAuth } from "../../context/auth-context";
 import { STATUS, NEXT_STEP, ROLE_LABELS, fmtMonthLong, userName, waitingOn } from "../../utils/campaignV2Flow";
@@ -186,6 +186,16 @@ const ActionPanel = ({ campaign: c, onChanged, saveLinks }) => {
     </>;
   } else if (can("changeStatus") || can("submitArtwork")) {
     const redo = c.status === "content_rejected";
+    // Offers whose artwork is being sent now (states not approved yet) and those of them still without an image
+    const toSend = c.offers.filter((o) => (c.contentApprovals || {})[o.state]?.status !== "approved");
+    const missing = toSend.filter((o) => !o.artwork?.fileName);
+    const submitArtwork = () => {
+      if (missing.length) {
+        setError(`Upload the artwork for every offer first. Missing: ${missing.map((o) => `${o.code} (${o.state})`).join(", ")}`);
+        return;
+      }
+      run("submitArtwork");
+    };
     body = <>
       {redo && <>
         <p>The Zonal Marketing Manager rejected the artwork for some states. Replace the artwork of those states&apos; offers (see the comments on each artwork), then resubmit; approved states are locked.</p>
@@ -202,8 +212,12 @@ const ActionPanel = ({ campaign: c, onChanged, saveLinks }) => {
         {c.agencyStatus && <p className="text-gray-500 text-sm">Current: {c.agencyStatus}</p>}
       </>}
       {can("submitArtwork") ? <>
-        {!redo && <p>Upload the artwork (PNG or JPG) for each offer in the table below, then submit it. The Zonal Marketing Manager approves it state by state; the Creative Link comes after that.</p>}
-        <Button type="button" disabled={busy} onClick={() => run("submitArtwork")}>{redo ? "Resubmit rejected states" : "Submit artwork"}</Button>
+        {!redo && <p>Upload the artwork (PNG or JPG, up to {MAX_ARTWORK_MB} MB) for each offer in the table below, then submit it. The Zonal Marketing Manager approves it state by state; the Creative Link comes after that.</p>}
+        <p className={`text-sm ${missing.length ? "text-red-600" : "text-green-700"}`}>
+          Artwork uploaded for {toSend.length - missing.length} of {toSend.length} offer{toSend.length === 1 ? "" : "s"}
+          {missing.length > 0 && ` · still needed: ${missing.map((o) => o.code).join(", ")}`}
+        </p>
+        <Button type="button" disabled={busy} onClick={submitArtwork}>{redo ? "Resubmit rejected states" : "Submit artwork"}</Button>
       </> : <p className="text-gray-500 text-sm">Change the status first; you can then upload the artwork.</p>}
     </>;
   } else if (can("decideContent")) {
@@ -242,6 +256,9 @@ const ActionPanel = ({ campaign: c, onChanged, saveLinks }) => {
       {["pending_offer_approval", "offers_rejected"].includes(c.status) && <StateList campaign={c} kind="offers" />}
       {["content_uploaded", "content_rejected"].includes(c.status) && <StateList campaign={c} kind="content" />}
       <p>Nothing for you to do at this step. Waiting on <strong>{wait.join(", ")}</strong>{NEXT_STEP[c.status] ? ` to ${NEXT_STEP[c.status]}` : ""}.</p>
+      {c.status === "pending_offer_approval" && c.permissions?.editOffers && (
+        <p className="text-sm text-gray-600">Until a state is approved you can still edit or remove its offers in the table below. Changes are recorded in the history.</p>
+      )}
     </>;
   }
 

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FiImage, FiMessageSquare, FiUploadCloud } from "react-icons/fi";
 import Modal from "./Modal";
 import Button from "../common/Button";
-import { getArtworkViewUrl, uploadArtwork, addArtworkComment, artworkFileError } from "../../api/campaignsV2Api";
+import { getArtworkViewUrl, uploadArtwork, addArtworkComment, artworkFileError, MAX_ARTWORK_MB } from "../../api/campaignsV2Api";
 import { fmtDateTime, userName } from "../../utils/campaignV2Flow";
 
 // Signed view URLs last 15 minutes; fetch one when shown and again if the image fails to load.
@@ -126,7 +126,7 @@ const ArtworkCell = ({ campaignId, offer, canUpload = false, canComment = false,
       {canUpload && (
         <>
           <input ref={input} type="file" accept="image/png,image/jpeg" className="hidden" onChange={(e) => upload(e.target.files?.[0])} />
-          <button type="button" disabled={progress !== null} onClick={() => input.current?.click()} className="flex items-center gap-1 text-sm text-red-500 hover:text-red-700 cursor-pointer disabled:opacity-50">
+          <button type="button" title={`PNG or JPG, max ${MAX_ARTWORK_MB} MB`} disabled={progress !== null} onClick={() => input.current?.click()} className="flex items-center gap-1 text-sm text-red-500 hover:text-red-700 cursor-pointer disabled:opacity-50">
             <FiUploadCloud /> {progress !== null ? `Uploading ${progress}%` : fileName ? "Replace" : "Upload"}
           </button>
         </>

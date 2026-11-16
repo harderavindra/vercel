@@ -106,6 +106,8 @@ export const canCreateCampaign = (user) =>
 const EVENT_STYLE = {
   "Campaign draft started": { icon: "clock", status: "success" },
   "Campaign details edited": { icon: "pad", status: "info" },
+  "Offer edited during review": { icon: "pad", status: "warning" },
+  "Offer removed during review": { icon: "reject", status: "warning" },
   "Campaign created": { icon: "rocket", status: "info" },
   "Offers approved": { icon: "check", status: "success" },
   "Offers rejected": { icon: "reject", status: "error" },

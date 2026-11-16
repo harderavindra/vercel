@@ -56,7 +56,13 @@ export const permissionsFor = (campaign, user) => {
   return {
     actions,
     editCampaign: zmmOfZone && ['draft', 'offers_rejected'].includes(campaign.status),
-    editOffers: zmmOfZone && ['draft', 'offers_rejected'].includes(campaign.status),
+    // editOffers: can edit / remove offers (while under review only offers of states not approved yet — see lockedStates)
+    editOffers: zmmOfZone && ['draft', 'offers_rejected', 'pending_offer_approval'].includes(campaign.status),
+    addOffers: zmmOfZone && ['draft', 'offers_rejected'].includes(campaign.status),
+    // under review: states whose offers can't be changed (approved); also the only states an offer can move to are the others
+    lockedStates: campaign.status === 'pending_offer_approval'
+      ? [...(campaign.approvals?.entries?.() || [])].filter(([, a]) => a?.status === 'approved').map(([s]) => s)
+      : [],
     deleteCampaign: zmmOfZone && campaign.status === 'draft',
     duplicate: user.role === ROLE.ZMM && !!user.zone,
     uploadArtwork: isAgency && ['in_progress', 'content_rejected'].includes(campaign.status),

@@ -6,7 +6,7 @@ const API_baseURL = `${import.meta.env.VITE_BACKEND_BASE_URL}/api/campaigns-v2`;
 
 // ---- Artwork ----
 export const ARTWORK_TYPES = ["image/png", "image/jpeg"];
-export const MAX_ARTWORK_MB = 5;
+export const MAX_ARTWORK_MB = 10;
 
 /** Checks a file before uploading; returns an error message or "" when it is fine. */
 export const artworkFileError = (file) => {

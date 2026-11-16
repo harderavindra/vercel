@@ -54,6 +54,10 @@ const validate = (d) => {
  * readOnly: view only. onSaved(offer) after a successful save.
  */
 const OfferV2Modal = ({ campaign, offer, readOnly = false, onClose, onSaved }) => {
+  // Under Brand Manager review an offer can only stay in / move to a submitted state that isn't approved yet
+  const reviewStates = campaign.status === "pending_offer_approval"
+    ? Object.entries(campaign.approvals || {}).filter(([, a]) => a?.status !== "approved").map(([s]) => s)
+    : null;
   const [d, setD] = useState(() => toDraft(offer));
   const [errors, setErrors] = useState({});
   const [banner, setBanner] = useState("");
@@ -232,7 +236,7 @@ const OfferV2Modal = ({ campaign, offer, readOnly = false, onClose, onSaved }) =
               <Label required>State</Label>
               <select disabled={readOnly} className={`${inputStyle} ${errClass("state")}`} value={d.state} onChange={(e) => pickState(e.target.value)}>
                 <option value="">Select</option>
-                {(masters.zone?.states || []).map((s) => <option key={s.name} value={s.name}>{s.name}</option>)}
+                {(masters.zone?.states || []).filter((s) => !reviewStates || reviewStates.includes(s.name)).map((s) => <option key={s.name} value={s.name}>{s.name}</option>)}
                 {d.state && !zoneState && <option value={d.state}>{d.state} (not in {campaign.zone})</option>}
               </select>
               <FieldError k="state" />

@@ -107,6 +107,10 @@ const CampaignV2DetailPage = () => {
 
   const langName = (code) => languages.find((l) => l.code === code)?.name || code;
   const canEdit = !!campaign?.permissions?.editOffers;
+  const canAdd = !!campaign?.permissions?.addOffers;
+  // Under Brand Manager review, offers of approved states are locked
+  const canEditOffer = (o) => canEdit && !(campaign?.permissions?.lockedStates || []).includes(o.state);
+  const underReview = campaign?.status === "pending_offer_approval";
 
   const onSaved = async () => {
     setOfferModal(null);
@@ -299,7 +303,7 @@ const CampaignV2DetailPage = () => {
             {linksField && (
               <Button width="auto" variant="outline" disabled={!linksDirty} onClick={saveLinks}>Save links</Button>
             )}
-            {canEdit && (
+            {canAdd && (
               <Button width="auto" onClick={() => { setNotice(""); setOfferModal({ offer: null, readOnly: false }); }} className="flex items-center gap-2">
                 <FiPlus /> Add offer
               </Button>
@@ -309,7 +313,7 @@ const CampaignV2DetailPage = () => {
 
         {campaign.offers.length === 0 ? (
           <p className="text-gray-500">
-            No offers yet.{canEdit ? " Use Add offer to create the first one." : campaign.status === "draft" ? ` The Zonal Marketing Manager of ${campaign.zone} adds the offers.` : ""}
+            No offers yet.{canAdd ? " Use Add offer to create the first one." : campaign.status === "draft" ? ` The Zonal Marketing Manager of ${campaign.zone} adds the offers.` : ""}
           </p>
         ) : (
           <div className="overflow-x-auto">
@@ -376,11 +380,12 @@ const CampaignV2DetailPage = () => {
                     <td className="p-3 max-w-52">{linkCell(o, "landingPage")}</td>
                     <td className="p-3 whitespace-nowrap text-right">
                       <div className="flex flex-col items-end gap-1">
-                        <button type="button" className="text-blue-600 hover:text-red-500 cursor-pointer" onClick={() => { setNotice(""); setOfferModal({ offer: o, readOnly: !canEdit }); }}>
-                          {canEdit ? "Edit" : "View"}
+                        <button type="button" className="text-blue-600 hover:text-red-500 cursor-pointer" onClick={() => { setNotice(""); setOfferModal({ offer: o, readOnly: !canEditOffer(o) }); }}>
+                          {canEditOffer(o) ? "Edit" : "View"}
                         </button>
-                        {canEdit && <button type="button" className="text-blue-600 hover:text-red-500 cursor-pointer" onClick={() => { setNotice(""); setOfferModal({ offer: { state: o.state, languages: o.languages, items: o.items }, readOnly: false }); }}>Duplicate</button>}
-                        {canEdit && <button type="button" className="text-red-500 hover:text-red-700 cursor-pointer" onClick={() => onRemove(o)}>Remove</button>}
+                        {canAdd && <button type="button" className="text-blue-600 hover:text-red-500 cursor-pointer" onClick={() => { setNotice(""); setOfferModal({ offer: { state: o.state, languages: o.languages, items: o.items }, readOnly: false }); }}>Duplicate</button>}
+                        {canEditOffer(o) && <button type="button" className="text-red-500 hover:text-red-700 cursor-pointer" onClick={() => onRemove(o)}>Remove</button>}
+                        {underReview && canEdit && !canEditOffer(o) && <span className="text-xs text-gray-500">Approved · locked</span>}
                       </div>
                     </td>
                   </tr>
