@@ -63,6 +63,23 @@ const StateList = ({ campaign, kind, decidable, busy, onDecide }) => {
   );
 };
 
+// "1 of 2 offers have a saved creative link" with a small bar
+const LinkProgress = ({ campaign, field, label }) => {
+  const total = campaign.offers.length;
+  const done = campaign.offers.filter((o) => o[field]).length;
+  return (
+    <div className="flex flex-col gap-1">
+      <p className="text-sm">
+        <strong>{done} of {total}</strong> offers have a saved {label}
+        {done < total && <span className="text-gray-500"> · save each row in the table</span>}
+      </p>
+      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+        <div className={`h-full ${done === total ? "bg-green-500" : "bg-yellow-500"}`} style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
+      </div>
+    </div>
+  );
+};
+
 /**
  * campaign: full campaign from GET /:id. onChanged(message): reload after an action.
  * saveLinks(): saves link edits typed in the offers table first (returns false if that failed).
@@ -88,9 +105,8 @@ const ActionPanel = ({ campaign: c, onChanged, saveLinks }) => {
     if (!needAgencies) return;
     listAgencyUsers().then((list) => {
       setAgencies(list);
-      // Hand over: agencies other than the one that made the artwork are ticked to start with
-      const agencyIdOf = c.agency?._id || c.agency;
-      setHandTo(c.handedTo?.length ? c.handedTo.map((u) => u._id || u) : list.filter((u) => u._id !== agencyIdOf).map((u) => u._id));
+      // Hand over: nothing is ticked to start with (the user picks the agencies), unless it was handed over before
+      setHandTo(c.handedTo?.length ? c.handedTo.map((u) => u._id || u) : []);
     }).catch(() => setAgencies([]));
   }, [needAgencies, c.agency, c.handedTo]);
 
@@ -229,12 +245,14 @@ const ActionPanel = ({ campaign: c, onChanged, saveLinks }) => {
   } else if (can("submitLinks")) {
     body = <>
       <p>The artwork is approved in every state. Enter the Creative Link for each offer in the table below, then share them.</p>
-      <Button type="button" disabled={busy} onClick={async () => { if (await saveLinks()) run("submitLinks"); }}>Share creative links</Button>
+      <LinkProgress campaign={c} field="creativeLink" label="creative link" />
+      <Button type="button" disabled={busy} onClick={async () => { if (await saveLinks()) run("submitLinks"); else setError("Some creative links could not be saved. Check the rows marked in red in the table below."); }}>Share creative links</Button>
     </>;
   } else if (can("handOver")) {
     const agencyIdOf = c.agency?._id || c.agency;
     body = <>
       <p>The agency has shared the creative links. Add the Landing Page link for each offer in the table below, tick the agencies to hand over to, then hand over.</p>
+      <LinkProgress campaign={c} field="landingPage" label="landing page" />
       <div className="flex flex-col gap-1 border border-gray-200 rounded-md bg-white p-3" role="group" aria-label="Hand over to agencies">
         {agencies.map((u) => (
           <label key={u._id} className="flex items-center gap-2 cursor-pointer">
@@ -244,8 +262,8 @@ const ActionPanel = ({ campaign: c, onChanged, saveLinks }) => {
         ))}
         {!agencies.length && <span className="text-gray-500 text-sm">No active users with the Agency role.</span>}
       </div>
-      <Button type="button" disabled={busy || !handTo.length} onClick={async () => { if (await saveLinks()) run("handOver", { agencyUserIds: handTo }); }}>
-        Hand over to {handTo.length} {handTo.length === 1 ? "agency" : "agencies"}
+      <Button type="button" disabled={busy || !handTo.length} onClick={async () => { if (await saveLinks()) run("handOver", { agencyUserIds: handTo }); else setError("Some landing pages could not be saved. Check the rows marked in red in the table below."); }}>
+        {handTo.length ? `Hand over to ${handTo.length} ${handTo.length === 1 ? "agency" : "agencies"}` : "Select the agencies to hand over to"}
       </Button>
     </>;
   } else if (c.status === "completed") {

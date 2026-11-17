@@ -149,3 +149,18 @@ export const listDeclarations = async (id) => {
   const { data } = await axios.get(`${API_baseURL}/${id}/declarations`, { withCredentials: true });
   return data;
 };
+
+// Downloads the campaign's offers as an .xlsx file (GET /:id/excel) and saves it in the browser.
+export const downloadCampaignExcel = async (campaign) => {
+  const res = await axios.get(`${API_baseURL}/${campaign._id}/excel`, { responseType: "blob", withCredentials: true });
+  const fromHeader = /filename="([^"]+)"/.exec(res.headers?.["content-disposition"] || "")?.[1];
+  const fallback = `${(campaign.title || "campaign").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "") || "campaign"}_${campaign.month || ""}.xlsx`;
+  const url = URL.createObjectURL(res.data);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fromHeader || fallback;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};

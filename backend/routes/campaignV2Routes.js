@@ -11,6 +11,7 @@ import { performAction } from '../controllers/campaignV2ActionsController.js';
 import { getMyNotifications, markNotificationsRead } from '../controllers/notificationV2Controller.js';
 import { getArtworkUploadUrl, confirmArtwork, viewArtwork } from '../controllers/campaignV2ArtworkController.js';
 import { getDeclarationTexts, listDeclarations } from '../controllers/campaignV2DeclarationController.js';
+import { downloadCampaignExcel } from '../controllers/campaignV2ExcelController.js';
 
 // Campaigns v2 (new module; the old /api/campaigns is untouched).
 // Role/status/zone rules are checked in the controllers for every request.
@@ -34,6 +35,7 @@ router.put('/:id', updateCampaign);
 router.delete('/:id', deleteCampaign);
 router.post('/:id/duplicate', duplicateCampaign);
 router.get('/:id/declarations', listDeclarations);
+router.get('/:id/excel', downloadCampaignExcel);
 
 // Offers
 router.post('/:id/offers', addOffer);

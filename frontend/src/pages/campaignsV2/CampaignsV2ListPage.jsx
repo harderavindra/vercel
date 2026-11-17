@@ -9,6 +9,7 @@ import Pagination from "../../components/common/Pagination";
 import StatusPill from "../../components/campaignsV2/StatusPill";
 import CampaignV2Modal from "../../components/campaignsV2/CampaignV2Modal";
 import { STATUS, ROLE, fmtMonth, fmtDateTime, userName, waitingOn, canCreateCampaign } from "../../utils/campaignV2Flow";
+import TrucadenceMark from "../../components/campaignsV2/TrucadenceMark";
 
 const PAGE_SIZE = 10;
 const selectStyle = "border rounded-md border-gray-400 px-3 py-2 focus:border-blue-300 focus:outline-0 bg-white";
@@ -54,7 +55,7 @@ const CampaignsV2ListPage = () => {
     <div className="flex flex-col gap-6 p-4 sm:p-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Campaigns</h1>
+          <h1 className="text-3xl font-bold flex flex-wrap items-baseline gap-x-3"><TrucadenceMark /> <span>Campaigns</span></h1>
           {isZmm && <p className="text-gray-500 text-sm mt-1">{user.zone ? `Showing ${user.zone} campaigns.` : "Your user has no zone yet. Ask an admin to set it."}</p>}
         </div>
         {canCreateCampaign(user) && (

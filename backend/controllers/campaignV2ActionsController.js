@@ -60,7 +60,9 @@ const linkUpdates = (campaign, map, field) => {
   Object.entries(map).forEach(([offerId, raw], i) => {
     const offer = isId(offerId) ? campaign.offers.id(offerId) : null;
     if (!offer) throw new HttpError(400, `Offer ${offerId} is not in this campaign`);
-    const url = clean(raw);
+    // "www.site.com" → "https://www.site.com" (a link typed without http(s)://)
+    let url = clean(raw);
+    if (url && !/^[a-z][a-z0-9+.-]*:\/\//i.test(url) && /^[^\s/]+\.[^\s]+$/.test(url)) url = `https://${url}`;
     if (url && !isUrl(url)) bad.push(offer.code);
     set[`offers.$[o${i}].${field}`] = url;
     arrayFilters.push({ [`o${i}._id`]: new mongoose.Types.ObjectId(offerId) });
