@@ -247,6 +247,10 @@ const OfferV2Modal = ({ campaign, offer, readOnly = false, onClose, onSaved }) =
               <div className={`flex flex-wrap gap-2 min-h-10 items-center rounded-md ${errors.languages ? "border border-red-500 p-2" : ""}`}>
                 {!d.state ? (
                   <span className="text-gray-500 text-sm">Select a state first</span>
+                ) : readOnly ? (
+                  d.languages.length ? d.languages.map((code) => (
+                    <span key={code} className="py-1 px-3 rounded-md border text-sm bg-red-50 border-red-300 text-red-700">{langName(code)}</span>
+                  )) : <span className="text-gray-500 text-sm">None</span>
                 ) : stateLanguages.length ? (
                   stateLanguages.map((code) => {
                     const on = d.languages.includes(code);
@@ -337,7 +341,20 @@ const OfferV2Modal = ({ campaign, offer, readOnly = false, onClose, onSaved }) =
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1">
-                    <Label required>Features (up to {MAX_FEATURES}, shown in English)</Label>
+                    <Label required>{readOnly ? "Features" : `Features (up to ${MAX_FEATURES}, shown in English)`}</Label>
+                    {readOnly ? (
+                      <div className="border border-gray-300 rounded-md p-3">
+                        {it.features.length ? (
+                          <ul className="list-disc pl-5 flex flex-col gap-1 text-sm">
+                            {it.features.map((fid) => (
+                              <li key={fid}>{features?.find((f) => f._id === fid)?.text?.en || (features ? "(feature removed)" : "Loading...")}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span className="text-gray-500 text-sm">No features selected</span>
+                        )}
+                      </div>
+                    ) : (<>
                     <div className={`border rounded-md p-3 flex flex-col gap-2 max-h-48 overflow-y-auto ${errors[k("features")] ? "border-red-500" : "border-gray-300"}`}>
                       {!it.model ? (
                         <span className="text-gray-500 text-sm">Select a model first</span>
@@ -355,6 +372,7 @@ const OfferV2Modal = ({ campaign, offer, readOnly = false, onClose, onSaved }) =
                       )}
                     </div>
                     <span className="text-gray-500 text-xs">{it.features.length} of {MAX_FEATURES} selected</span>
+                    </>)}
                     {featMsg[i] && <p className="text-red-500 text-xs">{featMsg[i]}</p>}
                     <FieldError k={k("features")} />
                   </div>
