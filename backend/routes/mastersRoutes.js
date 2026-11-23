@@ -12,6 +12,7 @@ import {
   createModel, renameModel, deleteModel, setModelHpSegments,
 } from '../controllers/catalogController.js';
 import { getFeatures, createFeature, updateFeatureText, deleteFeature } from '../controllers/featureController.js';
+import { emailPaused } from '../utils/emailService.js';
 
 const router = express.Router();
 
@@ -20,6 +21,11 @@ router.use(authenticate);
 
 router.get('/health', (req, res) => {
   res.json({ ok: true });
+});
+
+// Admin: whether app emails are paused (EMAIL_PAUSED env var), for the dashboard banner
+router.get('/email-status', requireRole(...ADMIN_ROLES), (req, res) => {
+  res.json({ paused: emailPaused() });
 });
 
 // Settings lists (hpSegments, offerTypes, agencyStatuses)

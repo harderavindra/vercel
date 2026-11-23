@@ -168,3 +168,9 @@ export const deleteFeature = async (id) => {
   const response = await axios.delete(`${API_baseURL}/features/${id}`, { withCredentials: true });
   return response.data;
 };
+
+// ---- Email status (admin) ----
+export const getEmailStatus = async () => {
+  const response = await axios.get(`${API_baseURL}/email-status`, { withCredentials: true });
+  return response.data; // { paused }
+};

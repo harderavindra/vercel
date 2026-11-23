@@ -10,7 +10,15 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// EMAIL_PAUSED=true → no email is sent (every caller keeps working); remove it or set false to send again.
+export const emailPaused = () => process.env.EMAIL_PAUSED === 'true';
+
 export const sendEmail = async ({ to, subject, html }) => {
+  if (emailPaused()) {
+    const count = Array.isArray(to) ? to.length : String(to || '').split(',').filter(Boolean).length;
+    console.log(`[email paused] not sent: "${subject}" to ${count} recipient(s)`);
+    return { paused: true, accepted: [], rejected: [] };
+  }
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to,                         // array or comma-separated string of emails
