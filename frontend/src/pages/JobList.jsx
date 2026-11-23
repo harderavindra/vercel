@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../components/common/Button";
 import StatusMessageWrapper from "../components/common/StatusMessageWrapper";
@@ -18,6 +18,18 @@ import { FiGrid, FiList, FiTable } from "react-icons/fi";
 import JobTableRow from "../components/job/JobTableRow";
 import { useSticky } from "../hooks/useSticky";
 
+// The list remembers its page, search and filters for this browser tab, so coming back from an artwork
+// (Back button, browser back or the menu) opens the same page.
+const LIST_STATE_KEY = "artworkList.state";
+const PAGE_SIZE = 36;
+const savedListState = () => {
+    try {
+        return JSON.parse(sessionStorage.getItem(LIST_STATE_KEY)) || {};
+    } catch {
+        return {};
+    }
+};
+
 const JobList = () => {
     const { ref, isSticky } = useSticky();
 
@@ -29,14 +41,15 @@ const JobList = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(location.state?.successMessage || "");
-    const [search, setSearch] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
-    const [page, setPage] = useState(1);
+    const [saved] = useState(savedListState);
+    const [search, setSearch] = useState(saved.search || "");
+    const [debouncedSearch, setDebouncedSearch] = useState(saved.search || "");
+    const [page, setPage] = useState(Number(saved.page) > 0 ? Number(saved.page) : 1);
     const [currentView, setCurrentView] = useState("table");
 
     const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1 });
-    const [priority, setPriority] = useState("");
-    const [selectedLanguages, setSelectedLanguages] = useState([]);
+    const [priority, setPriority] = useState(saved.priority || "");
+    const [selectedLanguages, setSelectedLanguages] = useState(Array.isArray(saved.languages) ? saved.languages : []);
 
     const [jobs, setJobs] = useState([]);
 
@@ -64,10 +77,24 @@ const JobList = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    // Reset page when search or filter changes
+    // Reset page when search or filter changes (not on the first render, which may restore a saved page)
+    const firstFilterRun = useRef(true);
     useEffect(() => {
+        if (firstFilterRun.current) {
+            firstFilterRun.current = false;
+            return;
+        }
         setPage(1);
     }, [debouncedSearch, priority, selectedLanguages]);
+
+    // Remember page, search and filters for this tab
+    useEffect(() => {
+        try {
+            sessionStorage.setItem(LIST_STATE_KEY, JSON.stringify({ page, search: debouncedSearch, priority, languages: selectedLanguages }));
+        } catch {
+            // storage blocked: the list still works, it just starts on page 1 next time
+        }
+    }, [page, debouncedSearch, priority, selectedLanguages]);
 
     // Clear error on search/filter change
     useEffect(() => {
@@ -88,7 +115,7 @@ const JobList = () => {
         try {
             const params = {
                 page,
-                limit: 12,
+                limit: PAGE_SIZE,
                 search: debouncedSearch,
                 priority,
                 languages: selectedLanguages.join(",")
@@ -98,7 +125,10 @@ const JobList = () => {
                 withCredentials: true,
             });
             setJobs(data?.data || []);
-            setPagination(data?.pagination || { currentPage: 1, totalPages: 1 });
+            const pg = data?.pagination || { currentPage: 1, totalPages: 1 };
+            setPagination(pg);
+            // a remembered page past the end (e.g. artworks were deleted): go to the last page
+            if (pg.totalPages >= 1 && page > pg.totalPages) setPage(pg.totalPages);
             setError("");
             setSuccess("Artwork loaded successfully");
         } catch (error) {
