@@ -22,8 +22,8 @@ const lacs = (v) => {
   return Number.isInteger(n) ? n.toFixed(1) : String(n);
 };
 
-/** The offer on separate lines, features as bullets (the cell wraps):
- *  Special Combo Offer: <details>
+/** The offer on separate lines, features as bullets (the cell wraps). The free-text details have their own column.
+ *  Special Combo Offer
  *  @ 9.0 lacs On Road
  *  Key features:
  *  • A
@@ -35,18 +35,18 @@ const offerDetails = (it) => {
     ? `@ ${lacs(it.offerPrice)} lacs${it.priceType ? ` ${it.priceType}` : ''}${it.crossingPrice ? ` (was ${lacs(it.crossingPrice)} lacs)` : ''}`
     : '';
   return [
-    [it.type, (it.details || '').trim()].filter(Boolean).join(': '),
+    it.type,
     price,
     features.length > 0 && 'Key features:',
     ...features.map((f) => `• ${f.trim()}`),
   ].filter(Boolean).join('\n');
 };
-// Offer Details reads top-down, so it is left-aligned
+// Offer and Offer Details read top-down, so they are left-aligned
 const detailsCell = (value) => ({ ...text(value), align: 'left', alignVertical: 'top' });
 
 const COLUMNS = [
   ['Offer Code', 20], ['State/UT', 14], ['Language', 12], ['Brand', 16], ['HP segment', 14], ['Model', 36],
-  ['Offer Details', 60], ['Creative Links', 32], ['Landing Page', 32],
+  ['Offer', 60], ['Offer Details', 40], ['Creative Links', 32], ['Landing Page', 32],
 ];
 
 // GET /api/campaigns-v2/:id/excel  → .xlsx, one row per brand section of each offer.
@@ -68,6 +68,7 @@ export const downloadCampaignExcel = async (req, res) => {
         text(it.hp),
         text(it.modelName),
         detailsCell(offerDetails(it)),
+        detailsCell((it.details || '').trim()),
         link(o.creativeLink),
         link(o.landingPage),
       ]);
