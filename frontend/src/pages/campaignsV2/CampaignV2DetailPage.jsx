@@ -391,7 +391,7 @@ const CampaignV2DetailPage = () => {
                               {/* older offers only (crossing price is no longer entered) */}
                               {it.crossingPrice && <span className="text-gray-500"> ({it.offerPrice ? "was " : "crossing "}<s>{fmtINR(it.crossingPrice)}</s>)</span>}
                             </div>
-                            {it.details && <div className="text-gray-700">{it.details}</div>}
+                            {it.details && <div className="text-gray-700"><span className="text-gray-500">Offer details:</span> {it.details}</div>}
                             {it.features?.length > 0 && (
                               <ul className="list-disc list-inside text-gray-500">
                                 {it.features.map((f, j) => <li key={j}>{f?.text?.en || "(feature removed)"}</li>)}

@@ -22,18 +22,27 @@ const lacs = (v) => {
   return Number.isInteger(n) ? n.toFixed(1) : String(n);
 };
 
-/** The whole offer in one sentence:
- *  "<type>: <details> @ 9.0 lacs On Road (Highlighting key features like A ,B ,C )" */
+/** The offer on separate lines, features as bullets (the cell wraps):
+ *  Special Combo Offer: <details>
+ *  @ 9.0 lacs On Road
+ *  Key features:
+ *  • A
+ *  • B */
 const offerDetails = (it) => {
   // feature text is a Map (language code → text); the sheet uses English
   const features = (it.features || []).map((f) => (f?.text instanceof Map ? f.text.get('en') : f?.text?.en)).filter(Boolean);
+  const price = it.offerPrice
+    ? `@ ${lacs(it.offerPrice)} lacs${it.priceType ? ` ${it.priceType}` : ''}${it.crossingPrice ? ` (was ${lacs(it.crossingPrice)} lacs)` : ''}`
+    : '';
   return [
     [it.type, (it.details || '').trim()].filter(Boolean).join(': '),
-    it.offerPrice && `@ ${lacs(it.offerPrice)} lacs${it.priceType ? ` ${it.priceType}` : ''}`,
-    it.crossingPrice && `(was ${lacs(it.crossingPrice)} lacs)`, // older offers only
-    features.length > 0 && `(Highlighting key features like ${features.join(' ,')} )`,
-  ].filter(Boolean).join(' ');
+    price,
+    features.length > 0 && 'Key features:',
+    ...features.map((f) => `• ${f.trim()}`),
+  ].filter(Boolean).join('\n');
 };
+// Offer Details reads top-down, so it is left-aligned
+const detailsCell = (value) => ({ ...text(value), align: 'left', alignVertical: 'top' });
 
 const COLUMNS = [
   ['Offer Code', 20], ['State/UT', 14], ['Language', 12], ['Brand', 16], ['HP segment', 14], ['Model', 36],
@@ -58,7 +67,7 @@ export const downloadCampaignExcel = async (req, res) => {
         text(it.brandName),
         text(it.hp),
         text(it.modelName),
-        text(offerDetails(it)),
+        detailsCell(offerDetails(it)),
         link(o.creativeLink),
         link(o.landingPage),
       ]);
