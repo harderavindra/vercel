@@ -16,37 +16,33 @@ const link = (url) => {
   return { ...base, type: 'Formula', value: `HYPERLINK("${q}","${q}")`, textColor: '#0000EE', textDecoration: { underline: true }, align: 'left' };
 };
 
-/** Rupees to lacs as the client writes them: 900000 → "9.0", 651000 → "6.51", 1031000 → "10.31". */
-const lacs = (v) => {
-  const n = Math.round(Number(v) / 1000) / 100;
-  return Number.isInteger(n) ? n.toFixed(1) : String(n);
-};
+/** ₹ in Indian grouping, as the app shows it: 342323543 → "₹34,23,23,543". */
+const inr = (v) => `₹${Number(v).toLocaleString('en-IN')}`;
 
-/** The offer on separate lines, features as bullets (the cell wraps). The free-text details have their own column.
- *  Special Combo Offer
- *  @ 9.0 lacs On Road
- *  Key features:
- *  • A
- *  • B */
-const offerDetails = (it) => {
+/** Features column: one bullet per selected feature (the cell wraps). */
+const featureList = (it) => (it.features || [])
   // feature text is a Map (language code → text); the sheet uses English
-  const features = (it.features || []).map((f) => (f?.text instanceof Map ? f.text.get('en') : f?.text?.en)).filter(Boolean);
+  .map((f) => (f?.text instanceof Map ? f.text.get('en') : f?.text?.en))
+  .filter(Boolean)
+  .map((f) => `• ${f.trim()}`)
+  .join('\n');
+
+/** Offer Details column: "Special Combo Offer · ₹34,23,23,543 On Road", then the free-text details on the next line. */
+const offerDetails = (it) => {
   const price = it.offerPrice
-    ? `@ ${lacs(it.offerPrice)} lacs${it.priceType ? ` ${it.priceType}` : ''}${it.crossingPrice ? ` (was ${lacs(it.crossingPrice)} lacs)` : ''}`
+    ? `${inr(it.offerPrice)}${it.priceType ? ` ${it.priceType}` : ''}${it.crossingPrice ? ` (was ${inr(it.crossingPrice)})` : ''}`
     : '';
   return [
-    it.type,
-    price,
-    features.length > 0 && 'Key features:',
-    ...features.map((f) => `• ${f.trim()}`),
+    [it.type, price].filter(Boolean).join(' · '),
+    (it.details || '').trim(),
   ].filter(Boolean).join('\n');
 };
-// Offer and Offer Details read top-down, so they are left-aligned
+// Features and Offer Details read top-down, so they are left-aligned
 const detailsCell = (value) => ({ ...text(value), align: 'left', alignVertical: 'top' });
 
 const COLUMNS = [
   ['Offer Code', 20], ['State/UT', 14], ['Language', 12], ['Brand', 16], ['HP segment', 14], ['Model', 36],
-  ['Offer', 60], ['Offer Details', 40], ['Creative Links', 32], ['Landing Page', 32],
+  ['Features', 50], ['Offer Details', 50], ['Creative Links', 32], ['Landing Page', 32],
 ];
 
 // GET /api/campaigns-v2/:id/excel  → .xlsx, one row per brand section of each offer.
@@ -67,8 +63,8 @@ export const downloadCampaignExcel = async (req, res) => {
         text(it.brandName),
         text(it.hp),
         text(it.modelName),
+        detailsCell(featureList(it)),
         detailsCell(offerDetails(it)),
-        detailsCell((it.details || '').trim()),
         link(o.creativeLink),
         link(o.landingPage),
       ]);

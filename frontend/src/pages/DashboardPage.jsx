@@ -1,10 +1,11 @@
 import React from 'react'
 import Avatar from '../components/common/Avatar'
 import { useAuth } from '../context/auth-context';
-import { FiFileMinus, FiFolder, FiFolderMinus, FiPaperclip } from 'react-icons/fi';
+import { FiFileMinus, FiFolder, FiFolderMinus, FiPaperclip, FiTarget } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { hasAccess } from '../utils/permissions';
 import EmailPausedBanner from '../components/common/EmailPausedBanner';
+import TrucadenceMark from '../components/campaignsV2/TrucadenceMark';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
@@ -39,6 +40,15 @@ const DashboardPage = () => {
             <p className='text-3xl text-center'>Brand Treasury</p>
           </div>
         </div>
+        { hasAccess(user?.role, ['marketing_manager', 'admin', 'master_admin', 'zonal_marketing_manager', 'brand_manager', 'agency']) &&
+        <div className='w-full bg-white  rounded-2xl shadow-lg p-4 flex justify-center items-center cursor-pointer'
+          onClick={() => navigate('/campaigns-v2')}>
+          <div className='flex flex-col gap-3 justify-center items-center'>
+            <FiTarget size={40} />
+            <p className='text-3xl text-center leading-tight'><TrucadenceMark className='block text-xl' />Campaigns</p>
+          </div>
+        </div>
+        }
       </div>
     </div>
   )
