@@ -27,7 +27,7 @@ app.use(cookieParser());
 
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:5174', 'https://vercel-frontend-henna.vercel.app',
-    'https://www.adbee.in', 'https://adbee.in', 'https://vercel-frontend-mu-two.vercel.app', 'https://vercel-frontend-mu-two.vercel.app'
+    'https://www.adbee.in', 'https://adbee.in', 'https://vercel-frontend-mu-two.vercel.app', 'https://vercel-frontend-n2hxh367p-acm-7ed9.vercel.app'
   ],
   methods: ['GET', 'POST', 'PUT', 'PATCH','DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
