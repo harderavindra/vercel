@@ -24,12 +24,12 @@
     "mongoose": "^8.13.1",
     "nodemailer": "^6.10.1",
     "uuid": "^11.1.0",
-    "write-excel-file": "4.1.1",
+    "write-excel-file": "4.1.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
   },
-    "engines": {
+   "engines": {
     "node": "22.x"
   }
 }
